@@ -1,6 +1,8 @@
 package org.texastorque.subsystems;
 
 import org.texastorque.constants.Ports;
+import org.texastorque.inputs.Input;
+import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
 import org.texastorque.torquelib.controlLoop.LowPassFilter;
 import org.texastorque.torquelib.controlLoop.ScheduledPID;
@@ -9,6 +11,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveBase extends Subsystem {
     public static volatile DriveBase instance;
+    
+    // Cached instances
+    private Input input;
 
     // Create the SparkMax motors
     private TorqueSparkMax DBLeft = new TorqueSparkMax(Ports.DB_LEFT_1);
@@ -17,6 +22,7 @@ public class DriveBase extends Subsystem {
     // Variables to hold the current speed
     private double leftSpeed = 0;
     private double rightSpeed = 0;
+    private double speedMult = .55;
 
     // PIDs
     private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1)
@@ -30,6 +36,7 @@ public class DriveBase extends Subsystem {
      * Instantiate a new DriveBase
      */
     private DriveBase() {
+        input = Input.getInstance();
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
     }
@@ -38,7 +45,7 @@ public class DriveBase extends Subsystem {
      * Reset the encoders when auto is initialized
      */
     @Override
-    public void autoInit() {
+    public void initAuto() {
         resetEncoders();
     }
 
@@ -46,9 +53,25 @@ public class DriveBase extends Subsystem {
      * Reset the speeds when teleop is initialized
      */
     @Override
-    public void teleopInit() {
+    public void initTeleop() {
         leftSpeed = 0;
         rightSpeed = 0;
+    }
+    
+    /**
+     * Move during telepo
+     */
+    @Override
+    public void runTeleop(RobotState state) {
+        double left = input.getDriveBaseInput().getLeftSpeed();
+        double right = input.getDriveBaseInput().getRightSpeed();
+        
+        leftSpeed = ((left * left) * (left < 0 ? -1 : 1)) * speedMult;
+        rightSpeed = ((right * right) * (right < 0 ? -1 : 1)) * speedMult;
+    
+        DBLeft.set(leftSpeed);
+        DBRight.set(rightSpeed);
+        smartDashboard();
     }
     
     /**
@@ -79,23 +102,12 @@ public class DriveBase extends Subsystem {
     @Override
     public void smartDashboard() {
         // Speeds
-        SmartDashboard.putNumber("leftSpeed", leftSpeed);
-        SmartDashboard.putNumber("rightSpeed", rightSpeed); 
+        SmartDashboard.putNumber("[DB]leftSpeed", leftSpeed);
+        SmartDashboard.putNumber("[DB]rightSpeed", rightSpeed); 
         // Distance
-        SmartDashboard.putNumber("leftDistance", getLeftDistance()); 
-        SmartDashboard.putNumber("rightDistance", getRightDistance()); 
+        SmartDashboard.putNumber("[DB]leftDistance", getLeftDistance()); 
+        SmartDashboard.putNumber("[DB]rightDistance", getRightDistance()); 
     }
-
-
-    // Unusued methods
-    @Override
-    public void disabledInit() {}
-    @Override
-    public void disabledContinuous() {}
-    @Override
-    public void autoContinuous() {}
-    @Override
-    public void teleopContinuous() {}
 
     /**
      * Get the DriveBase instance
