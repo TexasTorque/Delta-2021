@@ -2,6 +2,7 @@ package org.texastorque;
 
 import java.util.ArrayList;
 
+import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.subsystems.DriveBase;
@@ -16,11 +17,11 @@ public class Robot extends TorqueIterative {
   private DriveBase driveBase = DriveBase.getInstance();
 
   // Input
+  private Input input = Input.getInstance();
   private State state = State.getInstance();
 
   /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
+   * Load the subsytems when the robot first starts
    */
   @Override
   public void robotInit() {
@@ -43,25 +44,26 @@ public class Robot extends TorqueIterative {
     subsystems.forEach(s->s.initTeleop());
   }
 
-  /** This function is called periodically during operator control. */
+  /**
+   * Continuously update input and run teleop commands
+   */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopContinuous() {
+    switch(state.getRobotState()) {
+      default:
+        input.update();
+    }
 
-  /** This function is called once when the robot is disabled. */
-  @Override
-  public void disabledInit() {}
+    subsystems.forEach(s->s.runTeleop(state.getRobotState()));
+  }
 
-  /** This function is called periodically when disabled. */
+  /**
+   * Run disable code for each subsystem
+   */
   @Override
-  public void disabledPeriodic() {}
-
-  /** This function is called once when test mode is enabled. */
-  @Override
-  public void testInit() {}
-
-  /** This function is called periodically during test mode. */
-  @Override
-  public void testPeriodic() {}
+  public void disabledInit() {
+    subsystems.forEach(s->s.disable());
+  }
 
   /**
    * Always update SmartDashboard
@@ -72,7 +74,5 @@ public class Robot extends TorqueIterative {
   }
 
   @Override
-  public void endCompetition() {
-
-  }
+  public void endCompetition() {}
 }

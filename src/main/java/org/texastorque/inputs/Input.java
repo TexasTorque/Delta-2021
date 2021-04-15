@@ -38,7 +38,7 @@ public class Input {
     // Drivebase
     // ======
 
-    public class DriveBaseInput implements TorqueInput {
+    public class DriveBaseInput implements TorqueInputModule {
         private volatile double leftSpeed = 0;
         private volatile double rightSpeed = 0;
         
