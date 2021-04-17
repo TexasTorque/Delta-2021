@@ -2,6 +2,7 @@ package org.texastorque;
 
 import java.util.ArrayList;
 
+import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State;
 import org.texastorque.inputs.State.RobotState;
@@ -17,6 +18,7 @@ public class Robot extends TorqueIterative {
   private DriveBase driveBase = DriveBase.getInstance();
 
   // Input
+  private Feedback feedback = Feedback.getInstance();
   private Input input = Input.getInstance();
   private State state = State.getInstance();
 
@@ -70,6 +72,7 @@ public class Robot extends TorqueIterative {
    */
   @Override
   public void alwaysContinuous() {
+    feedback.update();
     subsystems.forEach(c->c.smartDashboard());  
   }
 

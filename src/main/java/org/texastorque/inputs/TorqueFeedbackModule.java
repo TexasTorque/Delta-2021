@@ -1,4 +1,7 @@
 package org.texastorque.inputs;
 
-public interface TorqueFeedbackModule {
+public abstract class TorqueFeedbackModule {
+    public void update(){};
+
+    public void smartDashboard(){};
 }

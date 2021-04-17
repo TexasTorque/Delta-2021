@@ -1,6 +1,7 @@
 package org.texastorque.subsystems;
 
 import org.texastorque.constants.Ports;
+import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
@@ -11,9 +12,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveBase extends Subsystem {
     public static volatile DriveBase instance;
-    
+
     // Cached instances
     private Input input;
+    private Feedback feedback;
 
     // Create the SparkMax motors
     private TorqueSparkMax DBLeft = new TorqueSparkMax(Ports.DB_LEFT_1);
@@ -23,6 +25,10 @@ public class DriveBase extends Subsystem {
     private double leftSpeed = 0;
     private double rightSpeed = 0;
     private double speedMult = .55;
+
+    // Values for vision
+    private double position;
+    private double pidValue;
 
     // PIDs
     private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1)
@@ -37,6 +43,7 @@ public class DriveBase extends Subsystem {
      */
     private DriveBase() {
         input = Input.getInstance();
+        feedback = Feedback.getInstance();
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
     }
@@ -63,15 +70,60 @@ public class DriveBase extends Subsystem {
      */
     @Override
     public void runTeleop(RobotState state) {
-        double left = input.getDriveBaseInput().getLeftSpeed();
-        double right = input.getDriveBaseInput().getRightSpeed();
+        updateFeedback();
         
-        leftSpeed = ((left * left) * (left < 0 ? -1 : 1)) * speedMult;
-        rightSpeed = ((right * right) * (right < 0 ? -1 : 1)) * speedMult;
-    
-        DBLeft.set(leftSpeed);
-        DBRight.set(rightSpeed);
-        smartDashboard();
+        if(state == RobotState.AUTO) {
+            leftSpeed = input.getDriveBaseInput().getLeftSpeed();    
+            rightSpeed = input.getDriveBaseInput().getRightSpeed();
+        } else if (state == RobotState.VISION) {
+            runVision();
+        } else if (state == RobotState.TELEOP || state == RobotState.SHOOTING || state == RobotState.MAGLOAD) {
+            runTeleopShootingMagload();
+        }
+    }
+
+    /**
+     * Code for teleop vision
+     */
+    private void runVision() {
+        SmartDashboard.putBoolean("[DB]vision", true);
+        SmartDashboard.putNumber("[DB]hOffset", feedback.getLimelightFeedback().getXOffset());
+        SmartDashboard.putBoolean("[DB]linedUp", feedback.getLimelightFeedback().getXOffset() < 3);
+
+        feedback.getLimelightFeedback().setLimelightOn(true);
+        position = lowPassFilter.filter(-feedback.getLimelightFeedback().getXOffset());
+        pidValue = -linePid.calculate(position);
+        leftSpeed = pidValue;
+        rightSpeed = pidValue;
+    }
+
+    /**
+     * Code for teleop/shooting/magload
+     */
+    private void runTeleopShootingMagload() {
+        SmartDashboard.putBoolean("[DB]vision", true);
+        feedback.getLimelightFeedback().setLimelightOn(false);
+
+        linePid.reset();
+        linePid.setLastError(0);
+        lowPassFilter.clear();
+
+        feedback.getLimelightFeedback().setLimelightOn(true);
+        
+        double dbLeft = input.getDriveBaseInput().getLeftSpeed();
+        double dbRight = input.getDriveBaseInput().getRightSpeed();
+        leftSpeed = dbLeft < 0 ? ((dbLeft * dbLeft) * (-1)) * speedMult : ((dbLeft * dbLeft)) * speedMult;
+        rightSpeed = dbRight < 0 ? ((dbRight * dbRight) * (-1)) * speedMult : ((dbRight * dbRight)) * speedMult;
+    }
+
+    /**
+     * Update the feedback positions
+     */
+    public void updateFeedback() {
+        feedback.getDriveTrainFeedback().setLeftPosition(DBLeft.getPosition());
+        feedback.getDriveTrainFeedback().setRightPosition(DBRight.getPosition());
+        feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());
+        feedback.getDriveTrainFeedback().setRightVelocity(DBRight.getVelocity());
     }
     
     /**
