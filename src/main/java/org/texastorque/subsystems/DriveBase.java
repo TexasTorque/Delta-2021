@@ -14,8 +14,8 @@ public class DriveBase extends Subsystem {
     public static volatile DriveBase instance;
 
     // Cached instances
-    private Input input;
-    private Feedback feedback;
+    private Input input = Input.getInstance();
+    private Feedback feedback = Feedback.getInstance();
 
     // Create the SparkMax motors
     private TorqueSparkMax DBLeft = new TorqueSparkMax(Ports.DB_LEFT_1);
@@ -42,8 +42,6 @@ public class DriveBase extends Subsystem {
      * Instantiate a new DriveBase
      */
     private DriveBase() {
-        input = Input.getInstance();
-        feedback = Feedback.getInstance();
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
     }
@@ -80,6 +78,17 @@ public class DriveBase extends Subsystem {
         } else if (state == RobotState.TELEOP || state == RobotState.SHOOTING || state == RobotState.MAGLOAD) {
             runTeleopShootingMagload();
         }
+
+        output();
+    }
+
+    /**
+     * Output the values
+     */
+    @Override
+    protected void output() {
+        DBLeft.set(leftSpeed);
+        DBRight.set(rightSpeed);
     }
 
     /**
@@ -119,7 +128,8 @@ public class DriveBase extends Subsystem {
     /**
      * Update the feedback positions
      */
-    public void updateFeedback() {
+    @Override
+    protected void updateFeedback() {
         feedback.getDriveTrainFeedback().setLeftPosition(DBLeft.getPosition());
         feedback.getDriveTrainFeedback().setRightPosition(DBRight.getPosition());
         feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());

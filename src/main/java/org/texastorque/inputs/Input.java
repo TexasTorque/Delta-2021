@@ -8,7 +8,7 @@ public class Input {
     public static volatile Input instance;
 
     // Cached state
-    private volatile State state;
+    private volatile State state = State.getInstance();
 
     // Controllers    
     private GenericController driver;
@@ -16,21 +16,23 @@ public class Input {
 
     // Instances
     private DriveBaseInput driveBaseInput;
+    private IntakeInput intakeInput;
 
     /**
      * Load the state and create driver/operator controllers
      */
     private Input() {
-        state = State.getInstance();
         driver = new GenericController(0, 0.1);
         operator = new GenericController(1, 0.1);
 
         // Load instances
         driveBaseInput = new DriveBaseInput();
+        intakeInput = new IntakeInput();
     }
 
     public void update() {
         driveBaseInput.update();
+        intakeInput.update();
         smartDashboard();
     }
 
@@ -82,6 +84,141 @@ public class Input {
         }
     }
 
+    // =====
+    // Intake
+    // =====
+
+    public class IntakeInput implements TorqueInputModule {
+        private volatile double rotaryPositionLeft;
+        private volatile double rotaryPositionRight;
+        private double rotarySpeed = 0;
+        private double rollerSpeed = 0;
+
+        private double[] rotarySetpointsLeft = {0, -8, -38};
+        private double[] rotarySetpointsRight = {0, 8, 44};
+
+        // Position to start with
+        private int neutral = 2;
+
+        @Override
+        public void update() {
+            if(driver.getRightTrigger()) {
+                rotaryPositionLeft = rotarySetpointsLeft[2];
+                rotaryPositionRight = rotarySetpointsRight[2];
+                rollerSpeed = .8;
+            } else if (driver.getLeftTrigger()) {
+                rotaryPositionLeft = rotarySetpointsLeft[2];
+                rotaryPositionRight = rotarySetpointsRight[2];
+                rollerSpeed = -.8;
+            } else {
+                rotaryPositionLeft = rotarySetpointsLeft[neutral];
+                rotaryPositionRight = rotarySetpointsRight[neutral];
+                rollerSpeed = 0;
+            }
+            if(driver.getYButton()) {
+                rollerSpeed = 0.5;
+            }
+        }
+
+        /**
+         * Reset rotary to default
+         */
+        @Override
+        public void reset() {
+            rotaryPositionLeft = rotarySetpointsLeft[neutral];
+            rotaryPositionRight = rotarySetpointsRight[neutral];
+            rollerSpeed = 0;
+        }
+
+        @Override
+        public void smartDashboard() {
+            SmartDashboard.putNumber("[Input]rollerSpeed", rollerSpeed);
+            SmartDashboard.putNumber("[Input]rotarySpeed", rotarySpeed);
+            SmartDashboard.putNumber("[Input]rotaryPositionLeft", rotaryPositionLeft);
+            SmartDashboard.putNumber("[Input]rotaryPositionRight", rotaryPositionRight);
+        }
+
+        /**
+         * @return The rotary speed
+         */
+        public double getRotarySpeed() {
+            return rotarySpeed;
+        }
+
+        /**
+         * @return The rotary's left position
+         */
+        public double getRotaryPositionLeft() {
+            return rotaryPositionLeft;
+        }
+
+        /**
+         * @return The rotary's right position
+         */
+        public double getRotaryPositionRight() {
+            return rotaryPositionRight;
+        }
+
+        /**
+         * @return The roller speed
+         */
+        public double getRollerSpeed() {
+            return rollerSpeed;
+        }
+
+        /**
+         * Update the roller speed
+         * @param rollerSpeed Speed between [-1,1]
+         */
+        public void setRollerSpeed(double rollerSpeed) {
+            this.rollerSpeed = rollerSpeed;
+        }
+
+        /**
+         * Update the rotary position (for auto)
+         * @param rotaryIndex The index of rotarySetpoints to set
+         */
+        public void setRotaryPosition(int rotaryIndex) {
+            rotaryPositionLeft = rotarySetpointsLeft[rotaryIndex];
+            rotaryPositionRight = rotarySetpointsRight[rotaryIndex];
+        }
+    }
+
+    // =====
+    // Magazine
+    // =====
+
+    public class MagazineInput implements TorqueInputModule {
+        private double velocityLow = 0;
+        private double velocityHigh = 0;
+        private double velocityGate = 0;
+
+        private double speedLow = .6;
+        private double speedHigh = .5;
+        private double speedGate = 1;
+
+        private boolean autoMag = false;
+        
+        @Override
+        public void update() {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void reset() {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void smartDashboard() {
+            // TODO Auto-generated method stub
+
+        }
+
+    }
+
     // ======
     // Getters
     // ======
@@ -93,6 +230,12 @@ public class Input {
         return driveBaseInput;
     }    
 
+    /**
+     * @return The instance of the IntakeInput
+     */
+    public IntakeInput getIntakeInput() {
+        return intakeInput;
+    }
 
     // =====
     // Misc
@@ -103,6 +246,7 @@ public class Input {
     */
     public void smartDashboard() {
         driveBaseInput.smartDashboard();
+        intakeInput.smartDashboard();
     }
 
     /**

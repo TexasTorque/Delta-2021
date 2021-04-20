@@ -8,6 +8,9 @@ public abstract class Subsystem {
 
     public void runTeleop(RobotState state){};
     public void runAuto(RobotState state){};
+    
+    protected void output(){};
+    protected void updateFeedback(){};
 
     public void disable(){};
 
