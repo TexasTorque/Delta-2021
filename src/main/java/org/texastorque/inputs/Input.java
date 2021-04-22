@@ -17,6 +17,7 @@ public class Input {
     // Instances
     private DriveBaseInput driveBaseInput;
     private IntakeInput intakeInput;
+    private MagazineInput magazineInput;
 
     /**
      * Load the state and create driver/operator controllers
@@ -28,11 +29,13 @@ public class Input {
         // Load instances
         driveBaseInput = new DriveBaseInput();
         intakeInput = new IntakeInput();
+        magazineInput = new MagazineInput();
     }
 
     public void update() {
         driveBaseInput.update();
         intakeInput.update();
+        magazineInput.update();
         smartDashboard();
     }
 
@@ -196,27 +199,110 @@ public class Input {
         private double speedLow = .6;
         private double speedHigh = .5;
         private double speedGate = 1;
+        
+        // 0=nothing, 1=forward, -1=backward
+        private int magLow; 
+        private int magHigh; 
 
         private boolean autoMag = false;
+        private boolean lastShooting = false;
+        private boolean shootingNow = false;
         
         @Override
         public void update() {
-            // TODO Auto-generated method stub
+            reset();
 
+            if(operator.getLeftCenterButton()) autoMag = true;
+            else if (operator.getRightCenterButton()) autoMag = false;
+            
+            // = High Mag
+            if(operator.getLeftTrigger()) { // == Ball In
+                magHigh = 1;
+                velocityHigh = operator.getLeftZAxis() * speedHigh;
+            } else if(operator.getLeftBumper()) { // == Ball Out
+                magHigh = -1;
+                velocityHigh = -speedHigh;
+            }
+
+            // = Low Mag
+            if(operator.getRightTrigger()){ // == Balls In
+                magLow = 1;
+                velocityLow = -operator.getRightZAxis() * speedLow;
+            }
+            else if(operator.getRightBumper()){
+                magLow = -1;
+                velocityLow = speedLow;
+            }
+
+            // = Gate
+            if(operator.getDPADDown() || operator.getDPADLeft()) {
+                velocityGate = speedGate;
+            }
+
+            shootingNow = operator.getDPADUp();
         }
 
         @Override
         public void reset() {
-            // TODO Auto-generated method stub
-
+            velocityLow = 0;
+            velocityHigh = 0;
+            velocityGate = 0;
+            magLow = 0;
+            magHigh = 0;
         }
 
         @Override
-        public void smartDashboard() {
-            // TODO Auto-generated method stub
+        public void smartDashboard() {}
 
+        public boolean needPreShoot() {
+            return operator.getDPADUp();
         }
 
+        public double getVelocityLow() {
+            return velocityLow;
+        }
+
+        public double getVelocityHigh() {
+            return velocityHigh;
+        }
+
+        public double getVelocityGate() {
+            return velocityGate;
+        }
+
+        public int getMagLow() {
+            return magLow;
+        }
+
+        public int getMagHigh() {
+            return magHigh;
+        }
+
+        public boolean getAutoMag() {
+            return autoMag;
+        }
+
+        /**
+         * Turn off/on the gate
+         * @param on True=on, false=off
+         */
+        public void setGate(boolean on) { 
+            velocityGate = on ? -speedGate : 0;
+        }
+
+        /**
+         * Turn off/on the highMag
+         */
+        public void setHighMag(boolean on) {
+            velocityHigh = on ? speedHigh : 0;
+        }
+
+        /**
+         * Turn off/on the lowMag
+         */
+        public void setLowMag(boolean on) {
+            velocityLow = on ? speedLow : 0;
+        }
     }
 
     // ======
@@ -237,6 +323,13 @@ public class Input {
         return intakeInput;
     }
 
+    /**
+     * @return The instance of the MagazineInput
+     */
+    public MagazineInput getMagazineInput() {
+        return magazineInput;
+    }
+
     // =====
     // Misc
     // =====
@@ -247,6 +340,7 @@ public class Input {
     public void smartDashboard() {
         driveBaseInput.smartDashboard();
         intakeInput.smartDashboard();
+        magazineInput.smartDashboard();
     }
 
     /**
