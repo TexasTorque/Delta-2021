@@ -1,5 +1,6 @@
 package org.texastorque.inputs;
 
+import org.texastorque.inputs.State.ClimberState;
 import org.texastorque.torquelib.util.GenericController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -11,9 +12,9 @@ public class Input {
     private volatile State state = State.getInstance();
 
     // Controllers    
-    private GenericController driver;
-    private GenericController operator;
-
+    private GenericController driver; // driver controller parameters
+    private GenericController operator; // operator  - -
+ 
     // Instances
     private DriveBaseInput driveBaseInput;
     private IntakeInput intakeInput;
@@ -135,7 +136,7 @@ public class Input {
 
         @Override
         public void smartDashboard() {
-            SmartDashboard.putNumber("[Input]rollerSpeed", rollerSpeed);
+            SmartDashboard.putNumber("[Input]rollerSpeed", rollerSpeed); 
             SmartDashboard.putNumber("[Input]rotarySpeed", rotarySpeed);
             SmartDashboard.putNumber("[Input]rotaryPositionLeft", rotaryPositionLeft);
             SmartDashboard.putNumber("[Input]rotaryPositionRight", rotaryPositionRight);
@@ -212,8 +213,8 @@ public class Input {
         public void update() {
             reset();
 
-            if(operator.getLeftCenterButton()) autoMag = true;
-            else if (operator.getRightCenterButton()) autoMag = false;
+            if(operator.getLeftCenterButton()) autoMag = true; // left d pad turn on automag
+            else if (operator.getRightCenterButton()) autoMag = false; // right d pad turn off automag
             
             // = High Mag
             if(operator.getLeftTrigger()) { // == Ball In
@@ -287,7 +288,7 @@ public class Input {
          * @param on True=on, false=off
          */
         public void setGate(boolean on) { 
-            velocityGate = on ? -speedGate : 0;
+            velocityGate = on ? -speedGate : 0; 
         }
 
         /**
@@ -303,6 +304,58 @@ public class Input {
         public void setLowMag(boolean on) {
             velocityLow = on ? speedLow : 0;
         }
+    }
+
+    // =====
+    // Climber
+    // =====
+    public class ClimberInput implements TorqueInputModule {
+        private double climberLeft = 0;
+        private double climberRight = 0;
+        
+        private ClimberState climberStatus = ClimberState.NEUTRAL;
+        private boolean climberServoLocked = true;
+        private boolean climbStarted = false;
+        private boolean climbStartedDT = false;
+        private boolean manualClimb = false;
+        private int sideToExtend = 0;
+
+        @Override
+        public void update() {
+            manualClimb = false;
+            climberStatus = ClimberState.NEUTRAL;
+            sideToExtend = 0;
+
+            if(driver.getDPADUp()) { // Extend climber
+                if(!climbStarted) { // if the climb has not been started
+                    // Climber.resetClimb
+                    climbStarted = true;
+                    climbStartedDT = true;
+                }
+                climberStatus = ClimberState.EXTEND;
+            } else if (driver.getDPADDown()) { // Retract climber
+                climberStatus = ClimberState.RETRACT;
+            } else if (driver.getDPADLeft()) {// extend left
+                manualClimb = true;
+                sideToExtend = -1;
+            } else if (driver.getDPADRight()) { // extend right
+                manualClimb = true;
+                sideToExtend = 1;
+            }
+        }
+
+        @Override
+        public void reset() {
+            // TODO Auto-generated method stub
+
+        }
+
+        @Override
+        public void smartDashboard() {
+            // TODO Auto-generated method stub
+
+        }
+
     }
 
     // ======

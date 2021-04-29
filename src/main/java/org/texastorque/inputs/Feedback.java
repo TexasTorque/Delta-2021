@@ -238,8 +238,8 @@ public class Feedback {
 
         @Override
         public void update() {
-            highMag = !magHighCheck.get();
-            lowMag = !magLowCheck.get();
+            highMag = magHighCheck.get();
+            lowMag = magLowCheck.get();
             
             if(ballLast != lowMag) {
                 if(!lowMag) count++;
@@ -275,7 +275,7 @@ public class Feedback {
          * @return True if seeing a ball in the high mag
          */
         public boolean getMagHigh() {
-            return !highMag;
+            return highMag;
         }
 
         /**
