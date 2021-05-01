@@ -6,8 +6,10 @@ import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State;
 import org.texastorque.inputs.State.RobotState;
+import org.texastorque.subsystems.Climber;
 import org.texastorque.subsystems.DriveBase;
 import org.texastorque.subsystems.Intake;
+import org.texastorque.subsystems.Magazine;
 import org.texastorque.subsystems.Subsystem;
 import org.texastorque.torquelib.base.TorqueIterative;
 
@@ -18,6 +20,8 @@ public class Robot extends TorqueIterative {
   private ArrayList<Subsystem> subsystems = new ArrayList<>();
   private DriveBase driveBase = DriveBase.getInstance();
   private Intake intake = Intake.getInstance();
+  private Magazine magazine = Magazine.getInstance();
+  private Climber climber = Climber.getInstance();
 
   // Input
   private Feedback feedback = Feedback.getInstance();
@@ -38,6 +42,8 @@ public class Robot extends TorqueIterative {
   private void loadSubsystems() {
     subsystems.add(driveBase);
     subsystems.add(intake);
+    subsystems.add(magazine);
+    subsystems.add(climber);
   }
 
   /**

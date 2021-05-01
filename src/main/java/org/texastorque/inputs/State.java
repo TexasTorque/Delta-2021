@@ -11,6 +11,17 @@ public class State {
     }
     
     /**
+     * States of the rotary
+     */
+    public enum RotaryState {
+        UP(0), PRIME(1), DOWN(2);
+        private final int id;
+        
+        RotaryState(int id) { this.id = id; }
+        public int getValue() { return id; }
+    }
+
+    /**
      * Climber state
      */
     public enum ClimberState {
@@ -25,7 +36,18 @@ public class State {
      * Climber side
      */
     public enum ClimberSide {
-        LEFT, RIGHT;
+        LEFT, NEUTRAL, RIGHT;
+    }
+
+    /**
+     * Hood setpoints
+     */
+    public enum HoodSetpoint {
+        NEUTRAL(0), LIMELIGHT(34), LONGSHOT(54), LAYUP(60), TRENCH(60);
+        private final int id;
+        
+        HoodSetpoint(int id) { this.id = id; }
+        public int getValue() { return id; }
     }
 
     /**

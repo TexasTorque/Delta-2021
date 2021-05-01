@@ -19,12 +19,11 @@ public class Ports {
     public static final int INTAKE_ROTARY_RIGHT = 6; // right side spark max 
     public static final int INTAKE_ROLLERS = 7; // rollers
     
-    public static final int BELT_HIGH = 9; // done
-    public static final int BELT_GATE = 8; // done
+    public static final int BELT_HIGH = 8; 
+    public static final int BELT_GATE = 9; 
     public static final int BELT_LOW = 11;
 
-    public static final int SHOOTER_HOOD = 10; // done
-    //public static final int SHOOTER_NEO = 14;
+    public static final int SHOOTER_HOOD = 10;
 
     // testing individual motors 
     public static final int TALON_PORT = 0;
@@ -35,11 +34,14 @@ public class Ports {
     public static final int CLIMB_SERVO_LEFT = 0;
     public static final int CLIMB_SERVO_RIGHT = 1;
 
-    //Sensors\[]
-    //public static final int MAG_SENSOR_MID = 2;
+    //Sensors
     public static final int MAG_SENSOR_HIGH = 3;
     public static final int MAG_SENSOR_LOW = 2;
 
     //Control Panel
     public static final int CP_MOTOR_PORT = 0;
+
+    // Servos
+    public static final int LEFT_RATCHET = 0;
+    public static final int RIGHT_RATCHET = 1;
 }

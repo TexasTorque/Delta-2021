@@ -1,6 +1,10 @@
 package org.texastorque.inputs;
 
+import org.texastorque.inputs.State.ClimberSide;
 import org.texastorque.inputs.State.ClimberState;
+import org.texastorque.inputs.State.HoodSetpoint;
+import org.texastorque.inputs.State.RotaryState;
+import org.texastorque.subsystems.Climber;
 import org.texastorque.torquelib.util.GenericController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -9,8 +13,9 @@ public class Input {
     public static volatile Input instance;
 
     // Cached state
-    private volatile State state = State.getInstance();
-
+    private State state = State.getInstance();
+    private Feedback feedback = Feedback.getInstance();
+    
     // Controllers    
     private GenericController driver; // driver controller parameters
     private GenericController operator; // operator  - -
@@ -19,6 +24,8 @@ public class Input {
     private DriveBaseInput driveBaseInput;
     private IntakeInput intakeInput;
     private MagazineInput magazineInput;
+    private ClimberInput climberInput;
+    private ShooterInput shooterInput;
 
     /**
      * Load the state and create driver/operator controllers
@@ -37,6 +44,8 @@ public class Input {
         driveBaseInput.update();
         intakeInput.update();
         magazineInput.update();
+        climberInput.update();
+        shooterInput.update();
         smartDashboard();
     }
 
@@ -52,10 +61,24 @@ public class Input {
          * Update the left and right speeds
          */
         public void update() {
-            double leftRight = driver.getRightXAxis();
+            double leftRight = driver.getRightXAxis(); // get joystick position
+            if(driver.getLeftCenterButton()) { 
+                getClimberInput().setClimbStartedDT(false);
+            }
+            if(getClimberInput().getClimbStartedDT()) {
+                defaultDriveSpeed(leftRight);
+            } else if(getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL) { // maximum speed when setpoint neutral
+                leftSpeed = driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
+                rightSpeed = -driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
+            } else {
+                defaultDriveSpeed(leftRight);
+            }
+        }
+        
+        private void defaultDriveSpeed(double leftRight) {
             leftSpeed = .2*(driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             rightSpeed = .2*(-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-        }
+        } 
 
         /**
          * Reset the left and right speeds
@@ -102,21 +125,21 @@ public class Input {
         private double[] rotarySetpointsRight = {0, 8, 44};
 
         // Position to start with
-        private int neutral = 2;
+        private RotaryState neutral = RotaryState.PRIME;
 
         @Override
         public void update() {
             if(driver.getRightTrigger()) {
-                rotaryPositionLeft = rotarySetpointsLeft[2];
-                rotaryPositionRight = rotarySetpointsRight[2];
+                rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
+                rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
                 rollerSpeed = .8;
             } else if (driver.getLeftTrigger()) {
-                rotaryPositionLeft = rotarySetpointsLeft[2];
-                rotaryPositionRight = rotarySetpointsRight[2];
+                rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
+                rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
                 rollerSpeed = -.8;
             } else {
-                rotaryPositionLeft = rotarySetpointsLeft[neutral];
-                rotaryPositionRight = rotarySetpointsRight[neutral];
+                rotaryPositionLeft = rotarySetpointsLeft[neutral.getValue()];
+                rotaryPositionRight = rotarySetpointsRight[neutral.getValue()];
                 rollerSpeed = 0;
             }
             if(driver.getYButton()) {
@@ -129,8 +152,8 @@ public class Input {
          */
         @Override
         public void reset() {
-            rotaryPositionLeft = rotarySetpointsLeft[neutral];
-            rotaryPositionRight = rotarySetpointsRight[neutral];
+            rotaryPositionLeft = rotarySetpointsLeft[neutral.getValue()];
+            rotaryPositionRight = rotarySetpointsRight[neutral.getValue()];
             rollerSpeed = 0;
         }
 
@@ -314,21 +337,17 @@ public class Input {
         private double climberRight = 0;
         
         private ClimberState climberStatus = ClimberState.NEUTRAL;
-        private boolean climberServoLocked = true;
+        private ClimberSide sideToExtend = ClimberSide.NEUTRAL;
         private boolean climbStarted = false;
         private boolean climbStartedDT = false;
         private boolean manualClimb = false;
-        private int sideToExtend = 0;
 
         @Override
         public void update() {
-            manualClimb = false;
-            climberStatus = ClimberState.NEUTRAL;
-            sideToExtend = 0;
-
+            reset();
             if(driver.getDPADUp()) { // Extend climber
                 if(!climbStarted) { // if the climb has not been started
-                    // Climber.resetClimb
+                    Climber.getInstance().resetClimb(); 
                     climbStarted = true;
                     climbStartedDT = true;
                 }
@@ -337,25 +356,161 @@ public class Input {
                 climberStatus = ClimberState.RETRACT;
             } else if (driver.getDPADLeft()) {// extend left
                 manualClimb = true;
-                sideToExtend = -1;
+                sideToExtend = ClimberSide.LEFT;
             } else if (driver.getDPADRight()) { // extend right
                 manualClimb = true;
-                sideToExtend = 1;
+                sideToExtend = ClimberSide.RIGHT;
+            } else {
+                climbStarted = false;
             }
         }
 
         @Override
         public void reset() {
-            // TODO Auto-generated method stub
+            manualClimb = false;
+            climberStatus = ClimberState.NEUTRAL;
+            sideToExtend = ClimberSide.NEUTRAL;
+        }   
 
+        /**
+         * Update Climb Started DT (for controlling DriveTrain)
+         * @param val Value to set to
+         */
+        public void setClimbStartedDT(boolean val) {
+            climbStartedDT = val;
+        }
+
+        public boolean getManualClimb() {
+            return manualClimb;
+        }
+
+        public ClimberSide getSideToExtend() {
+            return sideToExtend;
+        }
+
+        public ClimberState getClimberStatus() {
+            return climberStatus;
+        }
+
+        public double getClimberLeft() {
+            return climberLeft;
+        }
+
+        public double getClimberRight() {
+            return climberRight;
+        }
+        
+        public boolean getClimbStartedDT() {
+            return climbStartedDT;
         }
 
         @Override
         public void smartDashboard() {
-            // TODO Auto-generated method stub
+            SmartDashboard.putString("[Input]sideToExtend", sideToExtend == ClimberSide.LEFT ? "LEFT" : sideToExtend == ClimberSide.RIGHT ? "RIGHT" : "NEUTRAL");
+            SmartDashboard.putString("[Input]climberStatus", climberStatus == ClimberState.EXTEND ? "EXTEND" : climberStatus == ClimberState.RETRACT ? "RETRACT" : "NEUTRAL");
+            SmartDashboard.putBoolean("[Input]climbStarted", climbStarted);
+            SmartDashboard.putBoolean("[Input]climbStartedDT", climbStartedDT);
+            SmartDashboard.putBoolean("[Input]manualClimb", manualClimb);
 
         }
 
+    }
+
+    // =====
+    // Shooter
+    // =====
+    public class ShooterInput implements TorqueInputModule {
+        private double green = 34;
+        private double yellow = 40;
+        private double blue = 54;
+        private double red = 60;
+        private double[] hoodSetpoints = {0, green, yellow, blue, red};
+
+        
+        private boolean percentOutput = false;
+        private double flywheelPercent = 0;
+        private double flywheelSpeed = 0;
+        private double flywheelEncoderSpeed = 0;
+        
+        private HoodSetpoint hoodSetpoint;
+        
+        private double distanceAway = 0;
+        
+
+        @Override
+        public void update() {
+            reset();
+        
+            if(operator.getYButton()) { // Layup
+                feedback.getLimelightFeedback().setLimelightOn(false);
+                flywheelSpeed = 750;
+                flywheelPercent = 60 / 100;
+                hoodSetpoint = HoodSetpoint.LAYUP;
+            } else if(operator.getBButton()) { // Trench
+                feedback.getLimelightFeedback().setLimelightOn(false);
+                flywheelSpeed = 700;
+                flywheelPercent = 60 / 100;
+                hoodSetpoint = HoodSetpoint.TRENCH;
+            } else if(operator.getAButton()) { // Longshot
+                feedback.getLimelightFeedback().setLimelightOn(false);
+                flywheelSpeed = 800;
+                flywheelPercent = 60 / 100;
+                hoodSetpoint = HoodSetpoint.LONGSHOT;
+            } else if (operator.getXButton()) { // limelight
+                feedback.getLimelightFeedback().setLimelightOn(true);
+                distanceAway = feedback.getLimelightFeedback().getDistanceAway();
+                flywheelSpeed = 500;
+                flywheelPercent = 55/100;
+                hoodSetpoint = HoodSetpoint.LIMELIGHT;
+            }
+        }
+
+        public double getFlywheelPercent() {
+            return flywheelPercent;
+        }
+
+        public double getFlywheelSpeed() {
+            return flywheelSpeed;
+        }
+
+        public boolean getPercentOutputType() {
+            return percentOutput;
+        }
+
+        public HoodSetpoint getHoodSetpoint() {
+            return hoodSetpoint;
+        }
+
+        public void setFlyhweelOutputType(boolean type) {
+            percentOutput = type;
+        }
+
+        public void setFlywheelPercent(double flywheelPercent) {
+            this.flywheelPercent = flywheelPercent;
+        }
+
+        public void setFlywheelSpeed(double flywheelSpeed) {
+            this.flywheelSpeed = flywheelSpeed;
+        }
+
+        public void setHoodSetpoint(HoodSetpoint setPoint) {
+            hoodSetpoint = setPoint;
+        }
+
+        @Override
+        public void reset() {
+           hoodSetpoint = HoodSetpoint.NEUTRAL;
+           flywheelSpeed = 0;
+           flywheelPercent = 0; 
+        }
+
+        @Override
+        public void smartDashboard() {
+            SmartDashboard.putNumber("[Input]flywheelPercent", flywheelPercent);
+            SmartDashboard.putNumber("[Input]flywheelSpeed", flywheelSpeed);
+            SmartDashboard.putBoolean("[Input]percentOutput", percentOutput);
+            SmartDashboard.putNumber("[Input]hoodSetpoint", hoodSetpoint.getValue());
+        }
     }
 
     // ======
@@ -383,6 +538,20 @@ public class Input {
         return magazineInput;
     }
 
+    /**
+     * @return The instance of ClimberInput
+     */
+    public ClimberInput getClimberInput() {
+        return climberInput;
+    }
+
+    /**
+     * @return The instance of ShooterInput
+     */
+    public ShooterInput getShooterInput() {
+        return shooterInput;
+    }
+
     // =====
     // Misc
     // =====
@@ -390,10 +559,12 @@ public class Input {
     /**
      * Update the values in SmartDashboard
     */
-    public void smartDashboard() {
+    public void smartDashboard() { // calls the smartDashboard method of each subclass within
         driveBaseInput.smartDashboard();
         intakeInput.smartDashboard();
         magazineInput.smartDashboard();
+        climberInput.smartDashboard();
+        shooterInput.smartDashboard();
     }
 
     /**
