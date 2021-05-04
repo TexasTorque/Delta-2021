@@ -9,6 +9,7 @@ public class Constants {
     public static final double TICKS_PER_ENCODER_REV = 4096;
     public static final double SHOOTER_REDUCTION = (2/3);
     public static final double RPM_NEO_SPARKMAX_CONVERSION = (TICKS_PER_ENCODER_REV * SHOOTER_REDUCTION) / (SECONDS_PER_MINUTE / SECONDS_PER_SPARK_FEEDBACK);
+    public static final double RPM_CONVERSION_SPARKMAX = -0.03125; // TODO: This may not be accurate!
 
     public static final double DB_WIDTH = 2.29; // (ft)
     public static final double WHEEL_DIAMETER = 0.5; // (ft)

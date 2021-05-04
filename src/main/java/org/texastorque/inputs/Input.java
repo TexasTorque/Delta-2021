@@ -38,6 +38,8 @@ public class Input {
         driveBaseInput = new DriveBaseInput();
         intakeInput = new IntakeInput();
         magazineInput = new MagazineInput();
+        climberInput = new ClimberInput();
+        shooterInput = new ShooterInput();
     }
 
     public void update() {
@@ -420,13 +422,6 @@ public class Input {
     // Shooter
     // =====
     public class ShooterInput implements TorqueInputModule {
-        private double green = 34;
-        private double yellow = 40;
-        private double blue = 54;
-        private double red = 60;
-        private double[] hoodSetpoints = {0, green, yellow, blue, red};
-
-        
         private boolean percentOutput = false;
         private double flywheelPercent = 0;
         private double flywheelSpeed = 0;
@@ -448,7 +443,7 @@ public class Input {
                 hoodSetpoint = HoodSetpoint.LAYUP;
             } else if(operator.getBButton()) { // Trench
                 feedback.getLimelightFeedback().setLimelightOn(false);
-                flywheelSpeed = 700;
+                flywheelSpeed = 850;
                 flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.TRENCH;
             } else if(operator.getAButton()) { // Longshot
@@ -457,6 +452,7 @@ public class Input {
                 flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.LONGSHOT;
             } else if (operator.getXButton()) { // limelight
+                // TODO: Make this button automatically shoot all balls!
                 feedback.getLimelightFeedback().setLimelightOn(true);
                 distanceAway = feedback.getLimelightFeedback().getDistanceAway();
                 flywheelSpeed = 500;

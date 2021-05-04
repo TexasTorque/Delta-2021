@@ -10,6 +10,7 @@ import org.texastorque.subsystems.Climber;
 import org.texastorque.subsystems.DriveBase;
 import org.texastorque.subsystems.Intake;
 import org.texastorque.subsystems.Magazine;
+import org.texastorque.subsystems.Shooter;
 import org.texastorque.subsystems.Subsystem;
 import org.texastorque.torquelib.base.TorqueIterative;
 
@@ -22,7 +23,8 @@ public class Robot extends TorqueIterative {
   private Intake intake = Intake.getInstance();
   private Magazine magazine = Magazine.getInstance();
   private Climber climber = Climber.getInstance();
-
+  private Shooter shooter = Shooter.getInstance();
+  
   // Input
   private Feedback feedback = Feedback.getInstance();
   private Input input = Input.getInstance();
@@ -44,6 +46,7 @@ public class Robot extends TorqueIterative {
     subsystems.add(intake);
     subsystems.add(magazine);
     subsystems.add(climber);
+    subsystems.add(shooter);
   }
 
   /**

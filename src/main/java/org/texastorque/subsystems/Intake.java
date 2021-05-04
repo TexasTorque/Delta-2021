@@ -90,6 +90,5 @@ public class Intake extends Subsystem {
             instance = new Intake();
         }
         return instance;
-
     }
 }
