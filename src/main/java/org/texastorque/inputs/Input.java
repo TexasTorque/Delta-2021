@@ -111,6 +111,19 @@ public class Input {
             SmartDashboard.putNumber("[Input]leftSpeed", leftSpeed);
             SmartDashboard.putNumber("[Input]rightSpeed", rightSpeed);
         }
+
+        /**
+         * AUTO ONLY
+         */
+        public void setRightSpeed(double rightSpeed) {
+            this.rightSpeed = rightSpeed;
+        }
+        /**
+         * AUTO ONLY
+         */
+        public void setLeftSpeed(double leftSpeed) {
+            this.leftSpeed = leftSpeed;
+        }
     }
 
     // =====

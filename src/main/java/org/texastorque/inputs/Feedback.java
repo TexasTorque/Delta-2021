@@ -114,7 +114,7 @@ public class Feedback {
         /**
         * @return The distance traveled on the right
          */
-        public double getrightDistance() {
+        public double getRightDistance() {
             return -rightPosition + rightTare;
         }
 

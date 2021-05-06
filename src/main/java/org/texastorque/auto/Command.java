@@ -11,9 +11,9 @@ public abstract class Command {
    
     
     // Instances
-    private Input input = Input.getInstance();
-    private Feedback feeback = Feedback.getInstance();
-    private State state = State.getInstance();
+    protected Input input = Input.getInstance();
+    protected Feedback feedback = Feedback.getInstance();
+    protected State state = State.getInstance();
 
     // State
     private double delay;

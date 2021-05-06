@@ -17,42 +17,73 @@ public class AutoManager {
     private Sequence currentSequence;
     private boolean sequenceEnded;
     
-    private NetworkTableInstance NT_instance;
-    private NetworkTableEntry NT_offsetEntry;
     private String autoSelectorKey = "AutoList";
-
 
     private AutoManager() {
         autoSequences = new HashMap<String, Sequence>();
-        
+        // List of Sequences (use addSequence)
 
+
+
+        // End
+        displayChoices();
     }
 
     private void addSequence(String name, Sequence seq) {
         autoSequences.put(name, seq);
-        autoSelector.addOption(name, name);
+
+        if (autoSequences.size() == 0) {
+            autoSelector.setDefaultOption(name, name);
+        } else {
+            autoSelector.addOption(name, name);
+        }
     }
 
-    public void displayChoices() {
-        SmartDashboard.putData(autoSelectorKey, autoSelector);
+    public void runCurrentSequence() {
+        currentSequence.run();
+        sequenceEnded = currentSequence.hasEnded(); // manage state of sequence
     }
-
-    public void chooseSequence() {
-        
+    
+    public void chooseCurrentSequence() {
         String autoChoice = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable(autoSelectorKey).getEntry("selected").getString("N/A");
 
         if(autoSequences.containsKey(autoChoice)) {
             currentSequence = autoSequences.get(autoChoice);
         } else {
             // INVALID SEQUENCES AHHHHHH
+            ;
         }
 
+        resetCurrentSequence();
+        sequenceEnded = false;
+    }
 
+    /**
+     * Set sequence with sequence object
+     */
+    public void setCurrentSequence(Sequence seq) {
+        currentSequence = seq;
+        resetCurrentSequence();
+    }
+
+    /**
+     * Send sequence list to SmartDashboard
+     */
+    public void displayChoices() {
+        SmartDashboard.putData(autoSelectorKey, autoSelector);
+    }
+
+    public void resetCurrentSequence() {
+        currentSequence.reset();
+    }
+
+    /**
+     * Return the state variable that shows whether the sequence is ended or not
+     */
+    public boolean getSequenceEnded() {
+        return sequenceEnded;
     }
      
-    
-
-
     /**
      * Get the AutoManager instance
      * @return AutoManager
