@@ -115,7 +115,7 @@ public class Feedback {
         * @return The distance traveled on the right
          */
         public double getRightDistance() {
-            return -rightPosition + rightTare;
+            return rightPosition - rightTare;
         }
 
         /**
@@ -136,6 +136,8 @@ public class Feedback {
          * Reset the drive encoders (tare)
          */
         public void resetEncoders() {
+            leftPosition = 0;
+            rightPosition = 0;
             leftTare = leftPosition / Constants.TICKS_PER_FOOT_DB;
             rightTare = rightPosition / Constants.TICKS_PER_FOOT_DB;
         }

@@ -136,22 +136,25 @@ public class Input {
         private double rotarySpeed = 0;
         private double rollerSpeed = 0;
 
-        private double[] rotarySetpointsLeft = {0, -8, -38};
-        private double[] rotarySetpointsRight = {0, 8, 44};
+        private double[] rotarySetpointsLeft = {0, -21.5, -38};
+        private double[] rotarySetpointsRight = {0, 21.5, 44};
 
         // Position to start with
         private RotaryState neutral = RotaryState.PRIME;
 
         @Override
         public void update() {
+            if(driver.getBButtonPressed()) {
+                neutral = neutral == RotaryState.PRIME ? RotaryState.UP : RotaryState.PRIME;
+            }
             if(driver.getRightTrigger()) {
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
-                rollerSpeed = .8;
+                rollerSpeed = -.8;
             } else if (driver.getLeftTrigger()) {
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
-                rollerSpeed = -.8;
+                rollerSpeed = .8;
             } else {
                 rotaryPositionLeft = rotarySetpointsLeft[neutral.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[neutral.getValue()];
@@ -257,7 +260,7 @@ public class Input {
             // = High Mag
             if(operator.getLeftTrigger()) { // == Ball In
                 magHigh = 1;
-                velocityHigh = operator.getLeftZAxis() * speedHigh;
+                velocityHigh = speedHigh;
             } else if(operator.getLeftBumper()) { // == Ball Out
                 magHigh = -1;
                 velocityHigh = -speedHigh;
@@ -266,7 +269,7 @@ public class Input {
             // = Low Mag
             if(operator.getRightTrigger()){ // == Balls In
                 magLow = 1;
-                velocityLow = -operator.getRightZAxis() * speedLow;
+                velocityLow = -speedLow;
             }
             else if(operator.getRightBumper()){
                 magLow = -1;
@@ -377,6 +380,7 @@ public class Input {
                 sideToExtend = ClimberSide.RIGHT;
             } else {
                 climbStarted = false;
+                climbStartedDT = false;
             }
         }
 

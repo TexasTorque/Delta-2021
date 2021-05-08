@@ -2,6 +2,7 @@ package org.texastorque;
 
 import java.util.ArrayList;
 
+import org.texastorque.auto.AutoManager;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State;
@@ -30,6 +31,9 @@ public class Robot extends TorqueIterative {
   private Input input = Input.getInstance();
   private State state = State.getInstance();
 
+  // Misc
+  private AutoManager autoManager = AutoManager.getInstance();
+  
   /**
    * Load the subsytems when the robot first starts
    */
@@ -46,7 +50,7 @@ public class Robot extends TorqueIterative {
     subsystems.add(intake);
     subsystems.add(magazine);
     subsystems.add(climber);
-    subsystems.add(shooter);
+    // subsystems.add(shooter);
   }
 
   /**
@@ -69,6 +73,25 @@ public class Robot extends TorqueIterative {
     }
 
     subsystems.forEach(s->s.runTeleop(state.getRobotState()));
+  }
+
+  /**
+   * Initialize auto
+   */
+  @Override
+  public void autoInit() {
+      state.setRobotState(RobotState.AUTO);
+      autoManager.chooseCurrentSequence();
+      subsystems.forEach(s->s.initAuto());
+  }
+
+  /**
+   * Run auto mode
+   */
+  @Override
+  public void autoContinuous() {
+    autoManager.runCurrentSequence();
+    subsystems.forEach(c->c.runAuto(RobotState.AUTO));
   }
 
   /**

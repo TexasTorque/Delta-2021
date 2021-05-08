@@ -8,6 +8,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 import java.util.HashMap;
 
+import org.texastorque.auto.sequences.*;
+
 public class AutoManager {
     private static volatile AutoManager instance;
 
@@ -21,11 +23,9 @@ public class AutoManager {
 
     private AutoManager() {
         autoSequences = new HashMap<String, Sequence>();
-        // List of Sequences (use addSequence)
+        
+        addSequence("Testing", new Testing());
 
-
-
-        // End
         displayChoices();
     }
 
@@ -48,10 +48,8 @@ public class AutoManager {
         String autoChoice = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable(autoSelectorKey).getEntry("selected").getString("N/A");
 
         if(autoSequences.containsKey(autoChoice)) {
+            System.out.println("Switching to auto: "+autoChoice);
             currentSequence = autoSequences.get(autoChoice);
-        } else {
-            // INVALID SEQUENCES AHHHHHH
-            ;
         }
 
         resetCurrentSequence();

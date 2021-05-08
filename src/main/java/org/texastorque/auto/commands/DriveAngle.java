@@ -1,9 +1,6 @@
 package org.texastorque.auto.commands;
 
-import java.sql.DriverManager;
-
 import org.texastorque.auto.Command;
-import org.texastorque.inputs.Feedback;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -78,17 +75,18 @@ public class DriveAngle extends Command{
     }    
 
     @Override
-    protected void continous() {
+    protected void continuous() {
         input.getDriveBaseInput().setLeftSpeed(-leftSpeed);
         input.getDriveBaseInput().setRightSpeed(rightSpeed);
         SmartDashboard.putNumber("[DriveAngle]rightDistance", feedback.getDriveTrainFeedback().getRightDistance());
-        SmartDashboard.putNumber("[DriveAngle]leftDistance", feedback.getDriveTrainFeedback().getLeftDistance()));
+        SmartDashboard.putNumber("[DriveAngle]leftDistance", feedback.getDriveTrainFeedback().getLeftDistance());
     }
 
     @Override
     protected boolean endCondition() {
         // Check to see if distances have been reached
-        return ((feedback.getDriveTrainFeedback().getLeftDistance() >= leftDistance) && (feedback.getDriveTrainFeedback().getRightDistance() >= rightDistance))
+        System.out.println("LEFT: "+leftDistance+" | RIGHT: "+rightDistance);
+        return feedback.getDriveTrainFeedback().getLeftDistance() >= leftDistance && feedback.getDriveTrainFeedback().getRightDistance() >= rightDistance;
     }
 
     @Override

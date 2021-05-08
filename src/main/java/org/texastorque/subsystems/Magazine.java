@@ -18,9 +18,6 @@ public class Magazine extends Subsystem {
     private double velocityLow; 
     private double velocityGate; // -1 if open,  0 if closed
 
-    private final double setSpeedLow = -.5;
-    private final double setSpeedHigh = .7;
-    private final double setSpeedGate = 0;
     private final double robotMultiplier = -1;
 
     // Values
@@ -49,32 +46,12 @@ public class Magazine extends Subsystem {
         
         if((state == RobotState.TELEOP || state == RobotState.VISION) && !input.getMagazineInput().needPreShoot()) {
             preShootStarted = false; 
-            lowMag = input.getMagazineInput().getMagLow(); // Low mag speed
-            highMag = input.getMagazineInput().getMagHigh(); // High mag speed
-            velocityGate = input.getMagazineInput().getVelocityGate(); // Current gate state
+            lowMag = input.getMagazineInput().getMagLow(); // Low mag
+            highMag = input.getMagazineInput().getMagHigh(); // High mag
             
-            velocityLow = 0; // Set speed to 0 as default
-            velocityHigh = 0; // - -
-
-            // Will have to change for three!!!!
-            if(input.getMagazineInput().getAutoMag()) { // if auto mag enabled (by operator)
-                velocityHigh = setSpeedHigh; // set speed high to constant
-                velocityLow = setSpeedLow; // set speed low to constant
-                velocityGate = setSpeedGate;
-                
-                if(feedback.getMagazineFeedback().getMagHigh() && feedback.getMagazineFeedback().getMagLow() && feedback.getMagazineFeedback().getCount() == 3) { // ball in mag high ; ball in mag low ; ball count is 3
-                    beltHigh.set(0); // set belt high speed to 0
-                    velocityHigh = 0;
-                    beltLow.set(-0.3); // set belt low speed to -.3
-                    if(feedback.getMagazineFeedback().getCount() == 3 && feedback.getMagazineFeedback().getMagLow()) { // 3 balls in mag ; ball in low mag
-                        beltLow.set(0); // set belt low speed to 0
-                    }
-                }
-            } else {
-                velocityHigh = input.getMagazineInput().getMagHigh(); // ball in upper mag
-                velocityLow = input.getMagazineInput().getMagLow(); // ball in lower mag
-                velocityGate = input.getMagazineInput().getVelocityGate(); // what speed should the gate be at
-            }
+            velocityLow = input.getMagazineInput().getVelocityLow(); // ball in lower mag
+            velocityHigh = input.getMagazineInput().getVelocityHigh(); // ball in upper mag
+            velocityGate = input.getMagazineInput().getVelocityGate(); // what speed should the gate be at
 
             if(velocityGate != 0 ) {
                 feedback.getMagazineFeedback().resetCount(); // if gate is open, reset the ball count
@@ -98,15 +75,15 @@ public class Magazine extends Subsystem {
     }
 
     public void runAuto(RobotState state){
-        velocityLow = input.getMagazineInput().getMagHigh();
-        velocityHigh = input.getMagazineInput().getMagLow();
+        velocityLow = input.getMagazineInput().getVelocityLow();
+        velocityHigh = input.getMagazineInput().getVelocityHigh();
         velocityGate = input.getMagazineInput().getVelocityGate();
     }
     
     protected void output(){ // sets motors (gate and mag) with selected seeds [executed in runTeleop]
-        beltHigh.set(velocityGate * robotMultiplier);
+        beltHigh.set(velocityHigh * robotMultiplier);
         beltLow.set(velocityLow);
-        beltGate.set(velocityHigh * robotMultiplier);
+        beltGate.set(velocityGate * robotMultiplier);
     }
 
     protected void updateFeedback(){}

@@ -82,6 +82,16 @@ public class DriveBase extends Subsystem {
         output();
     }
 
+    @Override
+    public void runAuto(RobotState state) {
+        updateFeedback();
+
+        leftSpeed = input.getDriveBaseInput().getLeftSpeed();
+        rightSpeed = input.getDriveBaseInput().getRightSpeed();
+        
+        output();
+    }
+
     /**
      * Output the values
      */

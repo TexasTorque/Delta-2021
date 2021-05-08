@@ -7,6 +7,7 @@ import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
 
 import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
     private static volatile Climber instance;
@@ -76,7 +77,7 @@ public class Climber extends Subsystem {
                         } else { // after 0.1 seconds, stop reversing
                             inReverse = false;
                         }
-                    } else { // if started, just set speeed to extend
+                    } else { // if started, just set speed to extend
                         climberLeftSpeed = -0.3;
                         climberRightSpeed = 0.3;
                     }
@@ -116,6 +117,13 @@ public class Climber extends Subsystem {
         leftRatchet.set(leftRatchetPos);
         rightRatchet.set(rightRatchetPos);
     };
+
+    @Override
+    public void smartDashboard() {
+        SmartDashboard.putNumber("[Climber]leftSpeed", climberLeftSpeed);
+        SmartDashboard.putNumber("[Climber]rightSpeed", climberRightSpeed);
+
+    }
 
 
     /**

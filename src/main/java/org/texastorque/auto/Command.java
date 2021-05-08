@@ -24,7 +24,7 @@ public abstract class Command {
      * All commands are set to activate in a command after the set delay.
      */
     public Command(double delay) {
-       this.delay = delay;
+        this.delay = delay;
         ended = false;
         started = false;
     }
@@ -38,7 +38,7 @@ public abstract class Command {
             started = true;
         }
 
-        continous();
+        continuous();
 
         if(endCondition()) {
             end();
@@ -59,7 +59,7 @@ public abstract class Command {
     /**
      * Run on iteration
      */
-    protected abstract void continous();
+    protected abstract void continuous();
 
     /**
      * Checked every iteration, if true, runs end

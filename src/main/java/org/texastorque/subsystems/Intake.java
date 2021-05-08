@@ -72,7 +72,7 @@ public class Intake extends Subsystem {
     protected void output() {
         rollers.set(ControlMode.PercentOutput, rollerSpeed);
         rotaryLeft.set(rotaryPositionLeft, ControlType.kPosition);
-        rotaryLeft.set(rotaryPositionRight, ControlType.kPosition);
+        rotaryRight.set(rotaryPositionRight, ControlType.kPosition);
     }
 
     @Override
