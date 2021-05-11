@@ -3,6 +3,7 @@ package org.texastorque.inputs;
 import org.texastorque.inputs.State.ClimberSide;
 import org.texastorque.inputs.State.ClimberState;
 import org.texastorque.inputs.State.HoodSetpoint;
+import org.texastorque.inputs.State.RobotState;
 import org.texastorque.inputs.State.RotaryState;
 import org.texastorque.subsystems.Climber;
 import org.texastorque.torquelib.util.GenericController;
@@ -66,6 +67,10 @@ public class Input {
             double leftRight = driver.getRightXAxis(); // get joystick position
             if(driver.getLeftCenterButton()) { 
                 getClimberInput().setClimbStartedDT(false);
+            }
+            if(driver.getAButtonPressed()) { // Vision toggle
+                if(state.getRobotState() == RobotState.TELEOP) state.setRobotState(RobotState.VISION);
+                else if(state.getRobotState() == RobotState.VISION) state.setRobotState(RobotState.TELEOP);                
             }
             if(getClimberInput().getClimbStartedDT()) {
                 defaultDriveSpeed(leftRight);
@@ -525,7 +530,6 @@ public class Input {
             SmartDashboard.putNumber("[Input]hoodSetpoint", hoodSetpoint.getValue());
         }
     }
-
     // ======
     // Getters
     // ======

@@ -50,6 +50,8 @@ public class AutoManager {
         if(autoSequences.containsKey(autoChoice)) {
             System.out.println("Switching to auto: "+autoChoice);
             currentSequence = autoSequences.get(autoChoice);
+        } else {
+            currentSequence = new Empty();
         }
 
         resetCurrentSequence();

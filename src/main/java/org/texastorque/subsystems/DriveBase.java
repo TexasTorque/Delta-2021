@@ -3,11 +3,16 @@ package org.texastorque.subsystems;
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
+import org.texastorque.inputs.State;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
 import org.texastorque.torquelib.controlLoop.LowPassFilter;
 import org.texastorque.torquelib.controlLoop.ScheduledPID;
 
+import edu.wpi.first.wpilibj.geometry.Pose2d;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveBase extends Subsystem {
@@ -16,6 +21,7 @@ public class DriveBase extends Subsystem {
     // Cached instances
     private Input input = Input.getInstance();
     private Feedback feedback = Feedback.getInstance();
+    private State state = State.getInstance();
 
     // Create the SparkMax motors
     private TorqueSparkMax DBLeft = new TorqueSparkMax(Ports.DB_LEFT_1);
@@ -31,12 +37,11 @@ public class DriveBase extends Subsystem {
     private double pidValue;
 
     // PIDs
-    private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1)
-        .setPGains(.01)
-        .setIGains(.005)
-        .setDGains(.000005)
-        .build();
-    private LowPassFilter lowPassFilter = new LowPassFilter(.5);
+    private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1).setPGains(.01).setIGains(.005)
+            .setDGains(.000005).build();
+    private LowPassFilter lowPassFilter = new LowPassFilter(.2);
+
+    private DifferentialDriveOdometry odometry;
 
     /**
      * Instantiate a new DriveBase
@@ -44,6 +49,8 @@ public class DriveBase extends Subsystem {
     private DriveBase() {
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
+        
+        odometry = new DifferentialDriveOdometry(feedback.getGyroFeedback().getRotation2d());
     }
 
     /**
@@ -114,6 +121,13 @@ public class DriveBase extends Subsystem {
         pidValue = -linePid.calculate(position);
         leftSpeed = pidValue;
         rightSpeed = pidValue;
+
+        if(Math.abs(feedback.getLimelightFeedback().getXOffset()) < 2) {
+            SmartDashboard.putBoolean("[DB]LinedUp", true);
+            state.setRobotState(RobotState.TELEOP);
+        } else {
+            SmartDashboard.putBoolean("[DB]LinedUp", false);
+        }
     }
 
     /**
@@ -144,6 +158,7 @@ public class DriveBase extends Subsystem {
         feedback.getDriveTrainFeedback().setRightPosition(DBRight.getPosition());
         feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());
         feedback.getDriveTrainFeedback().setRightVelocity(DBRight.getVelocity());
+        odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance(), feedback.getDriveTrainFeedback().getRightDistance());
     }
     
     /**
@@ -155,10 +170,32 @@ public class DriveBase extends Subsystem {
     }
 
     /**
+     * Reset the odometry
+    */
+    public void resetOdometry(Pose2d pose) {
+        resetEncoders();
+        odometry.resetPosition(pose, feedback.getGyroFeedback().getRotation2d());
+    }
+
+    /**
+     * @return Wheel speeds for odometry
+     */
+    public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+        return new DifferentialDriveWheelSpeeds(feedback.getDriveTrainFeedback().getLeftVelocity(), feedback.getDriveTrainFeedback().getRightVelocity());
+    }
+
+    /**
      * @return The left drive distance
      */
     public double getLeftDistance() {
         return -(DBLeft.getPosition());
+    }
+
+    /**
+     * @return Current pose of odometry
+     */
+    public Pose2d getPose() {
+        return odometry.getPoseMeters();
     }
 
     /**

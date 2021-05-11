@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Feedback {
@@ -346,6 +347,12 @@ public class Feedback {
             return Constants.DIFFERENCE_CENTERPORT_LIMELIGHT / Math.tan(Math.toRadians(vOffset + Constants.LIMELIGHT_ANGLE_OFFSET));
         }
 
+        @Override
+        public void smartDashboard() {
+            SmartDashboard.putNumber("[Feedback]hOffset", hOffset);
+            SmartDashboard.putNumber("[Feedback]vOffset", vOffset);
+        }
+
         /**
          * Internally get the Limelight table
          * @return The Limelight table
@@ -412,6 +419,13 @@ public class Feedback {
          */
         public double getNX_roll() {
             return NX_roll;
+        }
+
+        /**
+         * @return The rotation of the gyro
+         */
+        public Rotation2d getRotation2d() {
+            return NX_gyro.getRotation2d();
         }
     }
 
