@@ -59,7 +59,10 @@ public class Input {
     public class DriveBaseInput implements TorqueInputModule {
         private volatile double leftSpeed = 0;
         private volatile double rightSpeed = 0;
-        
+        private boolean doingAutoVolts = false;
+        private double leftVolts = 0;
+        private double rightVolts = 0;
+
         /**
          * Update the left and right speeds
          */
@@ -117,6 +120,10 @@ public class Input {
             SmartDashboard.putNumber("[Input]rightSpeed", rightSpeed);
         }
 
+        // ===
+        // Auto Only
+        // ===
+        
         /**
          * AUTO ONLY
          */
@@ -129,6 +136,41 @@ public class Input {
         public void setLeftSpeed(double leftSpeed) {
             this.leftSpeed = leftSpeed;
         }
+
+        /**
+         * AUTO ONLY
+         * @param doingAutoVolts
+         */
+        public void setDoingAutoVolts(boolean doingAutoVolts) {
+            this.doingAutoVolts = doingAutoVolts;
+        }
+
+        /**
+         * AUTO ONLY
+         * @return If it should be outputting with volts during auto, such as with using a Ramsette command
+         */
+        public boolean getDoingAutoVolts() {
+            return doingAutoVolts;
+        }
+
+        public void setVolts(double leftVolts, double rightVolts) {
+            System.out.printf("(%f,%f)%n",leftVolts,rightVolts);
+            if(leftVolts > 4 || rightVolts > 4) {
+                leftVolts = 0;
+                rightVolts = 0;
+            }
+            this.leftVolts = leftVolts;
+            this.rightVolts = rightVolts;
+        }
+
+        public double getRightVolts() {
+            return rightVolts;
+        }
+
+        public double getLeftVolts() {
+            return leftVolts;
+        }
+
     }
 
     // =====

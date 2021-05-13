@@ -21,7 +21,7 @@ public class Feedback {
     private static DriveTrainFeedback driveTrainFeedback;
     private static IntakeFeedback intakeFeedback;
     private static ShooterFeedback shooterFeedback;
-    private static MagazineFeedback magazineFeedback; 
+    private static MagazineFeedback magazineFeedback;
     private static LimelightFeedback limelightFeedback;
     private static GyroFeedback gyroFeedback;
 
@@ -372,7 +372,7 @@ public class Feedback {
         private double NX_yaw;
         private double NX_roll;
 
-        private GyroFeedback() {            
+        private GyroFeedback() {
             NX_gyro = new AHRS(SPI.Port.kMXP);
         }
 
@@ -383,7 +383,7 @@ public class Feedback {
         public void update() {
             NX_pitch = NX_gyro.getPitch();
             NX_yaw = NX_gyro.getYaw();
-            NX_roll = NX_gyro.getRoll();    
+            NX_roll = NX_gyro.getRoll();
         }
         
         /**

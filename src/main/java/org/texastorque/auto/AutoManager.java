@@ -25,7 +25,8 @@ public class AutoManager {
         autoSequences = new HashMap<String, Sequence>();
         
         addSequence("Testing", new Testing());
-
+        addSequence("AForward", new AForward());
+        
         displayChoices();
     }
 

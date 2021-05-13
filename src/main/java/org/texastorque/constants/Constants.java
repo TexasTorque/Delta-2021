@@ -1,5 +1,7 @@
 package org.texastorque.constants;
 
+import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+
 public class Constants {
     public static final double SECONDS_PER_MINUTE = 60;
     public static final double SECONDS_PER_SPARK_FEEDBACK = 0.1;
@@ -16,7 +18,9 @@ public class Constants {
     public static final double PULSES_PER_ROTATION = 1000;
 
     public static final double DB_MAX_SPEED = 15.0; // max speed (ft/s)
+    public static final double DB_MAX_SPEED_METER = DB_MAX_SPEED * 0.3048; 
     public static final double DB_MAX_ACCEL = 5.0; // max acceleration (ft/s/s)
+    public static final double DB_MAX_ACCEL_METER = DB_MAX_ACCEL * 0.3048;
     public static final double DB_MAX_JERK = 60.0; // max jerk (ft/s/s/s)
 
     public static final double TICKS_PER_FOOT_DB = 4.4096;
@@ -24,4 +28,17 @@ public class Constants {
 
     public static final double DIFFERENCE_CENTERPORT_LIMELIGHT = 75.25;
     public static final double LIMELIGHT_ANGLE_OFFSET = 27;
+
+    // Drive Base Characterization
+    public static final double ksVolts = 0.229;
+    public static final double kvVoltSecondsPerMeter = 2.06;
+    public static final double kaVoltSecondsSquaredPerMeter = 0.495;
+    public static final double kPDriveVel = 2.74;
+    public static final double kTrackwidthMeters = 0.69;
+    public static final DifferentialDriveKinematics kDriveKinematics =
+        new DifferentialDriveKinematics(kTrackwidthMeters);
+    public static final double kMaxSpeedMetersPerSecond = 3;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
+
+
 }

@@ -1,5 +1,7 @@
 package org.texastorque.subsystems;
 
+import com.revrobotics.ControlType;
+
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
@@ -93,10 +95,15 @@ public class DriveBase extends Subsystem {
     public void runAuto(RobotState state) {
         updateFeedback();
 
-        leftSpeed = input.getDriveBaseInput().getLeftSpeed();
-        rightSpeed = input.getDriveBaseInput().getRightSpeed();
         
-        output();
+        if(input.getDriveBaseInput().getDoingAutoVolts()) { // If doing a command that outputs volts
+            // DBLeft.setVoltage(input.getDriveBaseInput().getLeftVolts());
+            // DBRight.setVoltage(input.getDriveBaseInput().getRightVolts());
+        } else {
+            leftSpeed = input.getDriveBaseInput().getLeftSpeed();
+            rightSpeed = input.getDriveBaseInput().getRightSpeed();
+            output();
+        }
     }
 
     /**

@@ -1,9 +1,9 @@
 {
-  "lengthUnit": "Foot",
+  "lengthUnit": "Meter",
   "exportUnit": "Same as Project",
-  "maxVelocity": 16.05,
-  "maxAcceleration": 14.76,
+  "maxVelocity": 4.572,
+  "maxAcceleration": 1.524,
   "wheelBase": 0.5,
   "gameName": "Infinite Recharge",
-  "outputDir": "../../src/main/java/org/texastorque/paths"
+  "outputDir": "../../src/main/deploy/paths"
 }
