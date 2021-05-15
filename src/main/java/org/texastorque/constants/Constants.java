@@ -29,16 +29,13 @@ public class Constants {
     public static final double DIFFERENCE_CENTERPORT_LIMELIGHT = 75.25;
     public static final double LIMELIGHT_ANGLE_OFFSET = 27;
 
-    // Drive Base Characterization
+    // Drive Base Characterization (IN METERS!!!)
     public static final double ksVolts = 0.229;
     public static final double kvVoltSecondsPerMeter = 2.06;
     public static final double kaVoltSecondsSquaredPerMeter = 0.495;
     public static final double kPDriveVel = 2.74;
-    public static final double kTrackwidthMeters = 0.69;
+    public static final double kTrackwidthMeters = 0.71;
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
-    public static final double kMaxSpeedMetersPerSecond = 3;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3;
-
 
 }

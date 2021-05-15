@@ -10,6 +10,7 @@ import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
 import org.texastorque.torquelib.controlLoop.LowPassFilter;
 import org.texastorque.torquelib.controlLoop.ScheduledPID;
+import org.texastorque.util.KPID;
 
 import edu.wpi.first.wpilibj.geometry.Pose2d;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
@@ -49,9 +50,11 @@ public class DriveBase extends Subsystem {
      * Instantiate a new DriveBase
      */
     private DriveBase() {
+        DBLeft.configurePID(new KPID(2.29, 0, 0, 0, -1, 1));
+        DBRight.configurePID(new KPID(2.29, 0, 0, 0, -1, 1));
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
-        
+        // DBLeft.setAlternateEncoder();
         odometry = new DifferentialDriveOdometry(feedback.getGyroFeedback().getRotation2d());
     }
 
@@ -95,15 +98,10 @@ public class DriveBase extends Subsystem {
     public void runAuto(RobotState state) {
         updateFeedback();
 
-        
-        if(input.getDriveBaseInput().getDoingAutoVolts()) { // If doing a command that outputs volts
-            // DBLeft.setVoltage(input.getDriveBaseInput().getLeftVolts());
-            // DBRight.setVoltage(input.getDriveBaseInput().getRightVolts());
-        } else {
-            leftSpeed = input.getDriveBaseInput().getLeftSpeed();
-            rightSpeed = input.getDriveBaseInput().getRightSpeed();
-            output();
-        }
+        leftSpeed = input.getDriveBaseInput().getLeftSpeed();
+        rightSpeed = input.getDriveBaseInput().getRightSpeed();
+
+        output();
     }
 
     /**
@@ -165,7 +163,7 @@ public class DriveBase extends Subsystem {
         feedback.getDriveTrainFeedback().setRightPosition(DBRight.getPosition());
         feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());
         feedback.getDriveTrainFeedback().setRightVelocity(DBRight.getVelocity());
-        odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance(), feedback.getDriveTrainFeedback().getRightDistance());
+        odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance()*0.3048, feedback.getDriveTrainFeedback().getRightDistance()*0.3048);
     }
     
     /**
@@ -188,7 +186,7 @@ public class DriveBase extends Subsystem {
      * @return Wheel speeds for odometry
      */
     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-        return new DifferentialDriveWheelSpeeds(feedback.getDriveTrainFeedback().getLeftVelocity(), feedback.getDriveTrainFeedback().getRightVelocity());
+        return new DifferentialDriveWheelSpeeds(feedback.getDriveTrainFeedback().getLeftDistance()*0.3048, feedback.getDriveTrainFeedback().getRightVelocity()*0.3048);
     }
 
     /**
