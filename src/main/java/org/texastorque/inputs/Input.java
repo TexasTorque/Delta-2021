@@ -120,7 +120,15 @@ public class Input {
         // ===
         // Auto Only
         // ===
-        
+        private boolean doingVelocity = false;
+
+        /**
+         * Get whether DB should output in velocity 
+         */
+        public boolean getDoingVelocity() {
+            return doingVelocity;
+        }
+
         /**
          * AUTO ONLY
          */
@@ -132,6 +140,13 @@ public class Input {
          */
         public void setLeftSpeed(double leftSpeed) {
             this.leftSpeed = leftSpeed;
+        }
+
+        /**
+         * AUTO ONLY
+         */
+        public void setDoingVelocity(boolean doingVelocity) {
+            this.doingVelocity = doingVelocity;
         }
     }
 

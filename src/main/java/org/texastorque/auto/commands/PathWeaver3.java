@@ -21,21 +21,14 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 
-public class PathWeaver extends Command {
+public class PathWeaver3 extends Command {
     private final Supplier<Pose2d> getPose = DriveBase.getInstance()::getPose;
     private final RamseteController follower = new RamseteController(2, 0.7);
-    private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.ksVolts, Constants.kvVoltSecondsPerMeter, Constants.kaVoltSecondsSquaredPerMeter);
-    private final Supplier<DifferentialDriveWheelSpeeds> speeds = DriveBase.getInstance()::getWheelSpeeds;
     private final Timer timer = new Timer();
-    
-    // private PIDController leftController = new PIDController(Constants.kPDriveVel,0,0);
-    // private PIDController rightController = new PIDController(Constants.kPDriveVel,0,0);
 
     private Trajectory trajectory;
-    private double previousTime;
-    private DifferentialDriveWheelSpeeds previousSpeeds;
 
-    public PathWeaver(double delay, String name) {
+    public PathWeaver3(double delay, String name) {
         super(delay);
         try {
             Path trajectoryPath = Filesystem.getDeployDirectory().toPath().resolve("paths/output/"+name);
@@ -48,58 +41,30 @@ public class PathWeaver extends Command {
     @Override
     protected void init() {
         feedback.getDriveTrainFeedback().resetEncoders();
-        previousTime = -1;
-        Trajectory.State initialState = trajectory.sample(0);
-        previousSpeeds = Constants.kDriveKinematics.toWheelSpeeds(
-            new ChassisSpeeds(initialState.velocityMetersPerSecond, 0,
-            initialState.curvatureRadPerMeter * initialState.velocityMetersPerSecond));
+        input.getDriveBaseInput().setDoingVelocity(true);
         timer.reset();
         timer.start();
-        // leftController.reset();
-        // rightController.reset();
     }
 
     @Override
     protected void continuous() {
         double curTime = timer.get();
-        double dt = curTime - previousTime;
 
-        if(previousTime < 0) {
-            input.getDriveBaseInput().setLeftSpeed(0);
-            input.getDriveBaseInput().setRightSpeed(0);
-            previousTime = curTime;
-            return;
-        }
-
+        // Possible error: getPose is returning negative left.
         DifferentialDriveWheelSpeeds targetWheelSpeeds = 
             Constants.kDriveKinematics.toWheelSpeeds(follower.calculate(getPose.get(), trajectory.sample(curTime)));
+        
+        System.out.println(getPose.get() + "\n" + trajectory.sample(curTime));
         System.out.printf("Target Wheel Speed: (%f,%f)%n", targetWheelSpeeds.leftMetersPerSecond, targetWheelSpeeds.rightMetersPerSecond);
         double leftSpeedSetpoint = targetWheelSpeeds.leftMetersPerSecond;
         double rightSpeedSetpoint = targetWheelSpeeds.rightMetersPerSecond;
         
-        // double leftFeedforward = feedforward.calculate(leftSpeedSetpoint, (leftSpeedSetpoint - previousSpeeds.leftMetersPerSecond) / dt);
-        // double rightFeedforward = feedforward.calculate(rightSpeedSetpoint, (rightSpeedSetpoint - previousSpeeds.rightMetersPerSecond) / dt);
-
-        // double leftOutput = leftFeedforward + leftController.calculate(speeds.get().leftMetersPerSecond, leftSpeedSetpoint);
-        // double rightOutput = rightFeedforward + rightController.calculate(speeds.get().rightMetersPerSecond, rightSpeedSetpoint);
-
         
-        // // if not using PID
         double leftOutput = leftSpeedSetpoint; // m/s
         double rightOutput = rightSpeedSetpoint; // m/s
 
-        // NOTE: Attempt to use SPARK MAX PID instead of the crap above. kVelocity if it takes Meters. 
-
-        // double leftMetersToTick = leftOutput*3.2808399/Constants.TICKS_PER_FOOT_DB;
-        
-        input.getDriveBaseInput().setLeftSpeed(clamp(leftOutput, -1, 1));
-        input.getDriveBaseInput().setRightSpeed(clamp(rightOutput, -1, 1));
-        previousSpeeds = targetWheelSpeeds;
-        previousTime = curTime;
-    }
-
-    private double clamp(double x, double low, double high) {
-        return Math.max(low, Math.min(x, high));
+        input.getDriveBaseInput().setLeftSpeed(leftOutput);
+        input.getDriveBaseInput().setRightSpeed(rightOutput);
     }
 
     @Override
@@ -112,5 +77,6 @@ public class PathWeaver extends Command {
         timer.stop();
         input.getDriveBaseInput().setLeftSpeed(0);
         input.getDriveBaseInput().setRightSpeed(0);
+        input.getDriveBaseInput().setDoingVelocity(false);
     }
 }

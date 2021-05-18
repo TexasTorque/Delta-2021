@@ -50,8 +50,8 @@ public class DriveBase extends Subsystem {
      * Instantiate a new DriveBase
      */
     private DriveBase() {
-        DBLeft.configurePID(new KPID(2.29, 0, 0, 0, -1, 1));
-        DBRight.configurePID(new KPID(2.29, 0, 0, 0, -1, 1));
+        DBLeft.configurePID(new KPID(0.00412, 0, 0, 0, -1, 1));
+        DBRight.configurePID(new KPID(0.00412, 0, 0, 0, -1, 1));
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
         // DBLeft.setAlternateEncoder();
@@ -100,8 +100,12 @@ public class DriveBase extends Subsystem {
 
         leftSpeed = input.getDriveBaseInput().getLeftSpeed();
         rightSpeed = input.getDriveBaseInput().getRightSpeed();
-
-        output();
+        if(input.getDriveBaseInput().getDoingVelocity()) {
+            // This is being inputted as meters. Unsure if correct!
+            System.out.printf("SETTING VELOCITY: (%f, %f)%n", leftSpeed, rightSpeed);
+            DBLeft.set(Math.min(1, Math.max(leftSpeed, -1)));
+            DBRight.set(Math.min(1, Math.max(rightSpeed, -1)));
+        } else output();
     }
 
     /**
@@ -193,7 +197,7 @@ public class DriveBase extends Subsystem {
      * @return The left drive distance
      */
     public double getLeftDistance() {
-        return -(DBLeft.getPosition());
+        return DBLeft.getPosition();
     }
 
     /**
@@ -207,7 +211,7 @@ public class DriveBase extends Subsystem {
      * @return The right drive distance
      */
     public double getRightDistance() {
-        return -(DBRight.getPosition());
+        return DBRight.getPosition();
     }
     
     /**
@@ -221,6 +225,8 @@ public class DriveBase extends Subsystem {
         // Distance
         SmartDashboard.putNumber("[DB]leftDistance", getLeftDistance()); 
         SmartDashboard.putNumber("[DB]rightDistance", getRightDistance()); 
+        SmartDashboard.putNumber("[DB]leftDistanceConv", DBLeft.getPositionConverted()); 
+        SmartDashboard.putNumber("[DB]rightDistanceConv", DBRight.getPositionConverted());
     }
 
     /**
