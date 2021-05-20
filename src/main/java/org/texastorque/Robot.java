@@ -50,7 +50,7 @@ public class Robot extends TorqueIterative {
     subsystems.add(intake);
     subsystems.add(magazine);
     subsystems.add(climber);
-    // subsystems.add(shooter);
+    subsystems.add(shooter);
   }
 
   /**

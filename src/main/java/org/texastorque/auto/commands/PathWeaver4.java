@@ -2,7 +2,6 @@ package org.texastorque.auto.commands;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
 import org.texastorque.auto.Command;
@@ -12,11 +11,8 @@ import org.texastorque.subsystems.DriveBase;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.controller.PIDController;
 import edu.wpi.first.wpilibj.controller.RamseteController;
-import edu.wpi.first.wpilibj.controller.SimpleMotorFeedforward;
 import edu.wpi.first.wpilibj.geometry.Pose2d;
-import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
@@ -40,6 +36,7 @@ public class PathWeaver4 extends Command {
 
     @Override
     protected void init() {
+        DriveBase.getInstance().resetOdometry();
         feedback.getDriveTrainFeedback().resetEncoders();
         input.getDriveBaseInput().setDoingVelocity(true);
         timer.reset();
@@ -63,9 +60,8 @@ public class PathWeaver4 extends Command {
         double leftOutput = leftSpeedSetpoint; // m/s
         double rightOutput = rightSpeedSetpoint; // m/s
 
-        Trajectory.State state = trajectory.sample(curTime);
-        input.getDriveBaseInput().setLeftSpeed(state.velocityMetersPerSecond);
-        input.getDriveBaseInput().setRightSpeed(-state.velocityMetersPerSecond);
+        input.getDriveBaseInput().setLeftSpeed(leftOutput);
+        input.getDriveBaseInput().setRightSpeed(rightOutput);
     }
 
     @Override

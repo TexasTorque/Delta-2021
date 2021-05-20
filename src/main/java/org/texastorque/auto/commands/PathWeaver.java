@@ -20,12 +20,13 @@ import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
+import edu.wpi.first.wpilibj2.command.RamseteCommand;
 
 public class PathWeaver extends Command {
     private final Supplier<Pose2d> getPose = DriveBase.getInstance()::getPose;
     private final RamseteController follower = new RamseteController(2, 0.7);
     private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(Constants.ksVolts, Constants.kvVoltSecondsPerMeter, Constants.kaVoltSecondsSquaredPerMeter);
-    private final Supplier<DifferentialDriveWheelSpeeds> speeds = DriveBase.getInstance()::getWheelSpeeds;
+    // private final Supplier<DifferentialDriveWheelSpeeds> speeds = DriveBase.getInstance()::getWheelSpeeds;
     private final Timer timer = new Timer();
     
     // private PIDController leftController = new PIDController(Constants.kPDriveVel,0,0);

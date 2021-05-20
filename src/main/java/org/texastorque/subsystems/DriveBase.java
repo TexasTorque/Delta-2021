@@ -50,11 +50,11 @@ public class DriveBase extends Subsystem {
      * Instantiate a new DriveBase
      */
     private DriveBase() {
-        DBLeft.configurePID(new KPID(0.00412, 0, 0, 0, -1, 1));
-        DBRight.configurePID(new KPID(0.00412, 0, 0, 0, -1, 1));
+        DBLeft.configurePID(new KPID(2.29, 0, 0, 0, -1, 1));
+        DBRight.configurePID(new KPID(2.29, 0, 0, 0, -1, 1));
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
-        // DBLeft.setAlternateEncoder();
+        DBLeft.setAlternateEncoder();
         odometry = new DifferentialDriveOdometry(feedback.getGyroFeedback().getRotation2d());
     }
 
@@ -63,7 +63,7 @@ public class DriveBase extends Subsystem {
      */
     @Override
     public void initAuto() {
-        resetEncoders();
+        resetOdometry();
     }
 
     /**
@@ -101,10 +101,10 @@ public class DriveBase extends Subsystem {
         leftSpeed = input.getDriveBaseInput().getLeftSpeed();
         rightSpeed = input.getDriveBaseInput().getRightSpeed();
         if(input.getDriveBaseInput().getDoingVelocity()) {
-            // This is being inputted as meters. Unsure if correct!
             System.out.printf("SETTING VELOCITY: (%f, %f)%n", leftSpeed, rightSpeed);
-            DBLeft.set(Math.min(1, Math.max(leftSpeed, -1)));
-            DBRight.set(Math.min(1, Math.max(rightSpeed, -1)));
+            
+            DBLeft.set(leftSpeed, ControlType.kVoltage);
+            DBRight.set(rightSpeed, ControlType.kVoltage);
         } else output();
     }
 
@@ -167,7 +167,7 @@ public class DriveBase extends Subsystem {
         feedback.getDriveTrainFeedback().setRightPosition(DBRight.getPosition());
         feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());
         feedback.getDriveTrainFeedback().setRightVelocity(DBRight.getVelocity());
-        odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance()*0.3048, feedback.getDriveTrainFeedback().getRightDistance()*0.3048);
+        odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance()*-0.065176971, feedback.getDriveTrainFeedback().getRightDistance()*0.0653176971);
     }
     
     /**
@@ -181,17 +181,21 @@ public class DriveBase extends Subsystem {
     /**
      * Reset the odometry
     */
-    public void resetOdometry(Pose2d pose) {
+    public void resetOdometry() {
         resetEncoders();
-        odometry.resetPosition(pose, feedback.getGyroFeedback().getRotation2d());
+        odometry.resetPosition(getPose(), feedback.getGyroFeedback().getRotation2d());
     }
 
     /**
+     * @deprecated should not be used
      * @return Wheel speeds for odometry
      */
-    public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-        return new DifferentialDriveWheelSpeeds(feedback.getDriveTrainFeedback().getLeftDistance()*0.3048, feedback.getDriveTrainFeedback().getRightVelocity()*0.3048);
+    /*
+     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
+        // TODO : check if need one negative
+        return new DifferentialDriveWheelSpeeds(feedback.getDriveTrainFeedback().getLeftDistance()*0.0653176971, feedback.getDriveTrainFeedback().getRightVelocity()*0.0653176971);
     }
+    */
 
     /**
      * @return The left drive distance
@@ -225,8 +229,10 @@ public class DriveBase extends Subsystem {
         // Distance
         SmartDashboard.putNumber("[DB]leftDistance", getLeftDistance()); 
         SmartDashboard.putNumber("[DB]rightDistance", getRightDistance()); 
-        SmartDashboard.putNumber("[DB]leftDistanceConv", DBLeft.getPositionConverted()); 
-        SmartDashboard.putNumber("[DB]rightDistanceConv", DBRight.getPositionConverted());
+        SmartDashboard.putNumber("[DB]odometryX", getPose().getX());
+        SmartDashboard.putNumber("[DB]odometryY", getPose().getY());
+        SmartDashboard.putNumber("[DB]odometryRadians", getPose().getRotation().getRadians());
+
     }
 
     /**

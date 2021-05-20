@@ -2,6 +2,7 @@ package org.texastorque.subsystems;
 
 import com.revrobotics.ControlType;
 
+import org.texastorque.constants.Constants;
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
@@ -53,7 +54,7 @@ public class Shooter extends Subsystem {
 
     public void runTeleop(RobotState state){
         flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
-        shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
+        shooterPID.changeSetpoint(flywheelSpeed * Constants.RPM_CONVERSION_SPARKMAX); // change target speed of flywheel to requested speed
         pidOuput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
         output();
     };
@@ -67,7 +68,9 @@ public class Shooter extends Subsystem {
         if (input.getShooterInput().getPercentOutputType()) { // if percent output type, 
             flywheel.set(input.getShooterInput().getFlywheelPercent()); // just set flywheel speed to percent (-1 to 1)
         } else {
-            if(pidOuput > 0) flywheel.set(0); // if the PID is sending junk, (>0), ignore
+            if(pidOuput > 0) {
+                flywheel.set(0); // if the PID is sending junk, (>0), ignore
+            }
             else flywheel.set(-pidOuput); // set to opposite of pid output
         }
     };
