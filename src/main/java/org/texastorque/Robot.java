@@ -51,6 +51,7 @@ public class Robot extends TorqueIterative {
     subsystems.add(magazine);
     subsystems.add(climber);
     subsystems.add(shooter);
+    autoManager.displayChoices();
   }
 
   /**
@@ -81,6 +82,7 @@ public class Robot extends TorqueIterative {
   @Override
   public void autoInit() {
       state.setRobotState(RobotState.AUTO);
+      autoManager.displayChoices();
       autoManager.chooseCurrentSequence();
       subsystems.forEach(s->s.initAuto());
   }

@@ -2,6 +2,7 @@ package org.texastorque.subsystems;
 
 import com.revrobotics.ControlType;
 
+import org.texastorque.constants.Constants;
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
@@ -55,6 +56,8 @@ public class DriveBase extends Subsystem {
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
         DBLeft.setAlternateEncoder();
+        DBLeft.disableVoltageCompensation();
+        DBRight.disableVoltageCompensation();
         odometry = new DifferentialDriveOdometry(feedback.getGyroFeedback().getRotation2d());
     }
 
@@ -101,10 +104,17 @@ public class DriveBase extends Subsystem {
         leftSpeed = input.getDriveBaseInput().getLeftSpeed();
         rightSpeed = input.getDriveBaseInput().getRightSpeed();
         if(input.getDriveBaseInput().getDoingVelocity()) {
-            System.out.printf("SETTING VELOCITY: (%f, %f)%n", leftSpeed, rightSpeed);
-            
-            DBLeft.set(leftSpeed, ControlType.kVoltage);
-            DBRight.set(rightSpeed, ControlType.kVoltage);
+            System.out.printf("SETTING: (%f, %f)%n", leftSpeed, rightSpeed);
+            leftSpeed /= 200;
+            rightSpeed /= 200;
+            leftSpeed = Math.max(-1, Math.min(1, leftSpeed));
+            rightSpeed = Math.max(-1, Math.min(1, rightSpeed));
+            System.out.printf("CONVERTED: (%f, %f)%n", leftSpeed, rightSpeed);
+
+            DBLeft.set(leftSpeed);
+            DBRight.set(rightSpeed);
+            // DBLeft.set(leftSpeed, ControlType.kVoltage);
+            // DBRight.set(rightSpeed, ControlType.kVoltage);
         } else output();
     }
 
@@ -167,7 +177,8 @@ public class DriveBase extends Subsystem {
         feedback.getDriveTrainFeedback().setRightPosition(DBRight.getPosition());
         feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());
         feedback.getDriveTrainFeedback().setRightVelocity(DBRight.getVelocity());
-        odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance()*-0.065176971, feedback.getDriveTrainFeedback().getRightDistance()*0.0653176971);
+        odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance() * Constants.FOOT_TO_METER, feedback.getDriveTrainFeedback().getRightDistance() * Constants.FOOT_TO_METER);
+        // odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance()*-0.522288, feedback.getDriveTrainFeedback().getRightDistance()*0.522288);
     }
     
     /**
@@ -183,7 +194,7 @@ public class DriveBase extends Subsystem {
     */
     public void resetOdometry() {
         resetEncoders();
-        odometry.resetPosition(getPose(), feedback.getGyroFeedback().getRotation2d());
+        odometry.resetPosition(new Pose2d(), feedback.getGyroFeedback().getRotation2d());
     }
 
     /**
@@ -232,6 +243,7 @@ public class DriveBase extends Subsystem {
         SmartDashboard.putNumber("[DB]odometryX", getPose().getX());
         SmartDashboard.putNumber("[DB]odometryY", getPose().getY());
         SmartDashboard.putNumber("[DB]odometryRadians", getPose().getRotation().getRadians());
+        SmartDashboard.putNumber("[DB]odometryDegrees", getPose().getRotation().getDegrees());
 
     }
 

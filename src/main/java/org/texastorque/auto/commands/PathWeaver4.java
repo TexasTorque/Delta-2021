@@ -47,11 +47,16 @@ public class PathWeaver4 extends Command {
     protected void continuous() {
         double curTime = timer.get();
 
-        // Possible error: getPose is returning negative left.
+
+        // Note:
+        // The starting position is set to a non-zero value on the field.
+        // Possible solution: Find first offset, use to offset in position.
+
         DifferentialDriveWheelSpeeds targetWheelSpeeds = 
             Constants.kDriveKinematics.toWheelSpeeds(follower.calculate(getPose.get(), trajectory.sample(curTime)));
         
-        System.out.println(getPose.get() + "\n" + trajectory.sample(curTime));
+        System.out.println("CURRENT POSE: "+getPose.get());
+        System.out.println("TARGET: "+trajectory.sample(curTime));
         System.out.printf("Target Wheel Speed: (%f,%f)%n", targetWheelSpeeds.leftMetersPerSecond, targetWheelSpeeds.rightMetersPerSecond);
         double leftSpeedSetpoint = targetWheelSpeeds.leftMetersPerSecond;
         double rightSpeedSetpoint = targetWheelSpeeds.rightMetersPerSecond;

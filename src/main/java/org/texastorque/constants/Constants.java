@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
 public class Constants {
     public static final double SECONDS_PER_MINUTE = 60;
     public static final double SECONDS_PER_SPARK_FEEDBACK = 0.1;
-
+    public static final double FOOT_TO_METER = 0.3048;
     public static final double CONVERSION_SHOOTER_TO_RPM = 32;
     
     public static final double TICKS_PER_ENCODER_REV = 4096;
@@ -23,7 +23,7 @@ public class Constants {
     public static final double DB_MAX_ACCEL_METER = DB_MAX_ACCEL * 0.3048;
     public static final double DB_MAX_JERK = 60.0; // max jerk (ft/s/s/s)
 
-    public static final double TICKS_PER_FOOT_DB = 4.4096;
+    public static final double TICKS_PER_FOOT_DB = 7.33;
     public static final double CAMERA_ANGLE_X = 60;
 
     public static final double DIFFERENCE_CENTERPORT_LIMELIGHT = 75.25;

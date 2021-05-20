@@ -142,6 +142,12 @@ public class Feedback {
             leftTare = leftPosition / Constants.TICKS_PER_FOOT_DB;
             rightTare = rightPosition / Constants.TICKS_PER_FOOT_DB;
         }
+
+        @Override
+        public void smartDashboard() {
+            SmartDashboard.putNumber("[Feedback]leftDistance", getLeftDistance());
+            SmartDashboard.putNumber("[Feedback]rightDistance", getRightDistance());
+        }
     }
 
     // =====
