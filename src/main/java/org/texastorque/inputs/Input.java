@@ -478,23 +478,23 @@ public class Input {
             reset();
         
             if(operator.getYButton()) { // Layup
-                flywheelSpeed = 750;
+                flywheelSpeed = 730;
                 flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.LAYUP;
             } else if(operator.getBButton()) { // Trench
-                flywheelSpeed = 700;
+                flywheelSpeed = 710;
                 flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.TRENCH;
             } else if(operator.getAButton()) { // Longshot
-                flywheelSpeed = 800;
+                flywheelSpeed = 1100;
                 flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.LONGSHOT;
             } else if (operator.getXButton()) { // limelight
                 // TODO: Make this button automatically shoot all balls!
                 feedback.getLimelightFeedback().setLimelightOn(true);
                 distanceAway = feedback.getLimelightFeedback().getDistanceAway();
-                flywheelSpeed = 700;
-                flywheelPercent = 55/100;
+                flywheelSpeed = 710;
+                flywheelPercent = 60/100;
                 hoodSetpoint = HoodSetpoint.LIMELIGHT;
             }
         }

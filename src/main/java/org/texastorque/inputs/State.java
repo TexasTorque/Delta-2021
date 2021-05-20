@@ -43,7 +43,7 @@ public class State {
      * Hood setpoints
      */
     public enum HoodSetpoint {
-        NEUTRAL(0), LAYUP(1), LIMELIGHT(34), LONGSHOT(36), TRENCH(36);
+        NEUTRAL(0), LAYUP(4), LIMELIGHT(52), LONGSHOT(42), TRENCH(52);
         private final int id;
         
         HoodSetpoint(int id) { this.id = id; }
