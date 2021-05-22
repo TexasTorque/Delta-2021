@@ -77,6 +77,7 @@ public class Shooter extends Subsystem {
 
     protected void updateFeedback(){
         feedback.getShooterFeedback().setHoodPosition(hood.getPosition());
+        feedback.getShooterFeedback().setShooterVelocity(flywheel.getVelocity());
     };
 
     /**
