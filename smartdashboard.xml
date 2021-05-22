@@ -1,5 +1,14 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="[DB]LinedUp" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="703"/>
+	</widget>
+	<widget field="[DB]linedUp" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="200"/>
+	</widget>
+	<widget field="[DB]hOffset" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="100"/>
+	</widget>
 	<widget field="[Feedback]MagHigh" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
 		<location x="926" y="97"/>
 		<width>145</width>
