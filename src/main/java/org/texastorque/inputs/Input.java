@@ -471,6 +471,8 @@ public class Input {
         private HoodSetpoint hoodSetpoint;
         
         private double distanceAway = 0;
+
+        private boolean doRumble = false;
         
 
         @Override
@@ -497,6 +499,9 @@ public class Input {
                 flywheelPercent = 60/100;
                 hoodSetpoint = HoodSetpoint.LIMELIGHT;
             }
+            
+            doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 50);
+            operator.setRumble(doRumble);
         }
 
         public double getFlywheelPercent() {
