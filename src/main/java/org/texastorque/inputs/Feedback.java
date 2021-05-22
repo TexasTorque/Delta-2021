@@ -298,8 +298,8 @@ public class Feedback {
 
         @Override
         public void smartDashboard() {
-            SmartDashboard.putBoolean("[Feedback]MagHigh", magHighCheck.get());
-            SmartDashboard.putBoolean("[Feedback]MagLow", magLowCheck.get());
+            SmartDashboard.putBoolean("[Feedback]MagHigh", !magHighCheck.get());
+            SmartDashboard.putBoolean("[Feedback]MagLow", !magLowCheck.get());
         }
     }
 
