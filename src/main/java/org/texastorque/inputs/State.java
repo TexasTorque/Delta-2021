@@ -43,7 +43,7 @@ public class State {
      * Hood setpoints
      */
     public enum HoodSetpoint {
-        NEUTRAL(0), LAYUP(4), LIMELIGHT(52), LONGSHOT(42), TRENCH(52);
+        NEUTRAL(0), LAYUP(4), LIMELIGHT(52), LONGSHOT(50), TRENCH(54);
         private final int id;
         
         HoodSetpoint(int id) { this.id = id; }
@@ -63,7 +63,7 @@ public class State {
     }
 
     /**
-     * Set the curren state
+     * Set the current state
      * @param state
      */
     public synchronized void setRobotState(RobotState state ){
