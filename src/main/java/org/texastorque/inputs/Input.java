@@ -482,11 +482,11 @@ public class Input {
                 flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.LAYUP;
             } else if(operator.getBButton()) { // Trench
-                flywheelSpeed = 710;
+                flywheelSpeed = 750;
                 flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.TRENCH;
             } else if(operator.getAButton()) { // Longshot
-                flywheelSpeed = 1100;
+                flywheelSpeed = 2200;
                 flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.LONGSHOT;
             } else if (operator.getXButton()) { // limelight
