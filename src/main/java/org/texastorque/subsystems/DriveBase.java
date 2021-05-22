@@ -44,6 +44,8 @@ public class DriveBase extends Subsystem {
     private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1).setPGains(.01).setIGains(.005)
             .setDGains(.000005).build();
     private LowPassFilter lowPassFilter = new LowPassFilter(.2);
+    private KPID leftDefaultPID = new KPID(2.29, 0, 0, 0, -1, 1);
+    private KPID rightDefaultPID = new KPID(2.29, 0, 0, 0, -1, 1);
 
     private DifferentialDriveOdometry odometry;
 
@@ -51,8 +53,8 @@ public class DriveBase extends Subsystem {
      * Instantiate a new DriveBase
      */
     private DriveBase() {
-        DBLeft.configurePID(new KPID(2.29, 0, 0, 0, -1, 1));
-        DBRight.configurePID(new KPID(2.29, 0, 0, 0, -1, 1));
+        DBLeft.configurePID(leftDefaultPID);
+        DBRight.configurePID(rightDefaultPID);
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
         DBLeft.setAlternateEncoder();
@@ -66,7 +68,7 @@ public class DriveBase extends Subsystem {
      */
     @Override
     public void initAuto() {
-        resetOdometry();
+        resetOdometry(new Pose2d());
     }
 
     /**
@@ -105,16 +107,14 @@ public class DriveBase extends Subsystem {
         rightSpeed = input.getDriveBaseInput().getRightSpeed();
         if(input.getDriveBaseInput().getDoingVelocity()) {
             System.out.printf("SETTING: (%f, %f)%n", leftSpeed, rightSpeed);
-            leftSpeed /= 200;
-            rightSpeed /= 200;
+            leftSpeed /= 25;
+            rightSpeed /= 25;
             leftSpeed = Math.max(-1, Math.min(1, leftSpeed));
             rightSpeed = Math.max(-1, Math.min(1, rightSpeed));
             System.out.printf("CONVERTED: (%f, %f)%n", leftSpeed, rightSpeed);
 
-            DBLeft.set(leftSpeed);
+            DBLeft.set(-leftSpeed);
             DBRight.set(rightSpeed);
-            // DBLeft.set(leftSpeed, ControlType.kVoltage);
-            // DBRight.set(rightSpeed, ControlType.kVoltage);
         } else output();
     }
 
@@ -178,7 +178,6 @@ public class DriveBase extends Subsystem {
         feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());
         feedback.getDriveTrainFeedback().setRightVelocity(DBRight.getVelocity());
         odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance() * Constants.FOOT_TO_METER, feedback.getDriveTrainFeedback().getRightDistance() * Constants.FOOT_TO_METER);
-        // odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance()*-0.522288, feedback.getDriveTrainFeedback().getRightDistance()*0.522288);
     }
     
     /**
@@ -192,9 +191,27 @@ public class DriveBase extends Subsystem {
     /**
      * Reset the odometry
     */
-    public void resetOdometry() {
+    public void resetOdometry(Pose2d pose) {
         resetEncoders();
-        odometry.resetPosition(new Pose2d(), feedback.getGyroFeedback().getRotation2d());
+        odometry.resetPosition(pose, feedback.getGyroFeedback().getRotation2d());
+    }
+
+    /**
+     * Use the default PIDs for DriveBase (also the vision ones!)
+     */
+    public void setDefaultKPID() {
+        DBLeft.updatePID(leftDefaultPID);
+        DBRight.updatePID(rightDefaultPID);
+    }
+
+    /**
+     * Set the DriveBase PIDS
+     * @param left
+     * @param right
+     */
+    public void setKPID(KPID left, KPID right) {
+        DBLeft.updatePID(left);
+        DBRight.updatePID(right);
     }
 
     /**

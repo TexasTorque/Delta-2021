@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import org.texastorque.auto.Command;
 import org.texastorque.constants.Constants;
 import org.texastorque.subsystems.DriveBase;
+import org.texastorque.util.KPID;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -19,7 +20,7 @@ import edu.wpi.first.wpilibj.trajectory.TrajectoryUtil;
 
 public class PathWeaver4 extends Command {
     private final Supplier<Pose2d> getPose = DriveBase.getInstance()::getPose;
-    private final RamseteController follower = new RamseteController(2, 0.7);
+    private final RamseteController follower = new RamseteController(2.74, 0.7);
     private final Timer timer = new Timer();
 
     private Trajectory trajectory;
@@ -36,7 +37,8 @@ public class PathWeaver4 extends Command {
 
     @Override
     protected void init() {
-        DriveBase.getInstance().resetOdometry();
+        DriveBase.getInstance().resetOdometry(trajectory.getInitialPose());
+        DriveBase.getInstance().setKPID(new KPID(2.74, 0, 0, 0, -1, 1), new KPID(2.74, 0, 0, 0, -1, 1));
         feedback.getDriveTrainFeedback().resetEncoders();
         input.getDriveBaseInput().setDoingVelocity(true);
         timer.reset();
@@ -77,6 +79,7 @@ public class PathWeaver4 extends Command {
     @Override
     protected void end() {
         timer.stop();
+        DriveBase.getInstance().setDefaultKPID();
         input.getDriveBaseInput().setLeftSpeed(0);
         input.getDriveBaseInput().setRightSpeed(0);
         input.getDriveBaseInput().setDoingVelocity(false);
