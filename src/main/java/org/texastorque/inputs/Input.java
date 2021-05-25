@@ -467,43 +467,50 @@ public class Input {
         private double flywheelPercent = 0;
         private double flywheelSpeed = 0;
         private double flywheelEncoderSpeed = 0;
-        
-        private HoodSetpoint hoodSetpoint;
-        
         private double distanceAway = 0;
+        // On-the-fly fine-tuning for hood & shooter by operator ≧◠‿◠≦✌
+        private double hoodFine = 0;
+        private double shooterFine = 0;
 
         private boolean doRumble = false;
+        
+        private HoodSetpoint hoodSetpoint;
         
 
         @Override
         public void update() {
             reset();
+
+            hoodFine = -operator.getLeftYAxis() * 10;
+            shooterFine = -operator.getRightYAxis() * 100;
         
             if(operator.getYButton()) { // Layup
-                flywheelSpeed = 730;
-                flywheelPercent = 60 / 100;
                 hoodSetpoint = HoodSetpoint.LAYUP;
-            } else if(operator.getBButton()) { // Trench
-                flywheelSpeed = 750;
-                flywheelPercent = 60 / 100;
+                flywheelSpeed = 4250 + shooterFine;
+            } 
+            else if(operator.getBButton()) { // Trench
                 hoodSetpoint = HoodSetpoint.TRENCH;
-            } else if(operator.getAButton()) { // Longshot
-                flywheelSpeed = 2200;
-                flywheelPercent = 60 / 100;
+                flywheelSpeed = 8000 + shooterFine;
+            } 
+            else if(operator.getAButton()) { // Longshot
                 hoodSetpoint = HoodSetpoint.LONGSHOT;
-            } else if (operator.getXButton()) { // limelight
+                flywheelSpeed = 8000 + shooterFine;
+            } 
+            else if (operator.getXButton()) { // limelight
                 // TODO: Make this button automatically shoot all balls!
+                hoodSetpoint = HoodSetpoint.LIMELIGHT;
                 feedback.getLimelightFeedback().setLimelightOn(true);
                 distanceAway = feedback.getLimelightFeedback().getDistanceAway();
-                flywheelSpeed = 710;
-                flywheelPercent = 60/100;
-                hoodSetpoint = HoodSetpoint.LIMELIGHT;
+                flywheelSpeed = 4170.043 + 51.84663*distanceAway - 3.67*Math.pow(distanceAway,2) + 0.1085119*Math.pow(distanceAway,3) - 0.0009953746*Math.pow(distanceAway, 4);
             }
             
             doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 50);
             operator.setRumble(doRumble);
         }
 
+        /**
+         * @deprecated Not currently setup properly. Use speed instead!
+         */
         public double getFlywheelPercent() {
             return flywheelPercent;
         }
