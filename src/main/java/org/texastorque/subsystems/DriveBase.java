@@ -43,7 +43,7 @@ public class DriveBase extends Subsystem {
     // PIDs
     private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1).setPGains(.01).setIGains(.005)
             .setDGains(.000005).build();
-    private LowPassFilter lowPassFilter = new LowPassFilter(.2);
+    private LowPassFilter lowPassFilter = new LowPassFilter(.5);
     private KPID leftDefaultPID = new KPID(2.29, 0, 0, 0, -1, 1);
     private KPID rightDefaultPID = new KPID(2.29, 0, 0, 0, -1, 1);
 

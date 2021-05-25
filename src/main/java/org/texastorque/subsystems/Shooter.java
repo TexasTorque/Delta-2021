@@ -13,8 +13,6 @@ import org.texastorque.torquelib.component.TorqueTalon;
 import org.texastorque.torquelib.controlLoop.ScheduledPID;
 import org.texastorque.util.KPID;
 
-import edu.wpi.first.wpilibj.PIDOutput;
-
 public class Shooter extends Subsystem {
     private static volatile Shooter instance;
     
@@ -30,13 +28,15 @@ public class Shooter extends Subsystem {
     // Variables
     private double flywheelSpeed;
     private double pidOuput = 0;
+    private HoodSetpoint hoodSetpoint = HoodSetpoint.NEUTRAL;
 
     // Motors
     private TorqueTalon flywheel = new TorqueTalon(Ports.FLYWHEEL_LEAD);
     private TorqueSparkMax hood = new TorqueSparkMax(Ports.SHOOTER_HOOD);
 
     private Shooter() {
-        flywheel.configurePID(neoKPID); // add PID to flywheel
+        // TODO: Is the below line needed or causing issues? ( ≖.≖)
+        // flywheel.configurePID(neoKPID); // add PID to flywheel
         flywheel.addFollower(Ports.FLYWHEEL_FOLLOW);
         flywheel.invertFollower();
 
@@ -54,7 +54,10 @@ public class Shooter extends Subsystem {
 
     public void runTeleop(RobotState state){
         flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
+        hoodSetpoint = input.getShooterInput().getHoodSetpoint();
+        // TODO: Use characterization to ensure this is the correct value!
         shooterPID.changeSetpoint(flywheelSpeed * Constants.RPM_CONVERSION_SPARKMAX); // change target speed of flywheel to requested speed
+        // TODO: Is this velocity outputting correctly? Possible issue!
         pidOuput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
         output();
     };
@@ -64,7 +67,7 @@ public class Shooter extends Subsystem {
     };
     
     protected void output(){
-        hood.set(input.getShooterInput().getHoodSetpoint().getValue(), ControlType.kPosition); // set hood
+        hood.set(hoodSetpoint.getValue(), ControlType.kPosition); // set hood
         if (input.getShooterInput().getPercentOutputType()) { // if percent output type, 
             flywheel.set(input.getShooterInput().getFlywheelPercent()); // just set flywheel speed to percent (-1 to 1)
         } else {
