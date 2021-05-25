@@ -23,7 +23,8 @@ public class AutoManager {
 
     private AutoManager() {
         autoSequences = new HashMap<String, Sequence>();
-        
+       
+        addSequence("Empty", new Empty());
         addSequence("Testing", new Testing());
         addSequence("AForward", new AForward());
         

@@ -222,9 +222,13 @@ public class Feedback {
          * @param hoodPosition The hood position to set
          */
         public void setHoodPosition(double hoodPosition) {
-            this.hoodPosition = hoodPosition;
+            this.hoodPosition = hoodPosition;        
         }
 
+        @Override
+        public void smartDashboard() {
+            SmartDashboard.putNumber("[Feedback]shooterVelocity", getShooterVelocity());
+        }
         
     }
 

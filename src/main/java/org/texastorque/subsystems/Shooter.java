@@ -58,16 +58,20 @@ public class Shooter extends Subsystem {
     }
 
     public void runTeleop(RobotState state){
+        updateFeedback();
         flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
         hoodSetpoint = input.getShooterInput().getHoodSetpoint();
-        // TODO: Use characterization to ensure this is the correct value!
-        shooterPID.changeSetpoint(flywheelSpeed * Constants.RPM_CONVERSION_SPARKMAX); // change target speed of flywheel to requested speed
+        double wantedSpeed = feedback.getShooterFeedback().getShooterVelocity();
+        System.out.printf("(%f, %f)%n", flywheelSpeed, wantedSpeed);
+        shooterPID.changeSetpoint(wantedSpeed); // change target speed of flywheel to requested speed
         // TODO: Is this velocity outputting correctly? Possible issue!
-        pidOuput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
+        pidOuput = shooterPID.calculate(flywheelSpeed);
+        System.out.println(pidOuput);
         output();
     };
     
     public void runAuto(RobotState state){
+        updateFeedback();
         output();
     };
     
@@ -76,17 +80,18 @@ public class Shooter extends Subsystem {
         if (input.getShooterInput().getPercentOutputType()) { // if percent output type, 
             flywheel.set(input.getShooterInput().getFlywheelPercent()); // just set flywheel speed to percent (-1 to 1)
         } else {
-            if(pidOuput > 0) {
-                flywheel.set(0); // if the PID is sending junk, (>0), ignore
-            }
-            else flywheel.set(-pidOuput); // set to opposite of pid output
+            flywheel.set(-pidOuput);
+            // if(pidOuput > 0) {
+                // flywheel.set(0); // if the PID is sending junk, (>0), ignore
+            // }
+            // else flywheel.set(-pidOuput); // set to opposite of pid output
         }
     };
 
     protected void updateFeedback(){
         feedback.getShooterFeedback().setHoodPosition(hood.getPosition());
-        feedback.getShooterFeedback().setShooterVelocity(flywheel.getVelocity());
-        System.out.println(flywheel.getVelocity());
+        feedback.getShooterFeedback().setShooterVelocity(flywheel.getRPM());
+        // System.out.printf("Shooter: %f%n",flywheel.getRPM());
     };
 
     /**
