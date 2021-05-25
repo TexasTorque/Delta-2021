@@ -13,6 +13,11 @@ import org.texastorque.torquelib.component.TorqueTalon;
 import org.texastorque.torquelib.controlLoop.ScheduledPID;
 import org.texastorque.util.KPID;
 
+import com.ctre.phoenix.motorcontrol.can.*;
+import com.ctre.phoenix.motorcontrol.*;
+
+import edu.wpi.first.wpilibj.PIDOutput;
+
 public class Shooter extends Subsystem {
     private static volatile Shooter instance;
     
@@ -34,12 +39,12 @@ public class Shooter extends Subsystem {
     private TorqueTalon flywheel = new TorqueTalon(Ports.FLYWHEEL_LEAD);
     private TorqueSparkMax hood = new TorqueSparkMax(Ports.SHOOTER_HOOD);
 
-    private Shooter() {
-        // TODO: Is the below line needed or causing issues? ( ≖.≖)
-        // flywheel.configurePID(neoKPID); // add PID to flywheel
+    private Shooter() {       
+        flywheel.configurePID(neoKPID); // add PID to flywheel
         flywheel.addFollower(Ports.FLYWHEEL_FOLLOW);
         flywheel.invertFollower();
 
+    
         hood.configurePID(hoodKPID); // add PID to hood
         hood.tareEncoder();
 
@@ -81,6 +86,7 @@ public class Shooter extends Subsystem {
     protected void updateFeedback(){
         feedback.getShooterFeedback().setHoodPosition(hood.getPosition());
         feedback.getShooterFeedback().setShooterVelocity(flywheel.getVelocity());
+        System.out.println(flywheel.getVelocity());
     };
 
     /**
