@@ -1,7 +1,13 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="[Input]shooterFine" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="467" y="355"/>
+	</widget>
+	<widget field="[Input]hoodFine" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="465" y="372"/>
+	</widget>
 	<widget field="[DB]LinedUp" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="0" y="703"/>
+		<location x="935" y="227"/>
 	</widget>
 	<widget field="[DB]linedUp" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="0" y="200"/>
@@ -111,7 +117,7 @@
 		<location x="464" y="66"/>
 		<width>390</width>
 		<height>291</height>
-		<property name="Camera Choice" value=""/>
+		<property name="Camera Choice" value="limelight"/>
 	</static-widget>
 	<widget field="[Feedback]hOffset" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="0" y="260"/>
@@ -144,7 +150,7 @@
 		<location x="-2" y="17"/>
 	</widget>
 	<widget field="[Climber]rightSpeed" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="0" y="0"/>
+		<location x="204" y="23"/>
 	</widget>
 	<widget field="AutoList" type="String Chooser" class="edu.wpi.first.smartdashboard.gui.elements.Chooser">
 		<location x="352" y="457"/>
@@ -155,6 +161,12 @@
 		<height>291</height>
 		<property name="Camera Choice" value=""/>
 	</static-widget>
+	<widget field="Auto Selector" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="252" y="379"/>
+	</widget>
+	<widget field="[Feedback]shooterVelocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="247" y="304"/>
+	</widget>
 </dashboard>
 <live-window>
 </live-window>
