@@ -32,7 +32,7 @@ public class Shooter extends Subsystem {
 
     // Variables
     private double flywheelSpeed;
-    private double pidOuput = 0;
+    private double pidOutput = 0;
     private HoodSetpoint hoodSetpoint = HoodSetpoint.NEUTRAL;
 
     // Motors
@@ -50,10 +50,10 @@ public class Shooter extends Subsystem {
 
 
         shooterPID = new ScheduledPID.Builder(0, -1, 1, 1)
-            .setPGains(0.028)
-            .setIGains(0.0008)
+            .setPGains(0.002)
+            .setIGains(0)
             .setDGains(0)
-            .setFGains(0.00385)
+            .setFGains(0.000115)
             .build();
     }
 
@@ -61,12 +61,10 @@ public class Shooter extends Subsystem {
         updateFeedback();
         flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
         hoodSetpoint = input.getShooterInput().getHoodSetpoint();
-        double wantedSpeed = feedback.getShooterFeedback().getShooterVelocity();
-        System.out.printf("(%f, %f)%n", flywheelSpeed, wantedSpeed);
-        shooterPID.changeSetpoint(wantedSpeed); // change target speed of flywheel to requested speed
-        // TODO: Is this velocity outputting correctly? Possible issue!
-        pidOuput = shooterPID.calculate(flywheelSpeed);
-        System.out.println(pidOuput);
+        double currentSpeed = feedback.getShooterFeedback().getShooterVelocity();
+        // System.out.printf("(%f, %f)%n", flywheelSpeed, currentSpeed);
+        shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
+        pidOutput = shooterPID.calculate(currentSpeed);
         output();
     };
     
@@ -80,11 +78,8 @@ public class Shooter extends Subsystem {
         if (input.getShooterInput().getPercentOutputType()) { // if percent output type, 
             flywheel.set(input.getShooterInput().getFlywheelPercent()); // just set flywheel speed to percent (-1 to 1)
         } else {
-            flywheel.set(-pidOuput);
-            // if(pidOuput > 0) {
-                // flywheel.set(0); // if the PID is sending junk, (>0), ignore
-            // }
-            // else flywheel.set(-pidOuput); // set to opposite of pid output
+            pidOutput = Math.max(0, pidOutput);
+            flywheel.set(pidOutput);
         }
     };
 

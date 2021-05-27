@@ -41,8 +41,11 @@ public class DriveBase extends Subsystem {
     private double pidValue;
 
     // PIDs
-    private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1).setPGains(.01).setIGains(.005)
-            .setDGains(.000005).build();
+    private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1)
+            .setPGains(.01)
+            .setIGains(.005)
+            .setDGains(.000005)
+            .build();
     private LowPassFilter lowPassFilter = new LowPassFilter(.5);
     private KPID leftDefaultPID = new KPID(2.29, 0, 0, 0, -1, 1);
     private KPID rightDefaultPID = new KPID(2.29, 0, 0, 0, -1, 1);
@@ -141,7 +144,7 @@ public class DriveBase extends Subsystem {
         leftSpeed = pidValue;
         rightSpeed = pidValue;
 
-        if(Math.abs(feedback.getLimelightFeedback().getXOffset()) < 2) {
+        if(Math.abs(feedback.getLimelightFeedback().getXOffset()) < .5) {
             SmartDashboard.putBoolean("[DB]LinedUp", true);
             state.setRobotState(RobotState.TELEOP);
         } else {

@@ -61,14 +61,15 @@ public class Magazine extends Subsystem {
             if(!preShootStarted) { // if the pre shoot has not already been started
                 startTime = edu.wpi.first.wpilibj.Timer.getFPGATimestamp(); // get time
                 preShootStarted = true; // indicated start of preshoot
-            } else if (edu.wpi.first.wpilibj.Timer.getFPGATimestamp() - startTime < .25) { // check if pre shoot started less than .25 seconds ago
-                velocityGate = -1; // gate open
-                velocityHigh = 0; // stop movement of velocity high
-                velocityLow = 0; // stop movement of velocity low
+            } else if (edu.wpi.first.wpilibj.Timer.getFPGATimestamp() - startTime < .15) { // check if pre shoot started less than .25 seconds ago
+                // Run the gate and high mag together first
+                velocityGate = -1; 
+                velocityHigh = 1;
+                velocityLow = 0;
             } else {
                 velocityGate = -1; // gate open
                 velocityHigh = 1;
-                velocityLow = -1;
+                velocityLow = -.9;
             }
         }
         output(); // sets motors (gate and mag) with selected seeds

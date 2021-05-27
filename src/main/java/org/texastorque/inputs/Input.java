@@ -174,11 +174,11 @@ public class Input {
             if(driver.getRightTrigger()) {
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
-                rollerSpeed = .8;
+                rollerSpeed = .7;
             } else if (driver.getLeftTrigger()) {
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
-                rollerSpeed = -.8;
+                rollerSpeed = -.7;
             } else {
                 rotaryPositionLeft = rotarySetpointsLeft[neutral.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[neutral.getValue()];
@@ -321,7 +321,7 @@ public class Input {
         public void smartDashboard() {}
 
         public boolean needPreShoot() {
-            return operator.getDPADUp();
+            return shootingNow;
         }
 
         public double getVelocityLow() {
@@ -491,13 +491,13 @@ public class Input {
             } 
             else if(operator.getBButton()) { // Trench
                 hoodSetpoint = HoodSetpoint.TRENCH;
-                flywheelSpeed = 8000 + shooterFine;
+                flywheelSpeed = 6000 + shooterFine;
                 flywheelPercent = .6;
             
             } 
             else if(operator.getAButton()) { // Longshot
                 hoodSetpoint = HoodSetpoint.LONGSHOT;
-                flywheelSpeed = 8000 + shooterFine;
+                flywheelSpeed = 6500 + shooterFine;
                 flywheelPercent = .6;
             } 
             else if (operator.getXButton()) { // limelight
@@ -505,11 +505,12 @@ public class Input {
                 hoodSetpoint = HoodSetpoint.LIMELIGHT;
                 feedback.getLimelightFeedback().setLimelightOn(true);
                 distanceAway = feedback.getLimelightFeedback().getDistanceAway();
-                flywheelSpeed = 4170.043 + 51.84663*distanceAway - 3.67*Math.pow(distanceAway,2) + 0.1085119*Math.pow(distanceAway,3) - 0.0009953746*Math.pow(distanceAway, 4);
+                flywheelSpeed = 3000;
+                // flywheelSpeed = 4170.043 + 51.84663*distanceAway - 3.67*Math.pow(distanceAway,2) + 0.1085119*Math.pow(distanceAway,3) - 0.0009953746*Math.pow(distanceAway, 4);
                 flywheelPercent = .6;
             }
             
-            doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 50);
+            doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 200);
             operator.setRumble(doRumble);
         }
 
@@ -561,6 +562,8 @@ public class Input {
             SmartDashboard.putNumber("[Input]flywheelSpeed", flywheelSpeed);
             SmartDashboard.putBoolean("[Input]percentOutput", percentOutput);
             SmartDashboard.putNumber("[Input]hoodSetpoint", hoodSetpoint.getValue());
+            SmartDashboard.putNumber("[Input]hoodFine", hoodFine);
+            SmartDashboard.putNumber("[Input]shooterFine", shooterFine);
         }
     }
     // ======

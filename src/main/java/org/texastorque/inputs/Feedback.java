@@ -229,6 +229,7 @@ public class Feedback {
         public void smartDashboard() {
             SmartDashboard.putNumber("[Feedback]shooterVelocity", getShooterVelocity());
         }
+
         
     }
 
