@@ -41,6 +41,7 @@ public class DriveBase extends Subsystem {
     private double pidValue;
 
     // PIDs
+    // SAM NOTE
     private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1)
             .setPGains(.01)
             .setIGains(.005)
