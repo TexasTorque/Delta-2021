@@ -486,7 +486,7 @@ public class Input {
         
             if(operator.getYButton()) { // Layup
                 hoodSetpoint = HoodSetpoint.LAYUP;
-                flywheelSpeed = 4250 + shooterFine;
+                flywheelSpeed = 4250 + shooterFine; // 4250
                 flywheelPercent = .6;
             } 
             else if(operator.getBButton()) { // Trench
@@ -510,7 +510,7 @@ public class Input {
                 flywheelPercent = .6;
             }
             
-            doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 200);
+            doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 500);
             operator.setRumble(doRumble);
         }
 
