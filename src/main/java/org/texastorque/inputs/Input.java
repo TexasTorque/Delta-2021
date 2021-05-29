@@ -369,6 +369,13 @@ public class Input {
         public void setLowMag(boolean on) {
             velocityLow = on ? speedLow : 0;
         }
+
+        /**
+         * Turn off/on the autoMag
+         */
+        public void setAutoMag(boolean on){
+            autoMag = on ? true : false;
+        }
     }
 
     // =====
@@ -486,7 +493,7 @@ public class Input {
         
             if(operator.getYButton()) { // Layup
                 hoodSetpoint = HoodSetpoint.LAYUP;
-                flywheelSpeed = 4250 + shooterFine; // 4250
+                flywheelSpeed = 4250 + shooterFine;
                 flywheelPercent = .6;
             } 
             else if(operator.getBButton()) { // Trench
@@ -510,7 +517,7 @@ public class Input {
                 flywheelPercent = .6;
             }
             
-            doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 500);
+            doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 200);
             operator.setRumble(doRumble);
         }
 

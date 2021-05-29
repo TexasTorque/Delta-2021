@@ -27,6 +27,7 @@ public class AutoManager {
         addSequence("Empty", new Empty());
         addSequence("Testing", new Testing());
         addSequence("AForward", new AForward());
+        addSequence("RawShoot", new RawShoot());
         
         displayChoices();
     }
