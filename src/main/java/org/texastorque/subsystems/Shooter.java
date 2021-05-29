@@ -50,10 +50,10 @@ public class Shooter extends Subsystem {
 
 
         shooterPID = new ScheduledPID.Builder(0, -1, 1, 1)
-            .setPGains(0.002)
+            .setPGains(0.0002) // 0.002
             .setIGains(0)
             .setDGains(0)
-            .setFGains(0.000115)
+            .setFGains(0.000115) // 0.000115
             .build();
     }
 
