@@ -2,6 +2,7 @@ package org.texastorque.inputs;
 
 import org.texastorque.inputs.State.ClimberSide;
 import org.texastorque.inputs.State.ClimberState;
+import org.texastorque.inputs.State.FlywheelSpeed;
 import org.texastorque.inputs.State.HoodSetpoint;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.inputs.State.RotaryState;
@@ -320,7 +321,7 @@ public class Input {
         @Override
         public void smartDashboard() {}
 
-        public boolean needPreShoot() {
+        public boolean shootingNow() {
             return shootingNow;
         }
 
@@ -374,7 +375,14 @@ public class Input {
          * Turn off/on the autoMag
          */
         public void setAutoMag(boolean on){
-            autoMag = on ? true : false;
+            autoMag = on;
+        }
+
+        /**
+         * @param on Turn off/on the shooting now routine
+         */
+        public void setShootingNow(boolean on) {
+            shootingNow = on;
         }
     }
 
@@ -493,38 +501,52 @@ public class Input {
         
             if(operator.getYButton()) { // Layup
                 hoodSetpoint = HoodSetpoint.LAYUP;
-                flywheelSpeed = 4250 + shooterFine;
+                flywheelSpeed = FlywheelSpeed.LAYUP.getValue() + shooterFine;
                 flywheelPercent = .6;
             } 
             else if(operator.getBButton()) { // Trench
                 hoodSetpoint = HoodSetpoint.TRENCH;
-                flywheelSpeed = 6000 + shooterFine;
+                flywheelSpeed = FlywheelSpeed.TRENCH.getValue() + shooterFine;
                 flywheelPercent = .6;
             
             } 
             else if(operator.getAButton()) { // Longshot
                 hoodSetpoint = HoodSetpoint.LONGSHOT;
-                flywheelSpeed = 6500 + shooterFine;
+                flywheelSpeed = FlywheelSpeed.LONGSHOT.getValue() + shooterFine;
                 flywheelPercent = .6;
             } 
             else if (operator.getXButton()) { // limelight
-                // TODO: Make this button automatically shoot all balls!
                 hoodSetpoint = HoodSetpoint.LIMELIGHT;
-                feedback.getLimelightFeedback().setLimelightOn(true);
-                distanceAway = feedback.getLimelightFeedback().getDistanceAway();
-                flywheelSpeed = 3000;
-                // flywheelSpeed = 4170.043 + 51.84663*distanceAway - 3.67*Math.pow(distanceAway,2) + 0.1085119*Math.pow(distanceAway,3) - 0.0009953746*Math.pow(distanceAway, 4);
+                flywheelSpeed = getLimelightFlywheelSpeed();
                 flywheelPercent = .6;
             }
             
-            doRumble = (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= 200);
+            doRumble = flywheelSpeedInBounds(200);
             operator.setRumble(doRumble);
+        }
+
+        /**
+         * TODO: Make this automatically create teh perfect setpoint/speed -- not highest priority.
+         */
+        public double getLimelightFlywheelSpeed() {
+            feedback.getLimelightFeedback().setLimelightOn(true);
+            distanceAway = feedback.getLimelightFeedback().getDistanceAway();
+            return FlywheelSpeed.LIMELIGHT.getValue();
+            // return flywheelSpeed = 4170.043 + 51.84663*distanceAway - 3.67*Math.pow(distanceAway,2) + 0.1085119*Math.pow(distanceAway,3) - 0.0009953746*Math.pow(distanceAway, 4);            
+        }
+
+        /** 
+         * @param delta +/- #
+         * @return Whether the encoder flywheel speed is within delta of the requested speed (& not 0!)
+         */
+        public boolean flywheelSpeedInBounds(double delta) {
+            return (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= delta); 
         }
 
         /**
          * @deprecated Not currently setup properly. Use speed instead!
          */
-       public double getFlywheelPercent() {
+        public double getFlywheelPercent() {
             return flywheelPercent;
         }
 

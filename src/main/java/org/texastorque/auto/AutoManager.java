@@ -15,20 +15,21 @@ public class AutoManager {
 
     private HashMap<String, Sequence> autoSequences;
     private SendableChooser<String> autoSelector = new SendableChooser<String>();
-    
+
     private Sequence currentSequence;
     private boolean sequenceEnded;
-    
+
     private String autoSelectorKey = "AutoList";
 
     private AutoManager() {
         autoSequences = new HashMap<String, Sequence>();
-       
+
         addSequence("Empty", new Empty());
         addSequence("Testing", new Testing());
         addSequence("AForward", new AForward());
         addSequence("RawShoot", new RawShoot());
-        
+        addSequence("UnloadShootLine", new UnloadShootLine());
+
         displayChoices();
     }
 
@@ -46,12 +47,13 @@ public class AutoManager {
         currentSequence.run();
         sequenceEnded = currentSequence.hasEnded(); // manage state of sequence
     }
-    
-    public void chooseCurrentSequence() {
-        String autoChoice = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable(autoSelectorKey).getEntry("selected").getString("N/A");
 
-        if(autoSequences.containsKey(autoChoice)) {
-            System.out.println("Switching to auto: "+autoChoice);
+    public void chooseCurrentSequence() {
+        String autoChoice = NetworkTableInstance.getDefault().getTable("SmartDashboard").getSubTable(autoSelectorKey)
+                .getEntry("selected").getString("N/A");
+
+        if (autoSequences.containsKey(autoChoice)) {
+            System.out.println("Switching to auto: " + autoChoice);
             currentSequence = autoSequences.get(autoChoice);
         } else {
             currentSequence = new Empty();
@@ -86,13 +88,14 @@ public class AutoManager {
     public boolean getSequenceEnded() {
         return sequenceEnded;
     }
-     
+
     /**
      * Get the AutoManager instance
+     * 
      * @return AutoManager
      */
     public static synchronized AutoManager getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new AutoManager();
         }
         return instance;

@@ -42,11 +42,8 @@ public class DriveBase extends Subsystem {
 
     // PIDs
     // SAM NOTE
-    private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1)
-            .setPGains(.01)
-            .setIGains(.005)
-            .setDGains(.000005)
-            .build();
+    private ScheduledPID linePid = new ScheduledPID.Builder(0, -1, 1, 1).setPGains(.01).setIGains(.005)
+            .setDGains(.000005).build();
     private LowPassFilter lowPassFilter = new LowPassFilter(.5);
     private KPID leftDefaultPID = new KPID(2.29, 0, 0, 0, -1, 1);
     private KPID rightDefaultPID = new KPID(2.29, 0, 0, 0, -1, 1);
@@ -83,16 +80,16 @@ public class DriveBase extends Subsystem {
         leftSpeed = 0;
         rightSpeed = 0;
     }
-    
+
     /**
      * Move during telepo
      */
     @Override
     public void runTeleop(RobotState state) {
         updateFeedback();
-        
-        if(state == RobotState.AUTO) {
-            leftSpeed = input.getDriveBaseInput().getLeftSpeed();    
+
+        if (state == RobotState.AUTO) {
+            leftSpeed = input.getDriveBaseInput().getLeftSpeed();
             rightSpeed = input.getDriveBaseInput().getRightSpeed();
         } else if (state == RobotState.VISION) {
             runVision();
@@ -109,7 +106,7 @@ public class DriveBase extends Subsystem {
 
         leftSpeed = input.getDriveBaseInput().getLeftSpeed();
         rightSpeed = input.getDriveBaseInput().getRightSpeed();
-        if(input.getDriveBaseInput().getDoingVelocity()) {
+        if (input.getDriveBaseInput().getDoingVelocity()) {
             System.out.printf("SETTING: (%f, %f)%n", leftSpeed, rightSpeed);
             leftSpeed /= 25;
             rightSpeed /= 25;
@@ -119,7 +116,8 @@ public class DriveBase extends Subsystem {
 
             DBLeft.set(-leftSpeed);
             DBRight.set(rightSpeed);
-        } else output();
+        } else
+            output();
     }
 
     /**
@@ -145,7 +143,7 @@ public class DriveBase extends Subsystem {
         leftSpeed = pidValue;
         rightSpeed = pidValue;
 
-        if(Math.abs(feedback.getLimelightFeedback().getXOffset()) < .5) {
+        if (Math.abs(feedback.getLimelightFeedback().getXOffset()) < .5) {
             SmartDashboard.putBoolean("[DB]LinedUp", true);
             state.setRobotState(RobotState.TELEOP);
         } else {
@@ -165,7 +163,7 @@ public class DriveBase extends Subsystem {
         lowPassFilter.clear();
 
         feedback.getLimelightFeedback().setLimelightOn(true);
-        
+
         double dbLeft = input.getDriveBaseInput().getLeftSpeed();
         double dbRight = input.getDriveBaseInput().getRightSpeed();
         leftSpeed = dbLeft < 0 ? ((dbLeft * dbLeft) * (-1)) * speedMult : ((dbLeft * dbLeft)) * speedMult;
@@ -181,9 +179,11 @@ public class DriveBase extends Subsystem {
         feedback.getDriveTrainFeedback().setRightPosition(DBRight.getPosition());
         feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());
         feedback.getDriveTrainFeedback().setRightVelocity(DBRight.getVelocity());
-        odometry.update(feedback.getGyroFeedback().getRotation2d(), feedback.getDriveTrainFeedback().getLeftDistance() * Constants.FOOT_TO_METER, feedback.getDriveTrainFeedback().getRightDistance() * Constants.FOOT_TO_METER);
+        odometry.update(feedback.getGyroFeedback().getRotation2d(),
+                feedback.getDriveTrainFeedback().getLeftDistance() * Constants.FOOT_TO_METER,
+                feedback.getDriveTrainFeedback().getRightDistance() * Constants.FOOT_TO_METER);
     }
-    
+
     /**
      * Set the zero values for the encoder to the current values
      */
@@ -194,7 +194,7 @@ public class DriveBase extends Subsystem {
 
     /**
      * Reset the odometry
-    */
+     */
     public void resetOdometry(Pose2d pose) {
         resetEncoders();
         odometry.resetPosition(pose, feedback.getGyroFeedback().getRotation2d());
@@ -210,6 +210,7 @@ public class DriveBase extends Subsystem {
 
     /**
      * Set the DriveBase PIDS
+     * 
      * @param left
      * @param right
      */
@@ -223,11 +224,12 @@ public class DriveBase extends Subsystem {
      * @return Wheel speeds for odometry
      */
     /*
-     public DifferentialDriveWheelSpeeds getWheelSpeeds() {
-        // TODO : check if need one negative
-        return new DifferentialDriveWheelSpeeds(feedback.getDriveTrainFeedback().getLeftDistance()*0.0653176971, feedback.getDriveTrainFeedback().getRightVelocity()*0.0653176971);
-    }
-    */
+     * public DifferentialDriveWheelSpeeds getWheelSpeeds() { // TODO : check if
+     * need one negative return new
+     * DifferentialDriveWheelSpeeds(feedback.getDriveTrainFeedback().getLeftDistance
+     * ()*0.0653176971,
+     * feedback.getDriveTrainFeedback().getRightVelocity()*0.0653176971); }
+     */
 
     /**
      * @return The left drive distance
@@ -249,7 +251,7 @@ public class DriveBase extends Subsystem {
     public double getRightDistance() {
         return DBRight.getPosition();
     }
-    
+
     /**
      * Update values in SmartDashboard
      */
@@ -257,10 +259,10 @@ public class DriveBase extends Subsystem {
     public void smartDashboard() {
         // Speeds
         SmartDashboard.putNumber("[DB]leftSpeed", leftSpeed);
-        SmartDashboard.putNumber("[DB]rightSpeed", rightSpeed); 
+        SmartDashboard.putNumber("[DB]rightSpeed", rightSpeed);
         // Distance
-        SmartDashboard.putNumber("[DB]leftDistance", getLeftDistance()); 
-        SmartDashboard.putNumber("[DB]rightDistance", getRightDistance()); 
+        SmartDashboard.putNumber("[DB]leftDistance", getLeftDistance());
+        SmartDashboard.putNumber("[DB]rightDistance", getRightDistance());
         SmartDashboard.putNumber("[DB]odometryX", getPose().getX());
         SmartDashboard.putNumber("[DB]odometryY", getPose().getY());
         SmartDashboard.putNumber("[DB]odometryRadians", getPose().getRotation().getRadians());
@@ -270,10 +272,11 @@ public class DriveBase extends Subsystem {
 
     /**
      * Get the DriveBase instance
+     * 
      * @return DriveBase
      */
     public static synchronized DriveBase getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new DriveBase();
         }
         return instance;

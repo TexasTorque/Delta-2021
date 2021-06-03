@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Climber extends Subsystem {
     private static volatile Climber instance;
-    
+
     // Cached instances
     private Input input = Input.getInstance();
 
@@ -41,7 +41,7 @@ public class Climber extends Subsystem {
     @Override
     public void initTeleop() {
         climbStatus = ClimberState.NEUTRAL;
-        climberLeftSpeed = 0; 
+        climberLeftSpeed = 0;
         climberRightSpeed = 0;
     }
 
@@ -51,8 +51,8 @@ public class Climber extends Subsystem {
     @Override
     public void runTeleop(RobotState state) {
         climbStatus = input.getClimberInput().getClimberStatus(); // climber neutral, extend, retract
-        if(!input.getClimberInput().getManualClimb()) { // if climbing is not manual...
-            switch(climbStatus) {
+        if (!input.getClimberInput().getManualClimb()) { // if climbing is not manual...
+            switch (climbStatus) {
                 case RETRACT:
                     climberLeftSpeed = 0.3;
                     climberRightSpeed = -0.3;
@@ -64,14 +64,15 @@ public class Climber extends Subsystem {
                     climberRightSpeed = 0;
                     break;
                 case EXTEND:
-                    if(notStarted) { // if extension has not started
+                    if (notStarted) { // if extension has not started
                         leftRatchetPos = 0.75;
                         rightRatchetPos = -0.75;
                         notStarted = false;
                         inReverse = true;
                         startTime = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
-                    } else if(inReverse) { // if in reverse...
-                        if(edu.wpi.first.wpilibj.Timer.getFPGATimestamp() - startTime < .1) { // if climb started less than 0.1 seconds ago
+                    } else if (inReverse) { // if in reverse...
+                        if (edu.wpi.first.wpilibj.Timer.getFPGATimestamp() - startTime < .1) { // if climb started less
+                                                                                               // than 0.1 seconds ago
                             climberLeftSpeed = 0.1;
                             climberRightSpeed = -0.1;
                         } else { // after 0.1 seconds, stop reversing
@@ -83,8 +84,8 @@ public class Climber extends Subsystem {
                     }
                     break;
             }
-        } else { // if in manual climb mode ... 
-            switch(input.getClimberInput().getSideToExtend()) { // check the side requested to shift to
+        } else { // if in manual climb mode ...
+            switch (input.getClimberInput().getSideToExtend()) { // check the side requested to shift to
                 case LEFT:
                     climberLeftSpeed = -0.3;
                     climberRightSpeed = 0;
@@ -97,7 +98,7 @@ public class Climber extends Subsystem {
                     climberLeftSpeed = 0;
                     climberRightSpeed = 0.3;
                     break;
-           }
+            }
         }
 
         output();
@@ -111,7 +112,7 @@ public class Climber extends Subsystem {
     /**
      * set sparkmaxes with outputs from runTeleop
      */
-    protected void output(){
+    protected void output() {
         climberLeft.set(climberLeftSpeed);
         climberRight.set(climberRightSpeed);
         leftRatchet.set(leftRatchetPos);
@@ -125,13 +126,13 @@ public class Climber extends Subsystem {
 
     }
 
-
     /**
      * Get the Climber instance
+     * 
      * @return Climber
      */
     public static synchronized Climber getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new Climber();
         }
         return instance;
