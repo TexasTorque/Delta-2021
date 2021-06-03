@@ -5,6 +5,7 @@ import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
+import org.texastorque.torquelib.component.TorqueVictor;
 
 public class Magazine extends Subsystem {
     private static volatile Magazine instance;
@@ -16,7 +17,6 @@ public class Magazine extends Subsystem {
     // Speeds
     private double velocityHigh;
     private double velocityLow;
-    private double velocityGate; // -1 if open, 0 if closed
 
     private final double robotMultiplier = -1;
 
@@ -27,9 +27,8 @@ public class Magazine extends Subsystem {
     private int highMag;
 
     // Motors
-    private TorqueSparkMax beltHigh = new TorqueSparkMax(Ports.BELT_HIGH);
-    private TorqueSparkMax beltLow = new TorqueSparkMax(Ports.BELT_LOW);
-    private TorqueSparkMax beltGate = new TorqueSparkMax(Ports.BELT_GATE);
+    // private TorqueVictor beltHigh = new TorqueVictor(Ports.BELT_HIGH);
+    private TorqueVictor beltLow = new TorqueVictor(Ports.BELT_LOW);
 
     /**
      * AutoMag reset ball count
@@ -50,11 +49,6 @@ public class Magazine extends Subsystem {
 
             velocityLow = input.getMagazineInput().getVelocityLow(); // ball in lower mag
             velocityHigh = input.getMagazineInput().getVelocityHigh(); // ball in upper mag
-            velocityGate = input.getMagazineInput().getVelocityGate(); // what speed should the gate be at
-
-            if (velocityGate != 0) {
-                feedback.getMagazineFeedback().resetCount(); // if gate is open, reset the ball count
-            }
         } else if ((state == RobotState.TELEOP || state == RobotState.VISION)
                 && input.getMagazineInput().shootingNow()) { // check mode AND if operator wants to pre shoot
             runShootingNow();
@@ -70,11 +64,9 @@ public class Magazine extends Subsystem {
         } else if (edu.wpi.first.wpilibj.Timer.getFPGATimestamp() - startTime < .15) { // check if pre shoot started
                                                                                        // less than .15 seconds ago
             // Run the gate and high mag together first
-            velocityGate = -1;
             velocityHigh = 1;
             velocityLow = 0;
         } else {
-            velocityGate = -1; // gate open
             velocityHigh = 1;
             velocityLow = -.9;
         }
@@ -87,7 +79,6 @@ public class Magazine extends Subsystem {
             preShootStarted = false;
             velocityLow = input.getMagazineInput().getVelocityLow();
             velocityHigh = input.getMagazineInput().getVelocityHigh();
-            velocityGate = input.getMagazineInput().getVelocityGate();
         } else {
             runShootingNow();
         }
@@ -96,9 +87,8 @@ public class Magazine extends Subsystem {
     }
 
     protected void output() { // sets motors (gate and mag) with selected seeds [executed in runTeleop]
-        beltHigh.set(velocityHigh * robotMultiplier);
-        beltLow.set(velocityLow);
-        beltGate.set(velocityGate * robotMultiplier);
+        // beltHigh.set(velocityHigh * robotMultiplier);
+        beltLow.set(velocityLow * robotMultiplier);
     }
 
     protected void updateFeedback() {

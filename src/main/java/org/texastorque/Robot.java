@@ -45,11 +45,11 @@ public class Robot extends TorqueIterative {
    * Add the subsytems to the ArrayList
    */
   private void loadSubsystems() {
-    subsystems.add(driveBase);
-    subsystems.add(intake);
+    // subsystems.add(driveBase);
+    // subsystems.add(intake);
     subsystems.add(magazine);
-    subsystems.add(climber);
-    subsystems.add(shooter);
+    // subsystems.add(climber);
+    // subsystems.add(shooter);
     autoManager.displayChoices();
   }
 
