@@ -161,9 +161,6 @@
 		<height>291</height>
 		<property name="Camera Choice" value=""/>
 	</static-widget>
-	<widget field="Auto Selector" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="252" y="379"/>
-	</widget>
 	<widget field="[Feedback]shooterVelocity" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="247" y="304"/>
 	</widget>

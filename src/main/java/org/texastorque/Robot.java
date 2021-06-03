@@ -15,7 +15,6 @@ import org.texastorque.subsystems.Shooter;
 import org.texastorque.subsystems.Subsystem;
 import org.texastorque.torquelib.base.TorqueIterative;
 
-
 public class Robot extends TorqueIterative {
 
   // Subsystems
@@ -25,7 +24,7 @@ public class Robot extends TorqueIterative {
   private Magazine magazine = Magazine.getInstance();
   private Climber climber = Climber.getInstance();
   private Shooter shooter = Shooter.getInstance();
-  
+
   // Input
   private Feedback feedback = Feedback.getInstance();
   private Input input = Input.getInstance();
@@ -33,7 +32,7 @@ public class Robot extends TorqueIterative {
 
   // Misc
   private AutoManager autoManager = AutoManager.getInstance();
-  
+
   /**
    * Load the subsytems when the robot first starts
    */
@@ -60,7 +59,7 @@ public class Robot extends TorqueIterative {
   @Override
   public void teleopInit() {
     state.setRobotState(RobotState.TELEOP);
-    subsystems.forEach(s->s.initTeleop());
+    subsystems.forEach(s -> s.initTeleop());
   }
 
   /**
@@ -68,12 +67,12 @@ public class Robot extends TorqueIterative {
    */
   @Override
   public void teleopContinuous() {
-    switch(state.getRobotState()) {
+    switch (state.getRobotState()) {
       default:
         input.update();
     }
 
-    subsystems.forEach(s->s.runTeleop(state.getRobotState()));
+    subsystems.forEach(s -> s.runTeleop(state.getRobotState()));
   }
 
   /**
@@ -81,10 +80,9 @@ public class Robot extends TorqueIterative {
    */
   @Override
   public void autoInit() {
-      state.setRobotState(RobotState.AUTO);
-      autoManager.displayChoices();
-      autoManager.chooseCurrentSequence();
-      subsystems.forEach(s->s.initAuto());
+    state.setRobotState(RobotState.AUTO);
+    autoManager.chooseCurrentSequence();
+    subsystems.forEach(s -> s.initAuto());
   }
 
   /**
@@ -93,7 +91,7 @@ public class Robot extends TorqueIterative {
   @Override
   public void autoContinuous() {
     autoManager.runCurrentSequence();
-    subsystems.forEach(c->c.runAuto(RobotState.AUTO));
+    subsystems.forEach(c -> c.runAuto(RobotState.AUTO));
   }
 
   /**
@@ -101,7 +99,7 @@ public class Robot extends TorqueIterative {
    */
   @Override
   public void disabledInit() {
-    subsystems.forEach(s->s.disable());
+    subsystems.forEach(s -> s.disable());
   }
 
   /**
@@ -110,9 +108,11 @@ public class Robot extends TorqueIterative {
   @Override
   public void alwaysContinuous() {
     feedback.update();
-    subsystems.forEach(c->c.smartDashboard());  
+    autoManager.displayChoices();
+    subsystems.forEach(c -> c.smartDashboard());
   }
 
   @Override
-  public void endCompetition() {}
+  public void endCompetition() {
+  }
 }
