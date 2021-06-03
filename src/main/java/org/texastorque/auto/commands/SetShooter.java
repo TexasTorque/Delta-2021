@@ -30,7 +30,7 @@ public class SetShooter extends Command {
     protected boolean endCondition() {
         // Stop if flywheel speed is 0 (natural ramp down) or the speed is +/- 200 of
         // requested
-        return flywheelSpeed.getValue() == 0 || input.getShooterInput().flywheelSpeedInBounds(200);
+        return flywheelSpeed.getValue() == 0 || input.getShooterInput().flywheelSpeedInBounds(300);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class UnloadShootLine extends Sequence {
     protected void init() {
         // Set the shooter
         ArrayList<Command> prepareShooter = new ArrayList<>();
-        prepareShooter.add(new SetShooter(0, HoodSetpoint.LIMELIGHT, FlywheelSpeed.LIMELIGHT));
+        prepareShooter.add(new SetShooter(0, HoodSetpoint.UNLOADSHOOTLINE, FlywheelSpeed.UNLOADSHOOTLINE));
 
         // Execute output
         ArrayList<Command> shootBalls = new ArrayList<>();
@@ -29,11 +29,13 @@ public class UnloadShootLine extends Sequence {
 
         // Go back
         ArrayList<Command> goBack = new ArrayList<>();
-        goBack.add(new DriveTime(0, .25, -.4));
+        // goBack.add(new DriveTime(0, .25, -.4));
+        goBack.add(new DriveDistance(0,-20));
 
         // Go forward
         ArrayList<Command> goForward = new ArrayList<>();
-        goForward.add(new DriveTime(0, .75, .4));
+        // goForward.add(new DriveTime(0, .75, .4));
+        goForward.add(new DriveDistance(0, 30));
 
         addBlock(prepareShooter);
         addBlock(shootBalls);

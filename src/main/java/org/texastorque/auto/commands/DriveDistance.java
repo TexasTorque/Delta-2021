@@ -46,8 +46,15 @@ public class DriveDistance extends Command {
         SmartDashboard.putNumber("[DriveDistance]rightDistance", feedback.getDriveTrainFeedback().getRightDistance());
         position = lowPass.filter(currentDifference);
         pidCalc = drivePID.calculate(position);
-        input.getDriveBaseInput().setLeftSpeed(-.4);
-        input.getDriveBaseInput().setRightSpeed(.4);
+        
+        if (distance > 0) {
+            input.getDriveBaseInput().setLeftSpeed(-.4);
+            input.getDriveBaseInput().setRightSpeed(.4);
+        }
+        else if (distance < 0) {
+            input.getDriveBaseInput().setLeftSpeed(.4);
+            input.getDriveBaseInput().setRightSpeed(-.4);
+        }
     }
 
     @Override

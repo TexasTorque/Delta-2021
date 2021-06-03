@@ -52,10 +52,11 @@ public class State {
     }
 
     /**
-     * Hood setpoints
+     * Hood setpointsp
      */
     public enum HoodSetpoint {
-        NEUTRAL(0), LAYUP(4), LIMELIGHT(50), LONGSHOT(57), TRENCH(61);
+        NEUTRAL(0), LAYUP(4), LIMELIGHT(50), LONGSHOT(57), TRENCH(61), UNLOADSHOOTLINE(53);
+
 
         private final int id;
 
@@ -63,6 +64,7 @@ public class State {
             this.id = id;
         }
 
+        
         public int getValue() {
             return id;
         }
@@ -72,7 +74,7 @@ public class State {
      * Flywheel speeds
      */
     public enum FlywheelSpeed {
-        NEUTRAL(0), LIMELIGHT(3900), LAYUP(4250), TRENCH(6000), LONGSHOT(6500);
+        NEUTRAL(0), LIMELIGHT(3900), LAYUP(4250), TRENCH(6000), LONGSHOT(6500), UNLOADSHOOTLINE(5627);
 
         private final int id;
 
