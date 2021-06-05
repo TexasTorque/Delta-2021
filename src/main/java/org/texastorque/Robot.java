@@ -47,8 +47,8 @@ public class Robot extends TorqueIterative {
   private void loadSubsystems() {
     // subsystems.add(driveBase);
     // subsystems.add(intake);
-    subsystems.add(magazine);
-    // subsystems.add(climber);
+    // subsystems.add(magazine);
+    subsystems.add(climber);
     // subsystems.add(shooter);
     autoManager.displayChoices();
   }

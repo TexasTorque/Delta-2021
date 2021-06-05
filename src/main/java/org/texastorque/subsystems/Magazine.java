@@ -4,7 +4,6 @@ import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State.RobotState;
-import org.texastorque.torquelib.component.TorqueSparkMax;
 import org.texastorque.torquelib.component.TorqueVictor;
 
 public class Magazine extends Subsystem {
