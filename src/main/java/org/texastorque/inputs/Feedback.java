@@ -13,10 +13,11 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class Feedback {
     private static volatile Feedback instance;
-    
+
     // Cached modules
     private static DriveTrainFeedback driveTrainFeedback;
     private static IntakeFeedback intakeFeedback;
@@ -24,6 +25,7 @@ public class Feedback {
     private static MagazineFeedback magazineFeedback;
     private static LimelightFeedback limelightFeedback;
     private static GyroFeedback gyroFeedback;
+    private static WheelOfFortuneFeedback wheelOfFortuneFeedback;
 
     private static ArrayList<TorqueFeedbackModule> modules;
 
@@ -37,6 +39,7 @@ public class Feedback {
         magazineFeedback = new MagazineFeedback();
         limelightFeedback = new LimelightFeedback();
         gyroFeedback = new GyroFeedback();
+        wheelOfFortuneFeedback = new WheelOfFortuneFeedback();
 
         modules = new ArrayList<>();
         modules.add(driveTrainFeedback);
@@ -45,6 +48,7 @@ public class Feedback {
         modules.add(magazineFeedback);
         modules.add(limelightFeedback);
         modules.add(gyroFeedback);
+        modules.add(wheelOfFortuneFeedback);
     }
 
     /**
@@ -75,30 +79,34 @@ public class Feedback {
 
         /**
          * Set the left position
+         * 
          * @param leftPosition Usually TorqueSparkMax.getPosition()
          */
         public void setLeftPosition(double leftPosition) {
             this.leftPosition = leftPosition / Constants.TICKS_PER_FOOT_DB;
         }
-        
+
         /**
          * Set the right position
+         * 
          * @param rightPosition Usually TorqueSparkMax.getPosition()
          */
         public void setRightPosition(double rightPosition) {
             this.rightPosition = rightPosition / Constants.TICKS_PER_FOOT_DB;
         }
-        
+
         /**
          * Set the left velocity
+         * 
          * @param leftVelocity Usually TorqueSparkMax.getVelocity()
          */
         public void setLeftVelocity(double leftVelocity) {
-            this.leftVelocity = leftVelocity; 
+            this.leftVelocity = leftVelocity;
         }
-        
+
         /**
-         * Set the right velocity 
+         * Set the right velocity
+         * 
          * @param rightVelocity Usually TorqueSparkMax.getVelocity()
          */
         public void setRightVelocity(double rightVelocity) {
@@ -111,9 +119,9 @@ public class Feedback {
         public double getLeftDistance() {
             return -leftPosition + leftTare;
         }
-        
+
         /**
-        * @return The distance traveled on the right
+         * @return The distance traveled on the right
          */
         public double getRightDistance() {
             return rightPosition - rightTare;
@@ -159,6 +167,7 @@ public class Feedback {
 
         /**
          * Update the rotary position left
+         * 
          * @param rotaryPositionLeft The position to set
          */
         public void setRotaryPositionLeft(double rotaryPositionLeft) {
@@ -167,6 +176,7 @@ public class Feedback {
 
         /**
          * Update the rotary position right
+         * 
          * @param rotaryPositionRight The position to set
          */
         public void setRotaryPositionRight(double rotaryPositionRight) {
@@ -211,18 +221,20 @@ public class Feedback {
 
         /**
          * Set the shooter velocity
-         * @param shooterVelocity The velocity to set to 
+         * 
+         * @param shooterVelocity The velocity to set to
          */
         public void setShooterVelocity(double shooterVelocity) {
             this.shooterVelocity = shooterVelocity;
         }
 
         /**
-         * Set the hood position 
+         * Set the hood position
+         * 
          * @param hoodPosition The hood position to set
          */
         public void setHoodPosition(double hoodPosition) {
-            this.hoodPosition = hoodPosition;        
+            this.hoodPosition = hoodPosition;
         }
 
         @Override
@@ -230,7 +242,6 @@ public class Feedback {
             SmartDashboard.putNumber("[Feedback]shooterVelocity", getShooterVelocity());
         }
 
-        
     }
 
     // =====
@@ -239,7 +250,7 @@ public class Feedback {
     public class MagazineFeedback extends TorqueFeedbackModule {
         private DigitalInput magHighCheck;
         private DigitalInput magLowCheck;
-        
+
         private boolean highMag = false;
         private boolean lowMag = false;
         private boolean highMagPast = false;
@@ -256,13 +267,15 @@ public class Feedback {
         public void update() {
             highMag = magHighCheck.get();
             lowMag = magLowCheck.get();
-            
-            if(ballLast != lowMag) {
-                if(!lowMag) count++;
+
+            if (ballLast != lowMag) {
+                if (!lowMag)
+                    count++;
                 ballLast = lowMag;
             }
 
-            if(!highMagPast && !highMag) highMagPast = true;
+            if (!highMagPast && !highMag)
+                highMagPast = true;
         }
 
         /**
@@ -329,10 +342,11 @@ public class Feedback {
 
         /**
          * Forcefully set the limelight ledMode
+         * 
          * @param on If it should be on or not
          */
         public void setLimelightOn(boolean on) {
-            if(on) {
+            if (on) {
                 getLimelightTable().getEntry("ledMode").forceSetNumber(3);
             } else {
                 getLimelightTable().getEntry("ledMode").forceSetNumber(1);
@@ -357,7 +371,8 @@ public class Feedback {
          * @return The distance away from the centerpoint
          */
         public double getDistanceAway() {
-            return Constants.DIFFERENCE_CENTERPORT_LIMELIGHT / Math.tan(Math.toRadians(vOffset + Constants.LIMELIGHT_ANGLE_OFFSET));
+            return Constants.DIFFERENCE_CENTERPORT_LIMELIGHT
+                    / Math.tan(Math.toRadians(vOffset + Constants.LIMELIGHT_ANGLE_OFFSET));
         }
 
         @Override
@@ -368,6 +383,7 @@ public class Feedback {
 
         /**
          * Internally get the Limelight table
+         * 
          * @return The Limelight table
          */
         private NetworkTable getLimelightTable() {
@@ -380,7 +396,7 @@ public class Feedback {
     // =====
     public class GyroFeedback extends TorqueFeedbackModule {
         private final AHRS NX_gyro;
-        
+
         private double NX_pitch;
         private double NX_yaw;
         private double NX_roll;
@@ -398,14 +414,14 @@ public class Feedback {
             NX_yaw = NX_gyro.getYaw();
             NX_roll = NX_gyro.getRoll();
         }
-        
+
         /**
          * Reset the gyro
          */
         public void resetNavX() {
             NX_gyro.reset();
         }
-        
+
         /**
          * Set the current yaw offset as the baseline
          */
@@ -442,6 +458,29 @@ public class Feedback {
         }
     }
 
+    // ====
+    // Wheel of Fortune
+    // ====
+    public class WheelOfFortuneFeedback extends TorqueFeedbackModule {
+        private Color detectedColor;
+
+        @Override
+        public void update() {
+
+        }
+
+        /**
+         * @return Get the color detected by the sensor
+         */
+        public Color getDetectedColor() {
+            return detectedColor;
+        }
+
+        public void setDetectedColor(Color color) {
+            detectedColor = color;
+        }
+    }
+
     // =====
     // Get Modules
     // =====
@@ -465,14 +504,14 @@ public class Feedback {
     public ShooterFeedback getShooterFeedback() {
         return shooterFeedback;
     }
-    
+
     /**
      * @return The MagazineFeedback
      */
     public MagazineFeedback getMagazineFeedback() {
         return magazineFeedback;
     }
-    
+
     /**
      * @return The LimelightFeedback
      */
@@ -488,11 +527,19 @@ public class Feedback {
     }
 
     /**
+     * @return The WheelOfFortuneFeedback
+     */
+    public WheelOfFortuneFeedback getWheelOfFortuneFeedback() {
+        return wheelOfFortuneFeedback;
+    }
+
+    /**
      * Get the Input instance
+     * 
      * @return Input
      */
     public static synchronized Feedback getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new Feedback();
         }
         return instance;

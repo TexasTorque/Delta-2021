@@ -28,6 +28,7 @@ public class Input {
     private MagazineInput magazineInput;
     private ClimberInput climberInput;
     private ShooterInput shooterInput;
+    private WheelOfFortuneInput wheelOfFortuneInput;
 
     /**
      * Load the state and create driver/operator controllers
@@ -42,6 +43,7 @@ public class Input {
         magazineInput = new MagazineInput();
         climberInput = new ClimberInput();
         shooterInput = new ShooterInput();
+        wheelOfFortuneInput = new WheelOfFortuneInput();
     }
 
     public void update() {
@@ -50,6 +52,7 @@ public class Input {
         magazineInput.update();
         climberInput.update();
         shooterInput.update();
+        wheelOfFortuneInput.update();
         smartDashboard();
     }
 
@@ -589,6 +592,45 @@ public class Input {
             SmartDashboard.putNumber("[Input]shooterFine", shooterFine);
         }
     }
+
+    // =====
+    // Wheel of Fortune
+    // =====
+    public class WheelOfFortuneInput implements TorqueInputModule {
+        private boolean start = false;
+        private boolean down = false;
+
+        @Override
+        public void update() {
+            start = operator.getDPADLeft();
+            down = operator.getDPADRight();
+        }
+
+        @Override
+        public void reset() {
+        }
+
+        @Override
+        public void smartDashboard() {
+            SmartDashboard.putBoolean("[Input]WOFStart", start);
+            SmartDashboard.putBoolean("[Input]WOFDown", down);
+        }
+
+        /**
+         * @return Whether WOF should start running
+         */
+        public boolean getStart() {
+            return start;
+        }
+
+        /**
+         * @return Whether WOF should stop and go down
+         */
+        public boolean getDown() {
+            return down;
+        }
+
+    }
     // ======
     // Getters
     // ======
@@ -628,6 +670,13 @@ public class Input {
         return shooterInput;
     }
 
+    /**
+     * @return The instance of WheelOfFortuneInput
+     */
+    public WheelOfFortuneInput getWheelOfFortuneInput() {
+        return wheelOfFortuneInput;
+    }
+
     // =====
     // Misc
     // =====
@@ -641,6 +690,7 @@ public class Input {
         magazineInput.smartDashboard();
         climberInput.smartDashboard();
         shooterInput.smartDashboard();
+        wheelOfFortuneInput.smartDashboard();
     }
 
     /**
