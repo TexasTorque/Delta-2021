@@ -11,6 +11,7 @@ import org.texastorque.torquelib.component.TorqueSparkMax;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.I2C;
 
 public class WheelOfFortune extends Subsystem {
@@ -37,10 +38,14 @@ public class WheelOfFortune extends Subsystem {
     private Color detectedColor = Color.kBlack;
 
     // Set points
-    private final double setWheelPosition = .8; // TODO: Need to tune!
-    private final double setWheelSpeed = .2;
+    private final double setWheelPositionLeftDown = 1;
+    private final double setWheelPositionLeftUp = .4;
+    private final double setWheelPositionRightDown = 0;
+    private final double setWheelPositionRightUp = .62;
+    private final double setWheelSpeed = .5;
     // Variables
-    private double wheelPosition = 0;
+    private double wheelPositionLeft = 0;
+    private double wheelPositionRight = 0;
     private double wheelSpeed = 0;
     private double timeStarting;
     private boolean executing = false;
@@ -69,13 +74,15 @@ public class WheelOfFortune extends Subsystem {
         // executing
         if (input.getWheelOfFortuneInput().getStart() && !executing) {
             executing = true;
-            wheelPosition = setWheelPosition;
+            wheelPositionLeft = setWheelPositionLeftUp;
+            wheelPositionRight = setWheelPositionRightUp;
             timeStarting = Timer.getFPGATimestamp();
         }
         // If a stop signal is received, stop executing
         if (input.getWheelOfFortuneInput().getDown()) {
             executing = false;
-            wheelPosition = 0;
+            wheelPositionLeft = setWheelPositionLeftDown;
+            wheelPositionRight = setWheelPositionRightDown;
         }
 
         if (executing) {
@@ -84,13 +91,32 @@ public class WheelOfFortune extends Subsystem {
             // Wait for the rotary to be fully up. We don't have encoders I believe... so
             // this has to be time-based. TODO: Tune
             if (Timer.getFPGATimestamp() - timeStarting > 1.2) {
-                // TODO: Make a way to decide what color to stop on....
-                Color requestedColor = BlueTarget;
-                Color detectedColor = colorSensor.getColor();
-                // If we have reached the detected color, stop
-                if (detectedColor.equals(requestedColor)) {
-                    wheelSpeed = 0;
-                    executing = false;
+                String gameData = DriverStation.getInstance().getGameSpecificMessage();
+                if (gameData.length() > 0) {
+                    Color requestedColor = Color.kBlack;
+                    switch (gameData.charAt(0)) {
+                        case 'B':
+                            requestedColor = BlueTarget;
+                            break;
+                        case 'G':
+                            requestedColor = GreenTarget;
+                            break;
+                        case 'R':
+                            requestedColor = RedTarget;
+                            break;
+                        case 'Y':
+                            requestedColor = YellowTarget;
+                            break;
+                        default:
+                            wheelSpeed = 0;
+                            break;
+                    }
+                    Color detectedColor = colorSensor.getColor();
+                    // If we have reached the detected color, stop
+                    if (detectedColor.equals(requestedColor)) {
+                        wheelSpeed = 0;
+                        executing = false;
+                    }
                 }
             }
         } else {
@@ -109,8 +135,11 @@ public class WheelOfFortune extends Subsystem {
 
     @Override
     protected void output() {
-        leftTurner.set(wheelPosition);
-        rightTurner.set(wheelPosition);
+        // leftTurner.set(setWheelPositionLeftUp);
+        // rightTurner.set(setWheelPositionRightUp);
+        // wheel.set(setWheelSpeed);
+        leftTurner.set(wheelPositionLeft);
+        rightTurner.set(wheelPositionRight);
         wheel.set(wheelSpeed);
     };
 

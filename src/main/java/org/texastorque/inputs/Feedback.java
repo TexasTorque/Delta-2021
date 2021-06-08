@@ -456,11 +456,10 @@ public class Feedback {
     // Wheel of Fortune
     // ====
     public class WheelOfFortuneFeedback extends TorqueFeedbackModule {
-        private Color detectedColor;
+        private Color detectedColor = Color.kBlack;
 
         @Override
         public void update() {
-
         }
 
         /**
@@ -472,6 +471,12 @@ public class Feedback {
 
         public void setDetectedColor(Color color) {
             detectedColor = color;
+        }
+
+        @Override
+        public void smartDashboard() {
+            SmartDashboard.putString("[Feedback]detectedColor",
+                    String.format("(%f, %f, %f)", detectedColor.red, detectedColor.green, detectedColor.blue));
         }
     }
 
