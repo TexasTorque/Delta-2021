@@ -26,7 +26,7 @@ public class Magazine extends Subsystem {
     private int highMag;
 
     // Motors
-    // private TorqueVictor beltHigh = new TorqueVictor(Ports.BELT_HIGH);
+    private TorqueVictor beltHigh = new TorqueVictor(Ports.BELT_HIGH);
     private TorqueVictor beltLow = new TorqueVictor(Ports.BELT_LOW);
 
     /**
@@ -86,7 +86,7 @@ public class Magazine extends Subsystem {
     }
 
     protected void output() { // sets motors (gate and mag) with selected seeds [executed in runTeleop]
-        // beltHigh.set(velocityHigh * robotMultiplier);
+        beltHigh.set(velocityHigh);
         beltLow.set(velocityLow * robotMultiplier);
     }
 
