@@ -17,11 +17,11 @@ public class Input {
     // Cached state
     private State state = State.getInstance();
     private Feedback feedback = Feedback.getInstance();
-    
-    // Controllers    
+
+    // Controllers
     private GenericController driver; // driver controller parameters
-    private GenericController operator; // operator  - -
- 
+    private GenericController operator; // operator - -
+
     // Instances
     private DriveBaseInput driveBaseInput;
     private IntakeInput intakeInput;
@@ -66,27 +66,31 @@ public class Input {
          */
         public void update() {
             double leftRight = driver.getRightXAxis(); // get joystick position
-            if(driver.getLeftCenterButton()) { 
+            if (driver.getLeftCenterButton()) {
                 getClimberInput().setClimbStartedDT(false);
             }
-            if(driver.getAButtonPressed()) { // Vision toggle
-                if(state.getRobotState() == RobotState.TELEOP) state.setRobotState(RobotState.VISION);
-                else if(state.getRobotState() == RobotState.VISION) state.setRobotState(RobotState.TELEOP);                
+            if (driver.getAButtonPressed()) { // Vision toggle
+                if (state.getRobotState() == RobotState.TELEOP)
+                    state.setRobotState(RobotState.VISION);
+                else if (state.getRobotState() == RobotState.VISION)
+                    state.setRobotState(RobotState.TELEOP);
             }
-            if(getClimberInput().getClimbStartedDT()) {
+            if (getClimberInput().getClimbStartedDT()) {
                 defaultDriveSpeed(leftRight);
-            } else if(getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL) { // maximum speed when setpoint neutral
+            } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL.getValue()) { // maximum speed when
+                                                                                                 // setpoint
+                // neutral
                 leftSpeed = driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
                 rightSpeed = -driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
             } else {
                 defaultDriveSpeed(leftRight);
             }
         }
-        
+
         private void defaultDriveSpeed(double leftRight) {
-            leftSpeed = .2*(driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-            rightSpeed = .2*(-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-        } 
+            leftSpeed = .2 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+            rightSpeed = .2 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+        }
 
         /**
          * Reset the left and right speeds
@@ -124,7 +128,7 @@ public class Input {
         private boolean doingVelocity = false;
 
         /**
-         * Get whether DB should output in velocity 
+         * Get whether DB should output in velocity
          */
         public boolean getDoingVelocity() {
             return doingVelocity;
@@ -136,6 +140,7 @@ public class Input {
         public void setRightSpeed(double rightSpeed) {
             this.rightSpeed = rightSpeed;
         }
+
         /**
          * AUTO ONLY
          */
@@ -161,18 +166,18 @@ public class Input {
         private double rotarySpeed = 0;
         private double rollerSpeed = 0;
 
-        private double[] rotarySetpointsLeft = {0, -21.5, -38};
-        private double[] rotarySetpointsRight = {0, 21.5, 44};
+        private double[] rotarySetpointsLeft = { 0, -21.5, -38 };
+        private double[] rotarySetpointsRight = { 0, 21.5, 44 };
 
         // Position to start with
         private RotaryState neutral = RotaryState.PRIME;
 
         @Override
         public void update() {
-            if(driver.getBButtonPressed()) {
+            if (driver.getBButtonPressed()) {
                 neutral = neutral == RotaryState.PRIME ? RotaryState.UP : RotaryState.PRIME;
             }
-            if(driver.getRightTrigger()) {
+            if (driver.getRightTrigger()) {
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
                 rollerSpeed = .7;
@@ -185,7 +190,7 @@ public class Input {
                 rotaryPositionRight = rotarySetpointsRight[neutral.getValue()];
                 rollerSpeed = 0;
             }
-            if(driver.getYButton()) {
+            if (driver.getYButton()) {
                 rollerSpeed = 0.5;
             }
         }
@@ -202,7 +207,7 @@ public class Input {
 
         @Override
         public void smartDashboard() {
-            SmartDashboard.putNumber("[Input]rollerSpeed", rollerSpeed); 
+            SmartDashboard.putNumber("[Input]rollerSpeed", rollerSpeed);
             SmartDashboard.putNumber("[Input]rotarySpeed", rotarySpeed);
             SmartDashboard.putNumber("[Input]rotaryPositionLeft", rotaryPositionLeft);
             SmartDashboard.putNumber("[Input]rotaryPositionRight", rotaryPositionRight);
@@ -222,7 +227,7 @@ public class Input {
             return rotaryPositionLeft;
         }
 
-        /**
+        /*
          * @return The rotary's right position
          */
         public double getRotaryPositionRight() {
@@ -238,6 +243,7 @@ public class Input {
 
         /**
          * Update the roller speed
+         * 
          * @param rollerSpeed Speed between [-1,1]
          */
         public void setRollerSpeed(double rollerSpeed) {
@@ -246,6 +252,7 @@ public class Input {
 
         /**
          * Update the rotary position (for auto)
+         * 
          * @param rotaryIndex The index of rotarySetpoints to set
          */
         public void setRotaryPosition(int rotaryIndex) {
@@ -266,43 +273,44 @@ public class Input {
         private double speedLow = .6;
         private double speedHigh = .6;
         private double speedGate = 1;
-        
+
         // 0=nothing, 1=forward, -1=backward
-        private int magLow; 
-        private int magHigh; 
+        private int magLow;
+        private int magHigh;
 
         private boolean autoMag = false;
         private boolean lastShooting = false;
         private boolean shootingNow = false;
-        
+
         @Override
         public void update() {
             reset();
 
-            if(operator.getLeftCenterButton()) autoMag = true; // left d pad turn on automag
-            else if (operator.getRightCenterButton()) autoMag = false; // right d pad turn off automag
-            
+            if (operator.getLeftCenterButton())
+                autoMag = true; // left d pad turn on automag
+            else if (operator.getRightCenterButton())
+                autoMag = false; // right d pad turn off automag
+
             // = High Mag
-            if(operator.getLeftTrigger()) { // == Ball In
+            if (operator.getLeftTrigger()) { // == Ball In
                 magHigh = 1;
                 velocityHigh = speedHigh;
-            } else if(operator.getLeftBumper()) { // == Ball Out
+            } else if (operator.getLeftBumper()) { // == Ball Out
                 magHigh = -1;
                 velocityHigh = -speedHigh;
             }
 
             // = Low Mag
-            if(operator.getRightTrigger()){ // == Balls In
+            if (operator.getRightTrigger()) { // == Balls In
                 magLow = 1;
                 velocityLow = -speedLow;
-            }
-            else if(operator.getRightBumper()){
+            } else if (operator.getRightBumper()) {
                 magLow = -1;
                 velocityLow = speedLow;
             }
 
             // = Gate
-            if(operator.getDPADDown() || operator.getDPADLeft()) {
+            if (operator.getDPADDown() || operator.getDPADLeft()) {
                 velocityGate = speedGate;
             }
 
@@ -319,7 +327,8 @@ public class Input {
         }
 
         @Override
-        public void smartDashboard() {}
+        public void smartDashboard() {
+        }
 
         public boolean shootingNow() {
             return shootingNow;
@@ -351,10 +360,11 @@ public class Input {
 
         /**
          * Turn off/on the gate
+         * 
          * @param on True=on, false=off
          */
-        public void setGate(boolean on) { 
-            velocityGate = on ? -speedGate : 0; 
+        public void setGate(boolean on) {
+            velocityGate = on ? -speedGate : 0;
         }
 
         /**
@@ -374,7 +384,7 @@ public class Input {
         /**
          * Turn off/on the autoMag
          */
-        public void setAutoMag(boolean on){
+        public void setAutoMag(boolean on) {
             autoMag = on;
         }
 
@@ -392,7 +402,7 @@ public class Input {
     public class ClimberInput implements TorqueInputModule {
         private double climberLeft = 0;
         private double climberRight = 0;
-        
+
         private ClimberState climberStatus = ClimberState.NEUTRAL;
         private ClimberSide sideToExtend = ClimberSide.NEUTRAL;
         private boolean climbStarted = false;
@@ -402,9 +412,9 @@ public class Input {
         @Override
         public void update() {
             reset();
-            if(driver.getDPADUp()) { // Extend climber
-                if(!climbStarted) { // if the climb has not been started
-                    Climber.getInstance().resetClimb(); 
+            if (driver.getDPADUp()) { // Extend climber
+                if (!climbStarted) { // if the climb has not been started
+                    Climber.getInstance().resetClimb();
                     climbStarted = true;
                     climbStartedDT = true;
                 }
@@ -428,10 +438,11 @@ public class Input {
             manualClimb = false;
             climberStatus = ClimberState.NEUTRAL;
             sideToExtend = ClimberSide.NEUTRAL;
-        }   
+        }
 
         /**
          * Update Climb Started DT (for controlling DriveTrain)
+         * 
          * @param val Value to set to
          */
         public void setClimbStartedDT(boolean val) {
@@ -457,15 +468,17 @@ public class Input {
         public double getClimberRight() {
             return climberRight;
         }
-        
+
         public boolean getClimbStartedDT() {
             return climbStartedDT;
         }
 
         @Override
         public void smartDashboard() {
-            SmartDashboard.putString("[Input]sideToExtend", sideToExtend == ClimberSide.LEFT ? "LEFT" : sideToExtend == ClimberSide.RIGHT ? "RIGHT" : "NEUTRAL");
-            SmartDashboard.putString("[Input]climberStatus", climberStatus == ClimberState.EXTEND ? "EXTEND" : climberStatus == ClimberState.RETRACT ? "RETRACT" : "NEUTRAL");
+            SmartDashboard.putString("[Input]sideToExtend", sideToExtend == ClimberSide.LEFT ? "LEFT"
+                    : sideToExtend == ClimberSide.RIGHT ? "RIGHT" : "NEUTRAL");
+            SmartDashboard.putString("[Input]climberStatus", climberStatus == ClimberState.EXTEND ? "EXTEND"
+                    : climberStatus == ClimberState.RETRACT ? "RETRACT" : "NEUTRAL");
             SmartDashboard.putBoolean("[Input]climbStarted", climbStarted);
             SmartDashboard.putBoolean("[Input]climbStartedDT", climbStartedDT);
             SmartDashboard.putBoolean("[Input]manualClimb", manualClimb);
@@ -488,9 +501,13 @@ public class Input {
         private double shooterFine = 0;
 
         private boolean doRumble = false;
-        
-        private HoodSetpoint hoodSetpoint;
-        
+
+        private double hoodSetpoint;
+
+        public ShooterInput() {
+            SmartDashboard.putNumber("[Input]ManualHood", 0);
+            SmartDashboard.putNumber("[Input]ManualFlywheel", 0);
+        }
 
         @Override
         public void update() {
@@ -498,49 +515,53 @@ public class Input {
 
             hoodFine = -operator.getLeftYAxis() * 10;
             shooterFine = -operator.getRightYAxis() * 100;
-        
-            if(operator.getYButton()) { // Layup
-                hoodSetpoint = HoodSetpoint.LAYUP;
+
+            if (operator.getYButton()) { // Layup
+                hoodSetpoint = HoodSetpoint.LAYUP.getValue();
                 flywheelSpeed = FlywheelSpeed.LAYUP.getValue() + shooterFine;
                 flywheelPercent = .6;
-            } 
-            else if(operator.getBButton()) { // Trench
-                hoodSetpoint = HoodSetpoint.TRENCH;
+            } else if (operator.getBButton()) { // Trench
+                hoodSetpoint = HoodSetpoint.TRENCH.getValue();
                 flywheelSpeed = FlywheelSpeed.TRENCH.getValue() + shooterFine;
                 flywheelPercent = .6;
-            
-            } 
-            else if(operator.getAButton()) { // Longshot
-                hoodSetpoint = HoodSetpoint.LONGSHOT;
+
+            } else if (operator.getAButton()) { // Longshot
+                hoodSetpoint = HoodSetpoint.LONGSHOT.getValue();
                 flywheelSpeed = FlywheelSpeed.LONGSHOT.getValue() + shooterFine;
                 flywheelPercent = .6;
-            } 
-            else if (operator.getXButton()) { // limelight
-                hoodSetpoint = HoodSetpoint.LIMELIGHT;
-                flywheelSpeed = getLimelightFlywheelSpeed();
+            } else if (operator.getXButton()) { // limelight
+                // hoodSetpoint = HoodSetpoint.LIMELIGHT;
+                // flywheelSpeed = getLimelightFlywheelSpeed();
+                hoodSetpoint = SmartDashboard.getNumber("[Input]ManualHood", 0);
+                flywheelSpeed = SmartDashboard.getNumber("[Input]ManualFlywheel", 0);
                 flywheelPercent = .6;
             }
-            
+
             doRumble = flywheelSpeedInBounds(200);
             operator.setRumble(doRumble);
         }
 
         /**
-         * TODO: Make this automatically create teh perfect setpoint/speed -- not highest priority.
+         * TODO: Make this automatically create teh perfect setpoint/speed -- not
+         * highest priority.
          */
         public double getLimelightFlywheelSpeed() {
             feedback.getLimelightFeedback().setLimelightOn(true);
             distanceAway = feedback.getLimelightFeedback().getDistanceAway();
             return FlywheelSpeed.LIMELIGHT.getValue();
-            // return flywheelSpeed = 4170.043 + 51.84663*distanceAway - 3.67*Math.pow(distanceAway,2) + 0.1085119*Math.pow(distanceAway,3) - 0.0009953746*Math.pow(distanceAway, 4);            
+            // return flywheelSpeed = 4170.043 + 51.84663*distanceAway -
+            // 3.67*Math.pow(distanceAway,2) + 0.1085119*Math.pow(distanceAway,3) -
+            // 0.0009953746*Math.pow(distanceAway, 4);
         }
 
-        /** 
+        /**
          * @param delta +/- #
-         * @return Whether the encoder flywheel speed is within delta of the requested speed (& not 0!)
+         * @return Whether the encoder flywheel speed is within delta of the requested
+         *         speed (& not 0!)
          */
         public boolean flywheelSpeedInBounds(double delta) {
-            return (flywheelSpeed != 0) && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= delta); 
+            return (flywheelSpeed != 0)
+                    && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= delta);
         }
 
         /**
@@ -558,7 +579,7 @@ public class Input {
             return percentOutput;
         }
 
-        public HoodSetpoint getHoodSetpoint() {
+        public double getHoodSetpoint() {
             return hoodSetpoint;
         }
 
@@ -575,14 +596,14 @@ public class Input {
         }
 
         public void setHoodSetpoint(HoodSetpoint setPoint) {
-            hoodSetpoint = setPoint;
+            hoodSetpoint = setPoint.getValue();
         }
 
         @Override
         public void reset() {
-           hoodSetpoint = HoodSetpoint.NEUTRAL;
-           flywheelSpeed = 0;
-           flywheelPercent = 0; 
+            hoodSetpoint = HoodSetpoint.NEUTRAL.getValue();
+            flywheelSpeed = 0;
+            flywheelPercent = 0;
         }
 
         @Override
@@ -590,7 +611,7 @@ public class Input {
             SmartDashboard.putNumber("[Input]flywheelPercent", flywheelPercent);
             SmartDashboard.putNumber("[Input]flywheelSpeed", flywheelSpeed);
             SmartDashboard.putBoolean("[Input]percentOutput", percentOutput);
-            SmartDashboard.putNumber("[Input]hoodSetpoint", hoodSetpoint.getValue());
+            SmartDashboard.putNumber("[Input]hoodSetpoint", hoodSetpoint);
             SmartDashboard.putNumber("[Input]hoodFine", hoodFine);
             SmartDashboard.putNumber("[Input]shooterFine", shooterFine);
         }
@@ -598,13 +619,13 @@ public class Input {
     // ======
     // Getters
     // ======
-    
+
     /**
      * @return The instance of the DriveBaseInput
      */
     public DriveBaseInput getDriveBaseInput() {
         return driveBaseInput;
-    }    
+    }
 
     /**
      * @return The instance of the IntakeInput
@@ -640,7 +661,7 @@ public class Input {
 
     /**
      * Update the values in SmartDashboard
-    */
+     */
     public void smartDashboard() { // calls the smartDashboard method of each subclass within
         driveBaseInput.smartDashboard();
         intakeInput.smartDashboard();
@@ -651,10 +672,11 @@ public class Input {
 
     /**
      * Get the Input instance
+     * 
      * @return Input
      */
     public static synchronized Input getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new Input();
         }
         return instance;
