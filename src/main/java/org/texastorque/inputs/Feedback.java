@@ -250,29 +250,24 @@ public class Feedback {
     public class MagazineFeedback extends TorqueFeedbackModule {
         private DigitalInput magHighCheck;
         private DigitalInput magLowCheck;
+        private DigitalInput magMiddleCheck;
 
         private boolean highMag = false;
+        private boolean middleMag = false;
         private boolean lowMag = false;
         private boolean highMagPast = false;
 
-        private boolean ballLast;
-        private int count;
-
         private MagazineFeedback() {
             magHighCheck = new DigitalInput(Ports.MAG_SENSOR_HIGH);
+            magMiddleCheck = new DigitalInput(Ports.MAG_SENSOR_MIDDLE);
             magLowCheck = new DigitalInput(Ports.MAG_SENSOR_LOW);
         }
 
         @Override
         public void update() {
             highMag = magHighCheck.get();
+            middleMag = magMiddleCheck.get();
             lowMag = magLowCheck.get();
-
-            if (ballLast != lowMag) {
-                if (!lowMag)
-                    count++;
-                ballLast = lowMag;
-            }
 
             if (!highMagPast && !highMag)
                 highMagPast = true;
@@ -282,15 +277,7 @@ public class Feedback {
          * Reset the count and highMagPast
          */
         public void resetCount() {
-            count = 0;
             highMagPast = false;
-        }
-
-        /**
-         * @return The ball count
-         */
-        public int getCount() {
-            return count;
         }
 
         /**
@@ -305,6 +292,13 @@ public class Feedback {
          */
         public boolean getMagHigh() {
             return highMag;
+        }
+
+        /**
+         * @return True if seeing a ball in the high mag
+         */
+        public boolean getMagMiddle() {
+            return middleMag;
         }
 
         /**

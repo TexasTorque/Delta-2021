@@ -22,8 +22,6 @@ public class Magazine extends Subsystem {
     // Values
     private boolean preShootStarted = false;
     private double startTime;
-    private int lowMag;
-    private int highMag;
 
     // Motors
     // private TorqueVictor beltHigh = new TorqueVictor(Ports.BELT_HIGH);
@@ -43,11 +41,20 @@ public class Magazine extends Subsystem {
 
         if ((state == RobotState.TELEOP || state == RobotState.VISION) && !input.getMagazineInput().shootingNow()) {
             preShootStarted = false;
-            lowMag = input.getMagazineInput().getMagLow(); // Low mag
-            highMag = input.getMagazineInput().getMagHigh(); // High mag
-
-            velocityLow = input.getMagazineInput().getVelocityLow(); // ball in lower mag
-            velocityHigh = input.getMagazineInput().getVelocityHigh(); // ball in upper mag
+            
+            if (input.getMagazineInput().getAutoMag()) {
+                //run upper and lower mag
+                //if ball clears second sensor
+                    //stop upper magazine
+                    //if ball reaches second sensor
+                        //start upper magazine
+                        //if first ball reaches third sensor
+                            //stop upper magazine
+                            
+            } else {
+                velocityLow = input.getMagazineInput().getVelocityLow(); // ball in lower mag
+                velocityHigh = input.getMagazineInput().getVelocityHigh(); // ball in upper mag    
+            }
         } else if ((state == RobotState.TELEOP || state == RobotState.VISION)
                 && input.getMagazineInput().shootingNow()) { // check mode AND if operator wants to pre shoot
             runShootingNow();

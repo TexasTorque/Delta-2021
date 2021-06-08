@@ -339,6 +339,14 @@ public class Input {
             return velocityHigh;
         }
 
+        public double getSetSpeedLow() {
+            return speedLow;
+        }
+
+        public double getSetSpeedHigh() {
+            return speedHigh;
+        }
+
         public int getMagLow() {
             return magLow;
         }

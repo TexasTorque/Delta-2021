@@ -39,8 +39,9 @@ public class Ports {
     public static final int WHEEL_OF_FORTUNE_RIGHT = 3;
 
     // Sensors
-    public static final int MAG_SENSOR_HIGH = 3;
-    public static final int MAG_SENSOR_LOW = 2;
+    public static final int MAG_SENSOR_HIGH = 6;
+    public static final int MAG_SENSOR_MIDDLE = 5;
+    public static final int MAG_SENSOR_LOW = 4;
 
     // Control Panel
     public static final int CP_MOTOR_PORT = 0;
