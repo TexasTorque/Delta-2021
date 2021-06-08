@@ -80,8 +80,9 @@ public class Input {
             }
             if (getClimberInput().getClimbStartedDT()) {
                 defaultDriveSpeed(leftRight);
-            } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL) { // maximum speed when setpoint
-                                                                                      // neutral
+            } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL.getValue()) { // maximum speed when
+                                                                                                 // setpoint
+                // neutral
                 leftSpeed = driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
                 rightSpeed = -driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
             } else {
@@ -485,7 +486,7 @@ public class Input {
 
         private boolean doRumble = false;
 
-        private HoodSetpoint hoodSetpoint;
+        private double hoodSetpoint;
 
         @Override
         public void update() {
@@ -495,20 +496,19 @@ public class Input {
             shooterFine = -operator.getRightYAxis() * 100;
 
             if (operator.getYButton()) { // Layup
-                hoodSetpoint = HoodSetpoint.LAYUP;
+                hoodSetpoint = HoodSetpoint.LAYUP.getValue();
                 flywheelSpeed = FlywheelSpeed.LAYUP.getValue() + shooterFine;
                 flywheelPercent = .6;
             } else if (operator.getBButton()) { // Trench
-                hoodSetpoint = HoodSetpoint.TRENCH;
+                hoodSetpoint = HoodSetpoint.TRENCH.getValue();
                 flywheelSpeed = FlywheelSpeed.TRENCH.getValue() + shooterFine;
                 flywheelPercent = .6;
-
             } else if (operator.getAButton()) { // Longshot
-                hoodSetpoint = HoodSetpoint.LONGSHOT;
+                hoodSetpoint = HoodSetpoint.LONGSHOT.getValue();
                 flywheelSpeed = FlywheelSpeed.LONGSHOT.getValue() + shooterFine;
                 flywheelPercent = .6;
             } else if (operator.getXButton()) { // limelight
-                hoodSetpoint = HoodSetpoint.LIMELIGHT;
+                hoodSetpoint = HoodSetpoint.LIMELIGHT.getValue();
                 flywheelSpeed = getLimelightFlywheelSpeed();
                 flywheelPercent = .6;
             }
@@ -555,7 +555,7 @@ public class Input {
             return percentOutput;
         }
 
-        public HoodSetpoint getHoodSetpoint() {
+        public double getHoodSetpoint() {
             return hoodSetpoint;
         }
 
@@ -572,12 +572,12 @@ public class Input {
         }
 
         public void setHoodSetpoint(HoodSetpoint setPoint) {
-            hoodSetpoint = setPoint;
+            hoodSetpoint = setPoint.getValue();
         }
 
         @Override
         public void reset() {
-            hoodSetpoint = HoodSetpoint.NEUTRAL;
+            hoodSetpoint = HoodSetpoint.NEUTRAL.getValue();
             flywheelSpeed = 0;
             flywheelPercent = 0;
         }
@@ -587,7 +587,7 @@ public class Input {
             SmartDashboard.putNumber("[Input]flywheelPercent", flywheelPercent);
             SmartDashboard.putNumber("[Input]flywheelSpeed", flywheelSpeed);
             SmartDashboard.putBoolean("[Input]percentOutput", percentOutput);
-            SmartDashboard.putNumber("[Input]hoodSetpoint", hoodSetpoint.getValue());
+            SmartDashboard.putNumber("[Input]hoodSetpoint", hoodSetpoint);
             SmartDashboard.putNumber("[Input]hoodFine", hoodFine);
             SmartDashboard.putNumber("[Input]shooterFine", shooterFine);
         }
