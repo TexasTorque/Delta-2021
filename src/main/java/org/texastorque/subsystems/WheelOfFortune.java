@@ -1,6 +1,7 @@
 package org.texastorque.subsystems;
 
 import com.revrobotics.ColorMatch;
+import com.revrobotics.ColorMatchResult;
 import com.revrobotics.ColorSensorV3;
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
@@ -29,10 +30,10 @@ public class WheelOfFortune extends Subsystem {
     private final ColorMatch colorMatcher = new ColorMatch();
 
     // Uncalibrated color matches
-    private final Color BlueTarget = ColorMatch.makeColor(0.143, 0.427, 0.429);
-    private final Color GreenTarget = ColorMatch.makeColor(0.197, 0.561, 0.240);
-    private final Color RedTarget = ColorMatch.makeColor(0.561, 0.232, 0.114);
-    private final Color YellowTarget = ColorMatch.makeColor(0.361, 0.524, 0.113);
+    private final Color BlueTarget = ColorMatch.makeColor(0.1238, 0.418, 0.458);
+    private final Color GreenTarget = ColorMatch.makeColor(0.169, 0.581, 0.249);
+    private final Color RedTarget = ColorMatch.makeColor(0.536, 0.336, 0.127);
+    private final Color YellowTarget = ColorMatch.makeColor(0.3295, 0.557, 0.113);
 
     // Default to black color
     private Color detectedColor = Color.kBlack;
@@ -43,12 +44,16 @@ public class WheelOfFortune extends Subsystem {
     private final double setWheelPositionRightDown = 0;
     private final double setWheelPositionRightUp = .62;
     private final double setWheelSpeed = .5;
+    private final double setWheelSpeedSlow = .3;
+
     // Variables
-    private double wheelPositionLeft = 0;
-    private double wheelPositionRight = 0;
+    private double wheelPositionLeft = setWheelPositionLeftDown;
+    private double wheelPositionRight = setWheelPositionRightDown;
     private double wheelSpeed = 0;
     private double timeStarting;
     private boolean executing = false;
+    private int passes = 0;
+    private Color lastColor = Color.kBlack;
 
     public WheelOfFortune() {
         // Add colors to match to
@@ -56,6 +61,7 @@ public class WheelOfFortune extends Subsystem {
         colorMatcher.addColorMatch(GreenTarget);
         colorMatcher.addColorMatch(RedTarget);
         colorMatcher.addColorMatch(YellowTarget);
+        colorMatcher.addColorMatch(Color.kBlack);
     }
 
     @Override
@@ -66,10 +72,14 @@ public class WheelOfFortune extends Subsystem {
     public void initAuto() {
     };
 
+    public boolean getExecuting() {
+        return executing;
+    }
+
     @Override
     public void runTeleop(RobotState state) {
         updateFeedback();
-
+        detectedColor = colorSensor.getColor();
         // If a start signal is received and we aren't currently executing, start
         // executing
         if (input.getWheelOfFortuneInput().getStart() && !executing) {
@@ -77,6 +87,7 @@ public class WheelOfFortune extends Subsystem {
             wheelPositionLeft = setWheelPositionLeftUp;
             wheelPositionRight = setWheelPositionRightUp;
             timeStarting = Timer.getFPGATimestamp();
+            passes = 0;
         }
         // If a stop signal is received, stop executing
         if (input.getWheelOfFortuneInput().getDown()) {
@@ -86,11 +97,10 @@ public class WheelOfFortune extends Subsystem {
         }
 
         if (executing) {
-            wheelSpeed = setWheelSpeed;
+            wheelSpeed = passes == 4 ? setWheelSpeedSlow : setWheelSpeed;
 
-            // Wait for the rotary to be fully up. We don't have encoders I believe... so
-            // this has to be time-based. TODO: Tune
-            if (Timer.getFPGATimestamp() - timeStarting > 1.2) {
+            // TODO: Tune
+            if (Timer.getFPGATimestamp() - timeStarting > .5) {
                 String gameData = DriverStation.getInstance().getGameSpecificMessage();
                 if (gameData.length() > 0) {
                     Color requestedColor = Color.kBlack;
@@ -111,20 +121,23 @@ public class WheelOfFortune extends Subsystem {
                             wheelSpeed = 0;
                             break;
                     }
-                    Color detectedColor = colorSensor.getColor();
                     // If we have reached the detected color, stop
-                    if (detectedColor.equals(requestedColor)) {
-                        wheelSpeed = 0;
-                        executing = false;
+                    if (colorMatcher.matchClosestColor(detectedColor).color.equals(requestedColor)) {
+                        if (passes == 5) {
+                            wheelSpeed = 0;
+                            System.out.println("Color done!");
+                            executing = false;
+                        } else if (!colorMatcher.matchClosestColor(lastColor).color.equals(requestedColor)) {
+                            passes++;
+                            System.out.println(passes);
+                        }
                     }
+                    lastColor = detectedColor;
                 }
             }
         } else {
             wheelSpeed = 0;
         }
-        // lift attatchment
-        // spin wheel slowly
-        // if (color is right color){ stop wheel }
 
         output();
     };
@@ -135,17 +148,19 @@ public class WheelOfFortune extends Subsystem {
 
     @Override
     protected void output() {
-        // leftTurner.set(setWheelPositionLeftUp);
-        // rightTurner.set(setWheelPositionRightUp);
+        // leftTurner.set(setWheelPositionLeftDown);
+        // rightTurner.set(setWheelPositionRightDown);
         // wheel.set(setWheelSpeed);
-        leftTurner.set(wheelPositionLeft);
-        rightTurner.set(wheelPositionRight);
+        // leftTurner.set(wheelPositionLeft);
+        // rightTurner.set(wheelPositionRight);
         wheel.set(wheelSpeed);
     };
 
     @Override
     protected void updateFeedback() {
         feedback.getWheelOfFortuneFeedback().setDetectedColor(detectedColor);
+        // Color closet = colorMatcher.matchClosestColor(detectedColor).color;
+        // System.out.printf("(%f, %f, %f)%n", closet.red, closet.green, closet.blue);
     };
 
     /**

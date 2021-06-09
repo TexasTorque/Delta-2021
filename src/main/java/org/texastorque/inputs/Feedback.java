@@ -475,8 +475,12 @@ public class Feedback {
 
         @Override
         public void smartDashboard() {
-            SmartDashboard.putString("[Feedback]detectedColor",
-                    String.format("(%f, %f, %f)", detectedColor.red, detectedColor.green, detectedColor.blue));
+            try {
+                SmartDashboard.putString("[Feedback]detectedColor",
+                        String.format("(%f, %f, %f)", detectedColor.red, detectedColor.green, detectedColor.blue));
+            } catch (Exception e) {
+                System.out.println("Failed to detect color!");
+            }
         }
     }
 

@@ -7,6 +7,7 @@ import org.texastorque.inputs.State.HoodSetpoint;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.inputs.State.RotaryState;
 import org.texastorque.subsystems.Climber;
+import org.texastorque.subsystems.WheelOfFortune;
 import org.texastorque.torquelib.util.GenericController;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -80,6 +81,9 @@ public class Input {
             }
             if (getClimberInput().getClimbStartedDT()) {
                 defaultDriveSpeed(leftRight);
+            } else if (WheelOfFortune.getInstance().getExecuting()) {
+                leftSpeed = .3 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                rightSpeed = .3 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL.getValue()) { // maximum speed when
                                                                                                  // setpoint
                 // neutral
@@ -171,8 +175,8 @@ public class Input {
 
         // private double[] rotarySetpointsLeft = { 0, -21.5, -38 };
         // private double[] rotarySetpointsRight = { 0, 21.5, 44 };
-        private double[] rotarySetpointsLeft = { 0, -21.5, -38 };
-        private double[] rotarySetpointsRight = { 0, 21.5, 36 };
+        private double[] rotarySetpointsLeft = { 0, -21.5, -40 };
+        private double[] rotarySetpointsRight = { 0, 21.5, 38 };
 
         // Position to start with
         private RotaryState neutral = RotaryState.PRIME;
@@ -496,6 +500,11 @@ public class Input {
 
         private double hoodSetpoint;
 
+        public ShooterInput() {
+            SmartDashboard.putNumber("[Input]ManualHood", 0);
+            SmartDashboard.putNumber("[Input]ManualFlywheel", 0);
+        }
+
         @Override
         public void update() {
             reset();
@@ -516,8 +525,10 @@ public class Input {
                 flywheelSpeed = FlywheelSpeed.LONGSHOT.getValue() + shooterFine;
                 flywheelPercent = .6;
             } else if (operator.getXButton()) { // limelight
-                hoodSetpoint = HoodSetpoint.LIMELIGHT.getValue();
-                flywheelSpeed = getLimelightFlywheelSpeed();
+                // hoodSetpoint = HoodSetpoint.LIMELIGHT.getValue();
+                // flywheelSpeed = getLimelightFlywheelSpeed();
+                hoodSetpoint = SmartDashboard.getNumber("[Input]ManualHood", 0);
+                flywheelSpeed = SmartDashboard.getNumber("[Input]ManualFlywheel", 0);
                 flywheelPercent = .6;
             }
 
