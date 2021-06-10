@@ -1,5 +1,10 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="[Feedback]MagMiddle" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
+		<location x="926" y="99"/>
+		<width>156</width>
+		<height>59</height>
+	</widget>
 	<widget field="[Feedback]detectedColor" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="221" y="400"/>
 		<width>306</width>
@@ -35,7 +40,7 @@
 		<location x="0" y="100"/>
 	</widget>
 	<widget field="[Feedback]MagHigh" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
-		<location x="926" y="97"/>
+		<location x="927" y="31"/>
 		<width>145</width>
 		<height>61</height>
 	</widget>
@@ -166,7 +171,7 @@
 		<location x="0" y="40"/>
 	</widget>
 	<widget field="[DB]rightSpeed" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
-		<location x="-2" y="17"/>
+		<location x="18" y="37"/>
 	</widget>
 	<widget field="[Climber]rightSpeed" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="204" y="23"/>

@@ -12,14 +12,13 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 
 public class Feedback {
     private static volatile Feedback instance;
-
-    private final Input input = Input.getInstance();
 
     // Cached modules
     private static DriveTrainFeedback driveTrainFeedback;
@@ -261,7 +260,10 @@ public class Feedback {
         private boolean middleMag = false;
         private boolean lowMag = false;
 
+        private double timeDelay;
         private boolean emptyHasReachedSecond = false;
+        private boolean emptyHasReachedSecondTwo = false;
+        private boolean emptyHasReachedLast = false;
 
         private MagazineFeedback() {
             magHighCheck = new DigitalInput(Ports.MAG_SENSOR_HIGH);
@@ -283,7 +285,8 @@ public class Feedback {
             lowMag = magLowCheck.get();
 
             // Update automag if on & not shooting now
-            if (!input.getMagazineInput().shootingNow() && input.getMagazineInput().getAutoMag())
+            if (!Input.getInstance().getMagazineInput().shootingNow()
+                    && Input.getInstance().getMagazineInput().getAutoMag()) {
                 // General theory here:
                 // We want to have different tracking for each state. Each state (except FULL),
                 // is working towards reaching the next.
@@ -298,9 +301,13 @@ public class Feedback {
                         // Otherwise, if middle mag doesn't detect a ball but did in the past we know
                         // the ball is ready to go.
                         else if (!middleMag && emptyHasReachedSecond) {
-                            // Reset and move state
-                            state = AutoMagState.ONE_PAST_SECOND;
+                            // Reset and start delay
                             emptyHasReachedSecond = false;
+                            emptyHasReachedSecondTwo = true;
+                            timeDelay = Timer.getFPGATimestamp();
+                        } else if (emptyHasReachedSecondTwo && Timer.getFPGATimestamp() - timeDelay > .4) {
+                            state = AutoMagState.ONE_PAST_SECOND;
+                            emptyHasReachedSecondTwo = false;
                         }
                         break;
                     case ONE_PAST_SECOND:
@@ -323,7 +330,10 @@ public class Feedback {
                     case UPPER_FULL:
                         // We now have the upper mag full, we will declare it full when both middle and
                         // lower are detecting.
-                        if (lowMag && middleMag) {
+                        if (lowMag) {
+                            emptyHasReachedLast = true;
+                        } else if (!lowMag && emptyHasReachedLast) {
+                            emptyHasReachedLast = false;
                             state = AutoMagState.FULL;
                         }
                         break;
@@ -331,6 +341,7 @@ public class Feedback {
                         // We will wait for an unload to change FULL
                         break;
                 }
+            }
         }
 
         /**
@@ -339,6 +350,8 @@ public class Feedback {
         public void resetAutomag() {
             state = AutoMagState.EMPTY;
             emptyHasReachedSecond = false;
+            emptyHasReachedSecondTwo = false;
+            emptyHasReachedLast = false;
         }
 
         /**
@@ -371,7 +384,9 @@ public class Feedback {
 
         @Override
         public void smartDashboard() {
+            System.out.println(state.name());
             SmartDashboard.putBoolean("[Feedback]MagHigh", getMagHigh());
+            SmartDashboard.putBoolean("[Feedback]MagMiddle", getMagMiddle());
             SmartDashboard.putBoolean("[Feedback]MagLow", getMagLow());
         }
     }
@@ -598,9 +613,9 @@ public class Feedback {
     }
 
     /**
-     * Get the Input instance
+     * Get the Feedback instance
      * 
-     * @return Input
+     * @return Feedback
      */
     public static synchronized Feedback getInstance() {
         if (instance == null) {

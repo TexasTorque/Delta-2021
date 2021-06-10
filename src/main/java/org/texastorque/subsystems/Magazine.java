@@ -80,7 +80,6 @@ public class Magazine extends Subsystem {
                 velocityHigh = 0;
                 break;
             case FULL:
-                // We're done here ⎛⎝(•ⱅ•)⎠⎞
                 velocityLow = 0;
                 velocityHigh = 0;
                 break;

@@ -276,8 +276,8 @@ public class Input {
         private double velocityLow = 0;
         private double velocityHigh = 0;
 
-        private double speedLow = .6;
-        private double speedHigh = .6;
+        private double speedLow = -.3;
+        private double speedHigh = .3;
 
         // 0=nothing, 1=forward, -1=backward
         private int magLow;
@@ -308,10 +308,10 @@ public class Input {
             // = Low Mag
             if (operator.getRightTrigger()) { // == Balls In
                 magLow = 1;
-                velocityLow = -speedLow;
+                velocityLow = speedLow;
             } else if (operator.getRightBumper()) {
                 magLow = -1;
-                velocityLow = speedLow;
+                velocityLow = -speedLow;
             }
 
             shootingNow = operator.getDPADUp();
