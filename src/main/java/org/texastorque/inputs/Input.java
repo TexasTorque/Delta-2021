@@ -284,7 +284,6 @@ public class Input {
         private int magHigh;
 
         private boolean autoMag = false;
-        private boolean lastShooting = false;
         private boolean shootingNow = false;
 
         @Override
@@ -489,10 +488,7 @@ public class Input {
     // Shooter
     // =====
     public class ShooterInput implements TorqueInputModule {
-        private boolean percentOutput = false;
-        private double flywheelPercent = 0;
         private double flywheelSpeed = 0;
-        private double flywheelEncoderSpeed = 0;
         private double distanceAway = 0;
         // On-the-fly fine-tuning for hood & shooter by operator ≧◠‿◠≦✌
         private double hoodFine = 0;
@@ -517,21 +513,17 @@ public class Input {
             if (operator.getYButton()) { // Layup
                 hoodSetpoint = HoodSetpoint.LAYUP.getValue();
                 flywheelSpeed = FlywheelSpeed.LAYUP.getValue() + shooterFine;
-                flywheelPercent = .6;
             } else if (operator.getBButton()) { // Trench
                 hoodSetpoint = HoodSetpoint.TRENCH.getValue();
                 flywheelSpeed = FlywheelSpeed.TRENCH.getValue() + shooterFine;
-                flywheelPercent = .6;
             } else if (operator.getAButton()) { // Longshot
                 hoodSetpoint = HoodSetpoint.LONGSHOT.getValue();
                 flywheelSpeed = FlywheelSpeed.LONGSHOT.getValue() + shooterFine;
-                flywheelPercent = .6;
             } else if (operator.getXButton()) { // limelight
                 // hoodSetpoint = HoodSetpoint.LIMELIGHT.getValue();
                 // flywheelSpeed = getLimelightFlywheelSpeed();
                 hoodSetpoint = SmartDashboard.getNumber("[Input]ManualHood", 0);
                 flywheelSpeed = SmartDashboard.getNumber("[Input]ManualFlywheel", 0);
-                flywheelPercent = .6;
             }
 
             doRumble = flywheelSpeedInBounds(200);
@@ -561,31 +553,12 @@ public class Input {
                     && (Math.abs(flywheelSpeed - feedback.getShooterFeedback().getShooterVelocity()) <= delta);
         }
 
-        /**
-         * @deprecated Not currently setup properly. Use speed instead!
-         */
-        public double getFlywheelPercent() {
-            return flywheelPercent;
-        }
-
         public double getFlywheelSpeed() {
             return flywheelSpeed;
         }
 
-        public boolean getPercentOutputType() {
-            return percentOutput;
-        }
-
         public double getHoodSetpoint() {
             return hoodSetpoint;
-        }
-
-        public void setFlyhweelOutputType(boolean type) {
-            percentOutput = type;
-        }
-
-        public void setFlywheelPercent(double flywheelPercent) {
-            this.flywheelPercent = flywheelPercent;
         }
 
         public void setFlywheelSpeed(double flywheelSpeed) {
@@ -600,14 +573,11 @@ public class Input {
         public void reset() {
             hoodSetpoint = HoodSetpoint.NEUTRAL.getValue();
             flywheelSpeed = 0;
-            flywheelPercent = 0;
         }
 
         @Override
         public void smartDashboard() {
-            SmartDashboard.putNumber("[Input]flywheelPercent", flywheelPercent);
             SmartDashboard.putNumber("[Input]flywheelSpeed", flywheelSpeed);
-            SmartDashboard.putBoolean("[Input]percentOutput", percentOutput);
             SmartDashboard.putNumber("[Input]hoodSetpoint", hoodSetpoint);
             SmartDashboard.putNumber("[Input]hoodFine", hoodFine);
             SmartDashboard.putNumber("[Input]shooterFine", shooterFine);

@@ -30,7 +30,6 @@ public class Magazine extends Subsystem {
 
     /**
      * AutoMag reset ball count
-     * 
      */
     @Override
     public void initTeleop() {

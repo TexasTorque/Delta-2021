@@ -72,13 +72,9 @@ public class Shooter extends Subsystem {
     };
 
     protected void output() {
-        hood.set(hoodSetpoint, ControlType.kPosition); // set hood
-        if (input.getShooterInput().getPercentOutputType()) { // if percent output type,
-            flywheel.set(input.getShooterInput().getFlywheelPercent()); // just set flywheel speed to percent (-1 to 1)
-        } else {
-            pidOutput = Math.max(0, pidOutput);
-            flywheel.set(pidOutput);
-        }
+        hood.set(hoodSetpoint, ControlType.kPosition);
+        pidOutput = Math.max(0, pidOutput);
+        flywheel.set(pidOutput);
     };
 
     protected void updateFeedback() {
