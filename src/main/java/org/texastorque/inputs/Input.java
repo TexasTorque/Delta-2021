@@ -173,8 +173,6 @@ public class Input {
         private double rotarySpeed = 0;
         private double rollerSpeed = 0;
 
-        // private double[] rotarySetpointsLeft = { 0, -21.5, -38 };
-        // private double[] rotarySetpointsRight = { 0, 21.5, 44 };
         private double[] rotarySetpointsLeft = { 0, -21.5, -40 };
         private double[] rotarySetpointsRight = { 0, 21.5, 38 };
 
@@ -293,9 +291,10 @@ public class Input {
         public void update() {
             reset();
 
-            if (operator.getLeftCenterButton())
+            if (operator.getLeftCenterButton()) {
+                feedback.getMagazineFeedback().resetAutomag(); // Reset automag
                 autoMag = true; // left d pad turn on automag
-            else if (operator.getRightCenterButton())
+            } else if (operator.getRightCenterButton())
                 autoMag = false; // right d pad turn off automag
 
             // = High Mag
@@ -359,6 +358,9 @@ public class Input {
             return magHigh;
         }
 
+        /**
+         * @return If auto mag is on
+         */
         public boolean getAutoMag() {
             return autoMag;
         }

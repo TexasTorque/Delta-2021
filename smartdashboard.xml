@@ -1,5 +1,24 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="[Feedback]detectedColor" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="221" y="400"/>
+		<width>306</width>
+	</widget>
+	<widget field="[Input]ManualHood" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="352" y="43"/>
+	</widget>
+	<widget field="[Input]ManualFlywheel" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="331" y="0"/>
+	</widget>
+	<widget field="Auto Selector" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="203" y="43"/>
+	</widget>
+	<widget field="[Input]WOFDown" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="165" y="0"/>
+	</widget>
+	<widget field="[Input]WOFStart" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="703"/>
+	</widget>
 	<widget field="[Input]shooterFine" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
 		<location x="467" y="355"/>
 	</widget>

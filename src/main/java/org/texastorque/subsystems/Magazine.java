@@ -3,6 +3,7 @@ package org.texastorque.subsystems;
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
+import org.texastorque.inputs.State.AutoMagState;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueVictor;
 
@@ -33,7 +34,7 @@ public class Magazine extends Subsystem {
      */
     @Override
     public void initTeleop() {
-        feedback.getMagazineFeedback().resetCount();
+        feedback.getMagazineFeedback().resetAutomag();
     }
 
     public void runTeleop(RobotState state) {
@@ -41,19 +42,12 @@ public class Magazine extends Subsystem {
 
         if ((state == RobotState.TELEOP || state == RobotState.VISION) && !input.getMagazineInput().shootingNow()) {
             preShootStarted = false;
-            
+
             if (input.getMagazineInput().getAutoMag()) {
-                //run upper and lower mag
-                //if ball clears second sensor
-                    //stop upper magazine
-                    //if ball reaches second sensor
-                        //start upper magazine
-                        //if first ball reaches third sensor
-                            //stop upper magazine
-                            
+                runAutomag();
             } else {
                 velocityLow = input.getMagazineInput().getVelocityLow(); // ball in lower mag
-                velocityHigh = input.getMagazineInput().getVelocityHigh(); // ball in upper mag    
+                velocityHigh = input.getMagazineInput().getVelocityHigh(); // ball in upper mag
             }
         } else if ((state == RobotState.TELEOP || state == RobotState.VISION)
                 && input.getMagazineInput().shootingNow()) { // check mode AND if operator wants to pre shoot
@@ -62,8 +56,40 @@ public class Magazine extends Subsystem {
         output(); // sets motors (gate and mag) with selected seeds
     }
 
+    public void runAutomag() {
+        AutoMagState state = feedback.getMagazineFeedback().getState();
+        switch (state) {
+            case EMPTY:
+                // run upper and lower mag
+                velocityLow = input.getMagazineInput().getSetSpeedLow();
+                velocityHigh = input.getMagazineInput().getSetSpeedHigh();
+                break;
+            case ONE_PAST_SECOND:
+                // if ball clears second sensor stop upper magazine and wait for another ball.
+                // We want to move two balls into the upper mag together
+                velocityLow = input.getMagazineInput().getSetSpeedLow();
+                velocityHigh = 0;
+                break;
+            case MOVING_TWO_UP:
+                // if ball reaches second sensor, move both balls to the top
+                velocityLow = input.getMagazineInput().getSetSpeedLow();
+                velocityHigh = input.getMagazineInput().getSetSpeedHigh();
+                break;
+            case UPPER_FULL:
+                // Two balls are loaded into upper, only run lower now
+                velocityLow = input.getMagazineInput().getSetSpeedLow();
+                velocityHigh = 0;
+                break;
+            case FULL:
+                // We're done here ⎛⎝(•ⱅ•)⎠⎞
+                velocityLow = 0;
+                velocityHigh = 0;
+                break;
+        }
+    }
+
     public void runShootingNow() {
-        feedback.getMagazineFeedback().resetCount(); // reset ball count
+        feedback.getMagazineFeedback().resetAutomag(); // set auto mag to empty
         if (!preShootStarted) { // if the pre shoot has not already been started
             startTime = edu.wpi.first.wpilibj.Timer.getFPGATimestamp(); // get time
             preShootStarted = true; // indicated start of preshoot

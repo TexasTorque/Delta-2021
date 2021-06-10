@@ -86,6 +86,13 @@ public class State {
     }
 
     /**
+     * AutoMag
+     */
+    public enum AutoMagState {
+        EMPTY, ONE_PAST_SECOND, MOVING_TWO_UP, UPPER_FULL, FULL
+    }
+
+    /**
      * The robot's current state
      */
     private RobotState robotState = RobotState.TELEOP;

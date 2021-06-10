@@ -6,6 +6,7 @@ import com.kauailabs.navx.frc.AHRS;
 
 import org.texastorque.constants.Constants;
 import org.texastorque.constants.Ports;
+import org.texastorque.inputs.State.AutoMagState;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -17,6 +18,8 @@ import edu.wpi.first.wpilibj.util.Color;
 
 public class Feedback {
     private static volatile Feedback instance;
+
+    private final Input input = Input.getInstance();
 
     // Cached modules
     private static DriveTrainFeedback driveTrainFeedback;
@@ -252,15 +255,25 @@ public class Feedback {
         private DigitalInput magLowCheck;
         private DigitalInput magMiddleCheck;
 
+        private AutoMagState state;
+
         private boolean highMag = false;
         private boolean middleMag = false;
         private boolean lowMag = false;
-        private boolean highMagPast = false;
+
+        private boolean emptyHasReachedSecond = false;
 
         private MagazineFeedback() {
             magHighCheck = new DigitalInput(Ports.MAG_SENSOR_HIGH);
             magMiddleCheck = new DigitalInput(Ports.MAG_SENSOR_MIDDLE);
             magLowCheck = new DigitalInput(Ports.MAG_SENSOR_LOW);
+
+            // If any sensor returns true, assume balls are already loaded.
+            if (magHighCheck.get() || magMiddleCheck.get() || magLowCheck.get()) {
+                state = AutoMagState.FULL;
+            } else {
+                state = AutoMagState.EMPTY;
+            }
         }
 
         @Override
@@ -269,22 +282,63 @@ public class Feedback {
             middleMag = magMiddleCheck.get();
             lowMag = magLowCheck.get();
 
-            if (!highMagPast && !highMag)
-                highMagPast = true;
+            // Update automag if on & not shooting now
+            if (!input.getMagazineInput().shootingNow() && input.getMagazineInput().getAutoMag())
+                // General theory here:
+                // We want to have different tracking for each state. Each state (except FULL),
+                // is working towards reaching the next.
+                switch (state) {
+                    case EMPTY:
+                        // We want to remain EMPTY until a ball has reached the middle magazine and then
+                        // surpasses it.
+
+                        // If the middle mag detects a ball, set hasReached to true.
+                        if (middleMag)
+                            emptyHasReachedSecond = true;
+                        // Otherwise, if middle mag doesn't detect a ball but did in the past we know
+                        // the ball is ready to go.
+                        else if (!middleMag && emptyHasReachedSecond) {
+                            // Reset and move state
+                            state = AutoMagState.ONE_PAST_SECOND;
+                            emptyHasReachedSecond = false;
+                        }
+                        break;
+                    case ONE_PAST_SECOND:
+                        // We want to stay in this state until another ball reaches the middle magazine.
+
+                        // If middle mag detects a ball, move state
+                        if (middleMag) {
+                            state = AutoMagState.MOVING_TWO_UP;
+                        }
+                        break;
+                    case MOVING_TWO_UP:
+                        // We want to move the two balls into the top of the upper mag until we reach
+                        // the upper sensor.
+
+                        // If high mag detects a ball, move state
+                        if (highMag) {
+                            state = AutoMagState.UPPER_FULL;
+                        }
+                        break;
+                    case UPPER_FULL:
+                        // We now have the upper mag full, we will declare it full when both middle and
+                        // lower are detecting.
+                        if (lowMag && middleMag) {
+                            state = AutoMagState.FULL;
+                        }
+                        break;
+                    case FULL:
+                        // We will wait for an unload to change FULL
+                        break;
+                }
         }
 
         /**
-         * Reset the count and highMagPast
+         * Reset auto mag
          */
-        public void resetCount() {
-            highMagPast = false;
-        }
-
-        /**
-         * @return The high mag past
-         */
-        public boolean getMagHighPast() {
-            return highMagPast;
+        public void resetAutomag() {
+            state = AutoMagState.EMPTY;
+            emptyHasReachedSecond = false;
         }
 
         /**
@@ -306,6 +360,13 @@ public class Feedback {
          */
         public boolean getMagLow() {
             return lowMag;
+        }
+
+        /**
+         * @return The state of the automag
+         */
+        public AutoMagState getState() {
+            return state;
         }
 
         @Override
