@@ -13,11 +13,11 @@ import org.texastorque.util.KPID;
 
 public class Intake extends Subsystem {
     private static volatile Intake instance;
-    
+
     // Cached instances
     private Input input = Input.getInstance();
     private Feedback feedback = Feedback.getInstance();
-    
+
     // Speeds
     private double rotaryPositionLeft = 0;
     private double rotaryPositionRight = 0;
@@ -47,21 +47,21 @@ public class Intake extends Subsystem {
      * Update the feedback values and set the motors
      */
     @Override
-    public void runTeleop(RobotState state){
+    public void runTeleop(RobotState state) {
         updateFeedback();
 
         rollerSpeed = input.getIntakeInput().getRollerSpeed();
         rotaryPositionLeft = input.getIntakeInput().getRotaryPositionLeft();
         rotaryPositionRight = input.getIntakeInput().getRotaryPositionRight();
-    
+
         output();
     };
-    
+
     /**
      * Uses the same code as Teleop
      */
     @Override
-    public void runAuto(RobotState state){
+    public void runAuto(RobotState state) {
         runTeleop(state);
     };
 
@@ -71,7 +71,7 @@ public class Intake extends Subsystem {
     @Override
     protected void output() {
         rollers.set(ControlMode.PercentOutput, rollerSpeed);
-        // System.out.printf("(%f,%f)", rotaryPositionLeft, rotaryPositionRight);
+        System.out.printf("(%f,%f)%n", rotaryPositionLeft, rotaryPositionRight);
         rotaryLeft.set(rotaryPositionLeft, ControlType.kPosition);
         rotaryRight.set(rotaryPositionRight, ControlType.kPosition);
     }
@@ -81,13 +81,14 @@ public class Intake extends Subsystem {
         feedback.getIntakeFeedback().setRotaryPositionLeft(rotaryLeft.getPosition());
         feedback.getIntakeFeedback().setRotaryPositionRight(rotaryRight.getPosition());
     }
-    
+
     /**
      * Get the Intake instance
+     * 
      * @return Intake
      */
     public static synchronized Intake getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new Intake();
         }
         return instance;

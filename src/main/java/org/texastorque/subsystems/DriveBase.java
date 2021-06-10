@@ -59,8 +59,6 @@ public class DriveBase extends Subsystem {
         DBLeft.addFollower(Ports.DB_LEFT_2);
         DBRight.addFollower(Ports.DB_RIGHT_2);
         DBLeft.setAlternateEncoder();
-        DBLeft.disableVoltageCompensation();
-        DBRight.disableVoltageCompensation();
         odometry = new DifferentialDriveOdometry(feedback.getGyroFeedback().getRotation2d());
     }
 
