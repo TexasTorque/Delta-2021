@@ -384,7 +384,7 @@ public class Feedback {
 
         @Override
         public void smartDashboard() {
-            System.out.println(state.name());
+            SmartDashboard.putString("[Feedback]AutoMag", state.name());
             SmartDashboard.putBoolean("[Feedback]MagHigh", getMagHigh());
             SmartDashboard.putBoolean("[Feedback]MagMiddle", getMagMiddle());
             SmartDashboard.putBoolean("[Feedback]MagLow", getMagLow());

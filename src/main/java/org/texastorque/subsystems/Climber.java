@@ -67,8 +67,8 @@ public class Climber extends Subsystem {
                     break;
                 case EXTEND:
                     if (notStarted) { // if extension has not started
-                        leftRatchetPos = 0.1;
-                        rightRatchetPos = 0.1;
+                        leftRatchetPos = 0.15;
+                        rightRatchetPos = 0.15;
                         notStarted = false;
                         inReverse = true;
                         startTime = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
@@ -117,8 +117,8 @@ public class Climber extends Subsystem {
     protected void output() {
         climberLeft.set(climberLeftSpeed);
         climberRight.set(climberRightSpeed);
-        // leftRatchet.set(leftRatchetPos);
-        // rightRatchet.set(rightRatchetPos);
+        leftRatchet.set(leftRatchetPos);
+        rightRatchet.set(rightRatchetPos);
     };
 
     @Override

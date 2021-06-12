@@ -151,8 +151,8 @@ public class WheelOfFortune extends Subsystem {
         // leftTurner.set(setWheelPositionLeftDown);
         // rightTurner.set(setWheelPositionRightDown);
         // wheel.set(setWheelSpeed);
-        // leftTurner.set(wheelPositionLeft);
-        // rightTurner.set(wheelPositionRight);
+        leftTurner.set(wheelPositionLeft);
+        rightTurner.set(wheelPositionRight);
         wheel.set(wheelSpeed);
     };
 

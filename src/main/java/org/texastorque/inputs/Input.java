@@ -276,8 +276,11 @@ public class Input {
         private double velocityLow = 0;
         private double velocityHigh = 0;
 
-        private double speedLow = -.3;
-        private double speedHigh = .3;
+        private double speedLow = -.7;
+        private double speedHigh = .7;
+
+        private final double speedLowAuto = -.3;
+        private final double speedHighAuto = .3;
 
         // 0=nothing, 1=forward, -1=backward
         private int magLow;
@@ -341,12 +344,12 @@ public class Input {
             return velocityHigh;
         }
 
-        public double getSetSpeedLow() {
-            return speedLow;
+        public double getSetSpeedLowAuto() {
+            return speedLowAuto;
         }
 
-        public double getSetSpeedHigh() {
-            return speedHigh;
+        public double getSetSpeedHighAuto() {
+            return speedHighAuto;
         }
 
         public int getMagLow() {

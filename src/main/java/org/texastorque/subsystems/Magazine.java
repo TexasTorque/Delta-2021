@@ -60,23 +60,23 @@ public class Magazine extends Subsystem {
         switch (state) {
             case EMPTY:
                 // run upper and lower mag
-                velocityLow = input.getMagazineInput().getSetSpeedLow();
-                velocityHigh = input.getMagazineInput().getSetSpeedHigh();
+                velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
+                velocityHigh = input.getMagazineInput().getSetSpeedHighAuto();
                 break;
             case ONE_PAST_SECOND:
                 // if ball clears second sensor stop upper magazine and wait for another ball.
                 // We want to move two balls into the upper mag together
-                velocityLow = input.getMagazineInput().getSetSpeedLow();
+                velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
                 velocityHigh = 0;
                 break;
             case MOVING_TWO_UP:
                 // if ball reaches second sensor, move both balls to the top
-                velocityLow = input.getMagazineInput().getSetSpeedLow();
-                velocityHigh = input.getMagazineInput().getSetSpeedHigh();
+                velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
+                velocityHigh = input.getMagazineInput().getSetSpeedHighAuto();
                 break;
             case UPPER_FULL:
                 // Two balls are loaded into upper, only run lower now
-                velocityLow = input.getMagazineInput().getSetSpeedLow();
+                velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
                 velocityHigh = 0;
                 break;
             case FULL:
