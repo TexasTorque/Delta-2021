@@ -33,7 +33,7 @@ public class Climber extends Subsystem {
     private double climberRightSpeed = 0;
 
     private double leftRatchetPos = 0;
-    private double rightRatchetPos = 0;
+    private double rightRatchetPos = 0.15;
 
     /**
      * Resets climber speed to zero when teleop is actived
@@ -57,7 +57,7 @@ public class Climber extends Subsystem {
                     climberLeftSpeed = 0.3;
                     climberRightSpeed = -0.3;
                     leftRatchetPos = 0;
-                    rightRatchetPos = 0.5;
+                    rightRatchetPos = 0.15;
                     break;
                 case NEUTRAL:
                     climberLeftSpeed = 0;
@@ -65,8 +65,8 @@ public class Climber extends Subsystem {
                     break;
                 case EXTEND:
                     if (notStarted) { // if extension has not started
-                        leftRatchetPos = 0.75;
-                        rightRatchetPos = -0.75;
+                        leftRatchetPos = 0.15;
+                        rightRatchetPos = 0;
                         notStarted = false;
                         inReverse = true;
                         startTime = edu.wpi.first.wpilibj.Timer.getFPGATimestamp();
@@ -117,6 +117,9 @@ public class Climber extends Subsystem {
         climberRight.set(climberRightSpeed);
         leftRatchet.set(leftRatchetPos);
         rightRatchet.set(rightRatchetPos);
+        // leftRatchet.set(0.15);
+        // rightRatchet.set(0.15);
+
     };
 
     @Override
