@@ -79,9 +79,7 @@ public class Input {
                 else if (state.getRobotState() == RobotState.VISION)
                     state.setRobotState(RobotState.TELEOP);
             }
-            if (getClimberInput().getClimbStartedDT()) {
-                defaultDriveSpeed(leftRight);
-            } else if (WheelOfFortune.getInstance().getExecuting()) {
+            if (getClimberInput().getClimbStartedDT() || WheelOfFortune.getInstance().getExecuting()) {
                 leftSpeed = .3 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
                 rightSpeed = .3 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL.getValue()) { // maximum speed when
@@ -421,6 +419,7 @@ public class Input {
                 climberStatus = ClimberState.EXTEND;
             } else if (driver.getDPADDown()) { // Retract climber
                 climberStatus = ClimberState.RETRACT;
+                climbStartedDT = false;
             } else if (driver.getDPADLeft()) {// extend left
                 manualClimb = true;
                 sideToExtend = ClimberSide.LEFT;
@@ -429,7 +428,6 @@ public class Input {
                 sideToExtend = ClimberSide.RIGHT;
             } else {
                 climbStarted = false;
-                climbStartedDT = false;
             }
         }
 
