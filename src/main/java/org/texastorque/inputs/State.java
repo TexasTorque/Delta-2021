@@ -55,7 +55,7 @@ public class State {
      * Hood setpointsp
      */
     public enum HoodSetpoint {
-        NEUTRAL(0), LAYUP(4), LIMELIGHT(50), LONGSHOT(57), TRENCH(61), UNLOADSHOOTLINE(53);
+        NEUTRAL(0), LAYUP(4), LIMELIGHT(50), LONGSHOT(57), TRENCH(64), UNLOADSHOOTLINE(53);
 
 
         private final int id;

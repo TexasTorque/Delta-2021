@@ -53,6 +53,7 @@ public class Shooter extends Subsystem {
         hoodSetpoint = input.getShooterInput().getHoodSetpoint();
         shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
         pidOutput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
+        // System.out.printf("%f, %f%n", flywheelSpeed, flywheel.dd/getRPM());
 
         output();
     };

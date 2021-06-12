@@ -9,6 +9,7 @@ import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
+import edu.wpi.first.wpilibj.PWMSparkMax;
 import org.texastorque.util.KPID;
 
 public class Intake extends Subsystem {
@@ -71,7 +72,7 @@ public class Intake extends Subsystem {
     @Override
     protected void output() {
         rollers.set(ControlMode.PercentOutput, rollerSpeed);
-        System.out.printf("(%f,%f)%n", rotaryPositionLeft, rotaryPositionRight);
+        // System.out.printf("(%f,%f)%n", rotaryPositionLeft, rotaryPositionRight);
         rotaryLeft.set(rotaryPositionLeft, ControlType.kPosition);
         rotaryRight.set(rotaryPositionRight, ControlType.kPosition);
     }
