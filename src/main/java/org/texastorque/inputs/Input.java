@@ -277,7 +277,7 @@ public class Input {
         private double velocityHigh = 0;
 
         private double speedLow = -.7;
-        private double speedHigh = .55;
+        private double speedHigh = .4;
 
         private final double speedLowAuto = -.3;
         private final double speedHighAuto = .3;
