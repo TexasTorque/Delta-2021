@@ -54,7 +54,8 @@ public class Shooter extends Subsystem {
         shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
         pidOutput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
 
-        System.out.printf("%f, %f, %f%n", flywheelSpeed, flywheel.getRPM(), pidOutput);
+        // System.out.printf("%f, %f, %f%n", flywheelSpeed, flywheel.getRPM(),
+        // pidOutput);
         output();
     };
 
@@ -65,7 +66,7 @@ public class Shooter extends Subsystem {
         flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
         hoodSetpoint = input.getShooterInput().getHoodSetpoint();
         shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
-        System.out.printf("%f, %f%n", flywheelSpeed, flywheel.getRPM());
+        // System.out.printf("%f, %f%n", flywheelSpeed, flywheel.getRPM());
         pidOutput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
 
         output();
