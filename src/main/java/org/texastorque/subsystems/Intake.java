@@ -30,8 +30,8 @@ public class Intake extends Subsystem {
     private VictorSPX rollers = new VictorSPX(Ports.INTAKE_ROLLERS);
 
     // PIDs
-    private KPID kPIDRotaryLeft = new KPID(0.07, 0.00005, 0.00002, 0, -.7, .4);
-    private KPID kPIDRotaryRight = new KPID(0.07, 0.00005, 0.00002, 0, -.4, .7);
+    private KPID kPIDRotaryLeft = new KPID(0.07, 0.00005, 0.00002, 0, -.5, .4);
+    private KPID kPIDRotaryRight = new KPID(0.07, 0.00005, 0.00002, 0, -.4, .5);
 
     /**
      * Instantiate a new Intake
@@ -72,7 +72,6 @@ public class Intake extends Subsystem {
     @Override
     protected void output() {
         rollers.set(ControlMode.PercentOutput, rollerSpeed);
-        // System.out.printf("(%f,%f)%n", rotaryPositionLeft, rotaryPositionRight);
         rotaryLeft.set(rotaryPositionLeft, ControlType.kPosition);
         rotaryRight.set(rotaryPositionRight, ControlType.kPosition);
     }

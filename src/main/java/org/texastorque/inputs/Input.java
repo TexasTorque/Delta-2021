@@ -167,7 +167,7 @@ public class Input {
         private double rollerSpeed = 0;
 
         private double[] rotarySetpointsLeft = { 0, -21.5, -38 };
-        private double[] rotarySetpointsRight = { 0, 21.5, 44 };
+        private double[] rotarySetpointsRight = { 0, 21.5, 38 };
 
         // Position to start with
         private RotaryState neutral = RotaryState.PRIME;
