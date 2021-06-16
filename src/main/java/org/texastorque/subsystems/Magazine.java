@@ -91,7 +91,7 @@ public class Magazine extends Subsystem {
         if (!preShootStarted) { // if the pre shoot has not already been started
             startTime = edu.wpi.first.wpilibj.Timer.getFPGATimestamp(); // get time
             preShootStarted = true; // indicated start of preshoot
-        } else if (edu.wpi.first.wpilibj.Timer.getFPGATimestamp() - startTime < .15) { // check if pre shoot started
+        } else if (edu.wpi.first.wpilibj.Timer.getFPGATimestamp() - startTime < .45) { // check if pre shoot started
                                                                                        // less than .15 seconds ago
             // Run the gate and high mag together first
             velocityHigh = 1;

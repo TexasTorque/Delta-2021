@@ -1,5 +1,8 @@
 <xml version="1.0">
 <dashboard>
+	<widget field="[Feedback]AutoMag" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="20"/>
+	</widget>
 	<widget field="[Feedback]MagMiddle" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.BooleanBox">
 		<location x="926" y="99"/>
 		<width>156</width>
