@@ -76,8 +76,8 @@ public class Input {
                     state.setRobotState(RobotState.TELEOP);
             }
             if (getClimberInput().getClimbStartedDT()) {
-                leftSpeed = .3 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-                rightSpeed = .3 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                leftSpeed = .4 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                rightSpeed = .4 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL.getValue()) { // maximum speed when
                 // neutral
                 leftSpeed = driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
