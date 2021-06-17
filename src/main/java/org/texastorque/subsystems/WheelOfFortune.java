@@ -40,9 +40,9 @@ public class WheelOfFortune extends Subsystem {
 
     // Set points
     private final double setWheelPositionLeftDown = 1;
-    private final double setWheelPositionLeftUp = .42;
+    private final double setWheelPositionLeftUp = .38;
     private final double setWheelPositionRightDown = 0;
-    private final double setWheelPositionRightUp = .6;
+    private final double setWheelPositionRightUp = .64;
     private final double setWheelSpeed = .5;
     private final double setWheelSpeedSlow = .3;
 
@@ -97,7 +97,7 @@ public class WheelOfFortune extends Subsystem {
         }
 
         if (executing) {
-            wheelSpeed = passes == 4 ? setWheelSpeedSlow : setWheelSpeed;
+            wheelSpeed = passes == 5 ? setWheelSpeedSlow : setWheelSpeed;
 
             // TODO: Tune
             if (Timer.getFPGATimestamp() - timeStarting > .5) {
@@ -118,12 +118,12 @@ public class WheelOfFortune extends Subsystem {
                             requestedColor = GreenTarget;
                             break;
                         default:
-                            wheelSpeed = 0;
+                            wheelSpeed = setWheelSpeed;
                             break;
                     }
                     // If we have reached the detected color, stop
                     if (colorMatcher.matchClosestColor(detectedColor).color.equals(requestedColor)) {
-                        if (passes == 5) {
+                        if (passes == 6) {
                             wheelSpeed = 0;
                             System.out.println("Color done!");
                             executing = false;
@@ -148,12 +148,12 @@ public class WheelOfFortune extends Subsystem {
 
     @Override
     protected void output() {
-        leftTurner.set(setWheelPositionLeftDown);
-        rightTurner.set(setWheelPositionRightDown);
+        // leftTurner.set(setWheelPositionLeftUp);
+        // rightTurner.set(setWheelPositionRightUp);
         // wheel.set(setWheelSpeed);
-        // leftTurner.set(wheelPositionLeft);
-        // rightTurner.set(wheelPositionRight);
-        // wheel.set(wheelSpeed);
+        leftTurner.set(wheelPositionLeft);
+        rightTurner.set(wheelPositionRight);
+        wheel.set(wheelSpeed);
     };
 
     @Override

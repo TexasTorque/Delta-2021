@@ -29,6 +29,7 @@ public class AutoManager {
         addSequence("AForward", new AForward());
         addSequence("RawShoot", new RawShoot());
         addSequence("UnloadShootLine", new UnloadShootLine());
+        addSequence("LayupShoot", new LayupShoot());
 
         displayChoices();
     }

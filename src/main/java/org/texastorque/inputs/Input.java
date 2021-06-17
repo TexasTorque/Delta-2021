@@ -79,11 +79,13 @@ public class Input {
                 else if (state.getRobotState() == RobotState.VISION)
                     state.setRobotState(RobotState.TELEOP);
             }
-            if (getClimberInput().getClimbStartedDT() || WheelOfFortune.getInstance().getExecuting()) {
-                leftSpeed = .3 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-                rightSpeed = .3 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+            if (getClimberInput().getClimbStartedDT()) {
+                leftSpeed = .4 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                rightSpeed = .4 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+            } else if (WheelOfFortune.getInstance().getExecuting()) {
+                leftSpeed = .35 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                rightSpeed = .35 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL.getValue()) { // maximum speed when
-                                                                                                 // setpoint
                 // neutral
                 leftSpeed = driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
                 rightSpeed = -driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
@@ -277,8 +279,8 @@ public class Input {
         private double speedLow = -.6;
         private double speedHigh = .6;
 
-        private final double speedLowAuto = -.3;
-        private final double speedHighAuto = .3;
+        private final double speedLowAuto = -.5;
+        private final double speedHighAuto = .5;
 
         // 0=nothing, 1=forward, -1=backward
         private int magLow;

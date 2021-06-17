@@ -57,32 +57,29 @@ public class Magazine extends Subsystem {
 
     public void runAutomag() {
         AutoMagState state = feedback.getMagazineFeedback().getState();
-        switch (state) {
-            case EMPTY:
-                // run upper and lower mag
-                velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
-                velocityHigh = input.getMagazineInput().getSetSpeedHighAuto();
-                break;
-            case ONE_PAST_SECOND:
-                // if ball clears second sensor stop upper magazine and wait for another ball.
-                // We want to move two balls into the upper mag together
-                velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
-                velocityHigh = 0;
-                break;
-            case MOVING_TWO_UP:
-                // if ball reaches second sensor, move both balls to the top
-                velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
-                velocityHigh = input.getMagazineInput().getSetSpeedHighAuto();
-                break;
-            case UPPER_FULL:
-                // Two balls are loaded into upper, only run lower now
-                velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
-                velocityHigh = 0;
-                break;
-            case FULL:
-                velocityLow = 0;
-                velocityHigh = 0;
-                break;
+        boolean low = feedback.getMagazineFeedback().getMagLow();
+        boolean middle = feedback.getMagazineFeedback().getMagMiddle();
+        boolean high = feedback.getMagazineFeedback().getMagHigh();
+
+        // case 1: if not in high, run both
+        if (!high) {
+            velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
+            velocityHigh = input.getMagazineInput().getSetSpeedHighAuto();
+        }
+        // case 2: if in high but not in middle, run lower
+        else if (!middle) {
+            velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
+            velocityHigh = 0;
+        }
+        // case 3: if only waiting on lower, run lower
+        else if (!low) {
+            velocityLow = input.getMagazineInput().getSetSpeedLowAuto();
+            velocityHigh = 0;
+        }
+        // case 4: balls loaded
+        else {
+            velocityLow = 0;
+            velocityHigh = 0;
         }
     }
 
