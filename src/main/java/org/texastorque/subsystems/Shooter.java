@@ -41,8 +41,8 @@ public class Shooter extends Subsystem {
         hood.configurePID(hoodKPID); // add PID to hood
         hood.tareEncoder();
 
-        shooterPID = new ScheduledPID.Builder(0, -1, 1, 1).setPGains(0.0002) // 0.002
-                .setIGains(0).setDGains(0).setFGains(0.000130) // 0.000115
+        shooterPID = new ScheduledPID.Builder(0, -1, 1, 1).setPGains(0.0003) // 0.002
+                .setIGains(0).setDGains(0).setFGains(0.000150) // 0.000115
                 .build();
     }
 
@@ -54,8 +54,8 @@ public class Shooter extends Subsystem {
         shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
         pidOutput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
 
-        // System.out.printf("%f, %f, %f%n", flywheelSpeed, flywheel.getRPM(),
-        // pidOutput);
+        System.out.printf("%f, %f, %f%n", flywheelSpeed, flywheel.getRPM(),
+        pidOutput);
         output();
     };
 

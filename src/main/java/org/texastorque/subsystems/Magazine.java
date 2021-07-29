@@ -18,8 +18,8 @@ public class Magazine extends Subsystem {
     private double velocityHigh;
     private double velocityLow;
 
-    private final double robotMultiplier = -1;
-
+    //private final double lowerVeloMultiplier = -1;  // Lower *1/2
+    // ^ Formerly robotMultiplier
     // Values
     private boolean preShootStarted = false;
     private double startTime;
@@ -115,7 +115,7 @@ public class Magazine extends Subsystem {
 
     protected void output() { // sets motors (gate and mag) with selected seeds [executed in runTeleop]
         beltHigh.set(velocityHigh);
-        beltLow.set(velocityLow * robotMultiplier);
+        beltLow.set(velocityLow);
     }
 
     protected void updateFeedback() {

@@ -54,8 +54,8 @@ public class Climber extends Subsystem {
         if (!input.getClimberInput().getManualClimb()) { // if climbing is not manual...
             switch (climbStatus) {
                 case RETRACT:
-                    climberLeftSpeed = -0.3;
-                    climberRightSpeed = 0.3;
+                    climberLeftSpeed = 0.3;
+                    climberRightSpeed = -0.3;
                     leftRatchetPos = 0;
                     rightRatchetPos = 0;
                     break;
@@ -75,21 +75,21 @@ public class Climber extends Subsystem {
                     } else if (inReverse) { // if in reverse...
                         if (edu.wpi.first.wpilibj.Timer.getFPGATimestamp() - startTime < .1) { // if climb started less
                                                                                                // than 0.1 seconds ago
-                            climberLeftSpeed = -0.1;
-                            climberRightSpeed = 0.1;
+                            climberLeftSpeed = 0.1;
+                            climberRightSpeed = -0.1;
                         } else { // after 0.1 seconds, stop reversing
                             inReverse = false;
                         }
                     } else { // if started, just set speed to extend
-                        climberLeftSpeed = 0.3;
-                        climberRightSpeed = -0.3;
+                        climberLeftSpeed = -0.3;
+                        climberRightSpeed = 0.3;
                     }
                     break;
             }
         } else { // if in manual climb mode ...
             switch (input.getClimberInput().getSideToExtend()) { // check the side requested to shift to
                 case LEFT:
-                    climberLeftSpeed = 0.3;
+                    climberLeftSpeed = -0.3;
                     climberRightSpeed = 0;
                     break;
                 case NEUTRAL:
@@ -98,7 +98,7 @@ public class Climber extends Subsystem {
                     break;
                 case RIGHT:
                     climberLeftSpeed = 0;
-                    climberRightSpeed = -0.3;
+                    climberRightSpeed = 0.3;
                     break;
             }
         }

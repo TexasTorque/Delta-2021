@@ -276,11 +276,11 @@ public class Input {
         private double velocityLow = 0;
         private double velocityHigh = 0;
 
-        private double speedLow = -.6;
-        private double speedHigh = .6;
+        private final double speedLow = .5;
+        private final double speedHigh = 1.;
 
-        private final double speedLowAuto = -.5;
-        private final double speedHighAuto = .5;
+        private final double speedLowAuto = .5;
+        private final double speedHighAuto = 1.;
 
         // 0=nothing, 1=forward, -1=backward
         private int magLow;

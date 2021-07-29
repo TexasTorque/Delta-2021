@@ -72,7 +72,7 @@ public class State {
      * Flywheel speeds
      */
     public enum FlywheelSpeed {
-        NEUTRAL(0), LIMELIGHT(4250), LAYUP(4250), TRENCH(6000), LONGSHOT(6500);
+        NEUTRAL(0), LIMELIGHT(4250), LAYUP(4250), TRENCH(7000), LONGSHOT(6500);
 
         private final int id;
 
