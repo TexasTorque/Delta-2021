@@ -18,7 +18,7 @@ public class Magazine extends Subsystem {
     private double velocityHigh;
     private double velocityLow;
 
-    //private final double lowerVeloMultiplier = -1;  // Lower *1/2
+    // private final double lowerVeloMultiplier = -1; // Lower *1/2
     // ^ Formerly robotMultiplier
     // Values
     private boolean preShootStarted = false;
@@ -95,7 +95,7 @@ public class Magazine extends Subsystem {
             velocityLow = 0;
         } else {
             velocityHigh = 1;
-            velocityLow = -.9;
+            velocityLow = .9;
         }
     }
 
