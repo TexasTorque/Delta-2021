@@ -162,9 +162,9 @@ public class Input {
                 rotaryPositionRight = rotarySetpointsRight[neutral.getValue()];
                 rollerSpeed = 0;
             }
-            /*if (controller.getYButton()) {
+            if (controller.getXButton()) {
                 rollerSpeed = 0.5;
-            }*/
+            }
         }
 
         /**
