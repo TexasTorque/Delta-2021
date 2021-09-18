@@ -4,6 +4,7 @@ import org.texastorque.inputs.State.FlywheelSpeed;
 import org.texastorque.inputs.State.HoodSetpoint;
 import org.texastorque.inputs.State.RotaryState;
 import org.texastorque.torquelib.util.GenericController;
+import org.texastorque.constants.Constants;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -54,7 +55,7 @@ public class Input {
          * Update the left and right speeds
          */
         public void update() {
-            double leftRight = controller.getRightXAxis(); // get joystick position
+            double leftRight = controller.getRightXAxis() * Constants.DB_E_SPIN_MULTIPLIER; 
             // faster
             //leftSpeed = driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
             //rightSpeed = -driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
@@ -371,6 +372,8 @@ public class Input {
 
             doRumble = flywheelSpeedInBounds(200);
             controller.setRumble(doRumble);
+            // In canse controller rumble fails
+            System.out.printf("REV IS : [%s\n", doRumble ? "COMPLETE]    <--" : "INCOMPLETE]");
         }
 
         /**
