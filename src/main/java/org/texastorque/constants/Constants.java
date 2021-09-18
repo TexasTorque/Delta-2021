@@ -38,4 +38,6 @@ public class Constants {
     public static final DifferentialDriveKinematics kDriveKinematics =
         new DifferentialDriveKinematics(kTrackwidthMeters);
 
+    public static final double DB_E_SPEED_MULTIPLIER = 1.;
+
 }

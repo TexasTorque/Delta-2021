@@ -5,14 +5,8 @@ import java.util.ArrayList;
 import com.kauailabs.navx.frc.AHRS;
 
 import org.texastorque.constants.Constants;
-import org.texastorque.constants.Ports;
-import org.texastorque.inputs.State.AutoMagState;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
@@ -24,8 +18,6 @@ public class Feedback {
     private static DriveTrainFeedback driveTrainFeedback;
     private static IntakeFeedback intakeFeedback;
     private static ShooterFeedback shooterFeedback;
-    private static MagazineFeedback magazineFeedback;
-    private static LimelightFeedback limelightFeedback;
     private static GyroFeedback gyroFeedback;
     private static WheelOfFortuneFeedback wheelOfFortuneFeedback;
 
@@ -38,8 +30,6 @@ public class Feedback {
         driveTrainFeedback = new DriveTrainFeedback();
         intakeFeedback = new IntakeFeedback();
         shooterFeedback = new ShooterFeedback();
-        magazineFeedback = new MagazineFeedback();
-        limelightFeedback = new LimelightFeedback();
         gyroFeedback = new GyroFeedback();
         wheelOfFortuneFeedback = new WheelOfFortuneFeedback();
 
@@ -47,8 +37,6 @@ public class Feedback {
         modules.add(driveTrainFeedback);
         modules.add(intakeFeedback);
         modules.add(shooterFeedback);
-        modules.add(magazineFeedback);
-        modules.add(limelightFeedback);
         modules.add(gyroFeedback);
         modules.add(wheelOfFortuneFeedback);
     }
@@ -247,221 +235,6 @@ public class Feedback {
     }
 
     // =====
-    // Magazine
-    // =====
-    public class MagazineFeedback extends TorqueFeedbackModule {
-        private DigitalInput magHighCheck;
-        private DigitalInput magLowCheck;
-        private DigitalInput magMiddleCheck;
-
-        private AutoMagState state;
-
-        private boolean highMag = false;
-        private boolean middleMag = false;
-        private boolean lowMag = false;
-
-        private double timeDelay;
-        private boolean emptyHasReachedSecond = false;
-        private boolean emptyHasReachedSecondTwo = false;
-        private boolean emptyHasReachedLast = false;
-
-        private MagazineFeedback() {
-            magHighCheck = new DigitalInput(Ports.MAG_SENSOR_HIGH);
-            magMiddleCheck = new DigitalInput(Ports.MAG_SENSOR_MIDDLE);
-            magLowCheck = new DigitalInput(Ports.MAG_SENSOR_LOW);
-
-            // If any sensor returns true, assume balls are already loaded.
-            if (magHighCheck.get() || magMiddleCheck.get() || magLowCheck.get()) {
-                state = AutoMagState.FULL;
-            } else {
-                state = AutoMagState.EMPTY;
-            }
-        }
-
-        @Override
-        public void update() {
-            highMag = magHighCheck.get();
-            middleMag = magMiddleCheck.get();
-            lowMag = magLowCheck.get();
-
-            // Update automag if on & not shooting now
-            if (!Input.getInstance().getMagazineInput().shootingNow()
-                    && Input.getInstance().getMagazineInput().getAutoMag()) {
-                // General theory here:
-                // We want to have different tracking for each state. Each state (except FULL),
-                // is working towards reaching the next.
-                switch (state) {
-                    case EMPTY:
-                        // We want to remain EMPTY until a ball has reached the middle magazine and then
-                        // surpasses it.
-
-                        // If the middle mag detects a ball, set hasReached to true.
-                        if (middleMag)
-                            emptyHasReachedSecond = true;
-                        // Otherwise, if middle mag doesn't detect a ball but did in the past we know
-                        // the ball is ready to go.
-                        else if (!middleMag && emptyHasReachedSecond) {
-                            // Reset and start delay
-                            emptyHasReachedSecond = false;
-                            emptyHasReachedSecondTwo = true;
-                            timeDelay = Timer.getFPGATimestamp();
-                        } else if (emptyHasReachedSecondTwo && Timer.getFPGATimestamp() - timeDelay > .4) {
-                            state = AutoMagState.ONE_PAST_SECOND;
-                            emptyHasReachedSecondTwo = false;
-                        }
-                        break;
-                    case ONE_PAST_SECOND:
-                        // We want to stay in this state until another ball reaches the middle magazine.
-
-                        // If middle mag detects a ball, move state
-                        if (middleMag) {
-                            state = AutoMagState.MOVING_TWO_UP;
-                        }
-                        break;
-                    case MOVING_TWO_UP:
-                        // We want to move the two balls into the top of the upper mag until we reach
-                        // the upper sensor.
-
-                        // If high mag detects a ball, move state
-                        if (highMag) {
-                            state = AutoMagState.UPPER_FULL;
-                        }
-                        break;
-                    case UPPER_FULL:
-                        // We now have the upper mag full, we will declare it full when both middle and
-                        // lower are detecting.
-                        if (lowMag) {
-                            emptyHasReachedLast = true;
-                        } else if (!lowMag && emptyHasReachedLast) {
-                            emptyHasReachedLast = false;
-                            state = AutoMagState.FULL;
-                        }
-                        break;
-                    case FULL:
-                        // We will wait for an unload to change FULL
-                        break;
-                }
-            }
-        }
-
-        /**
-         * Reset auto mag
-         */
-        public void resetAutomag() {
-            state = AutoMagState.EMPTY;
-            emptyHasReachedSecond = false;
-            emptyHasReachedSecondTwo = false;
-            emptyHasReachedLast = false;
-        }
-
-        /**
-         * @return True if seeing a ball in the high mag
-         */
-        public boolean getMagHigh() {
-            return highMag;
-        }
-
-        /**
-         * @return True if seeing a ball in the high mag
-         */
-        public boolean getMagMiddle() {
-            return middleMag;
-        }
-
-        /**
-         * @return True if seeing a ball in the low mag
-         */
-        public boolean getMagLow() {
-            return lowMag;
-        }
-
-        /**
-         * @return The state of the automag
-         */
-        public AutoMagState getState() {
-            return state;
-        }
-
-        @Override
-        public void smartDashboard() {
-            SmartDashboard.putString("[Feedback]AutoMag", state.name());
-            SmartDashboard.putBoolean("[Feedback]MagHigh", getMagHigh());
-            SmartDashboard.putBoolean("[Feedback]MagMiddle", getMagMiddle());
-            SmartDashboard.putBoolean("[Feedback]MagLow", getMagLow());
-        }
-    }
-
-    // ====
-    // Limelight
-    // =====
-    public class LimelightFeedback extends TorqueFeedbackModule {
-        private double targetArea;
-        private double hOffset;
-        private double vOffset;
-
-        /**
-         * Update Limelight readings
-         */
-        @Override
-        public void update() {
-            getLimelightTable().getEntry("pipeline").setNumber(0);
-            targetArea = getLimelightTable().getEntry("ta").getDouble(0);
-            hOffset = getLimelightTable().getEntry("tx").getDouble(0);
-            vOffset = getLimelightTable().getEntry("ty").getDouble(0);
-        }
-
-        /**
-         * Forcefully set the limelight ledMode
-         * 
-         * @param on If it should be on or not
-         */
-        public void setLimelightOn(boolean on) {
-            if (on) {
-                getLimelightTable().getEntry("ledMode").forceSetNumber(3);
-            } else {
-                getLimelightTable().getEntry("ledMode").forceSetNumber(1);
-            }
-        }
-
-        /**
-         * @return The hOffset of the Limelight
-         */
-        public double getXOffset() {
-            return hOffset;
-        }
-
-        /**
-         * @return The vOffset of the Limelight
-         */
-        public double getYOffset() {
-            return vOffset;
-        }
-
-        /**
-         * @return The distance away from the centerpoint
-         */
-        public double getDistanceAway() {
-            return Constants.DIFFERENCE_CENTERPORT_LIMELIGHT
-                    / Math.tan(Math.toRadians(vOffset + Constants.LIMELIGHT_ANGLE_OFFSET));
-        }
-
-        @Override
-        public void smartDashboard() {
-            SmartDashboard.putNumber("[Feedback]hOffset", hOffset);
-            SmartDashboard.putNumber("[Feedback]vOffset", vOffset);
-        }
-
-        /**
-         * Internally get the Limelight table
-         * 
-         * @return The Limelight table
-         */
-        private NetworkTable getLimelightTable() {
-            return NetworkTableInstance.getDefault().getTable("limelight");
-        }
-    }
-
-    // =====
     // Gyro
     // =====
     public class GyroFeedback extends TorqueFeedbackModule {
@@ -582,20 +355,6 @@ public class Feedback {
      */
     public ShooterFeedback getShooterFeedback() {
         return shooterFeedback;
-    }
-
-    /**
-     * @return The MagazineFeedback
-     */
-    public MagazineFeedback getMagazineFeedback() {
-        return magazineFeedback;
-    }
-
-    /**
-     * @return The LimelightFeedback
-     */
-    public LimelightFeedback getLimelightFeedback() {
-        return limelightFeedback;
     }
 
     /**

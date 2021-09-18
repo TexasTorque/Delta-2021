@@ -7,7 +7,6 @@ import com.revrobotics.ControlType;
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
-import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
 import org.texastorque.util.KPID;
 
@@ -47,7 +46,7 @@ public class Intake extends Subsystem {
      * Update the feedback values and set the motors
      */
     @Override
-    public void runTeleop(RobotState state) {
+    public void runTeleop() {
         updateFeedback();
 
         rollerSpeed = input.getIntakeInput().getRollerSpeed();
@@ -55,14 +54,6 @@ public class Intake extends Subsystem {
         rotaryPositionRight = input.getIntakeInput().getRotaryPositionRight();
 
         output();
-    };
-
-    /**
-     * Uses the same code as Teleop
-     */
-    @Override
-    public void runAuto(RobotState state) {
-        runTeleop(state);
     };
 
     /**

@@ -6,7 +6,6 @@ import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State.HoodSetpoint;
-import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
 import org.texastorque.torquelib.component.TorqueTalon;
 import org.texastorque.torquelib.controlLoop.ScheduledPID;
@@ -46,7 +45,8 @@ public class Shooter extends Subsystem {
                 .build();
     }
 
-    public void runTeleop(RobotState state) {
+    @Override
+    public void runTeleop() {
         updateFeedback();
 
         flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
@@ -54,21 +54,7 @@ public class Shooter extends Subsystem {
         shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
         pidOutput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
 
-        System.out.printf("%f, %f, %f%n", flywheelSpeed, flywheel.getRPM(),
-        pidOutput);
-        output();
-    };
-
-    public void runAuto(RobotState state) {
-        updateFeedback();
-
-        // Equivalent to runTeleop
-        flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
-        hoodSetpoint = input.getShooterInput().getHoodSetpoint();
-        shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
-        // System.out.printf("%f, %f%n", flywheelSpeed, flywheel.getRPM());
-        pidOutput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
-
+        //System.out.printf("%f, %f, %f%n", flywheelSpeed, flywheel.getRPM(), pidOutput);
         output();
     };
 
