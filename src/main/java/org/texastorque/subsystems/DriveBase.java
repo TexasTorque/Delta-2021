@@ -34,7 +34,6 @@ public class DriveBase extends Subsystem {
     // Variables to hold the current speed
     private double leftSpeed = 0;
     private double rightSpeed = 0;
-    private double speedMult = .55;
 
     // Values for vision
     private double position;
@@ -166,8 +165,8 @@ public class DriveBase extends Subsystem {
 
         double dbLeft = input.getDriveBaseInput().getLeftSpeed();
         double dbRight = input.getDriveBaseInput().getRightSpeed();
-        leftSpeed = dbLeft < 0 ? ((dbLeft * dbLeft) * (-1)) * speedMult : ((dbLeft * dbLeft)) * speedMult;
-        rightSpeed = dbRight < 0 ? ((dbRight * dbRight) * (-1)) * speedMult : ((dbRight * dbRight)) * speedMult;
+        leftSpeed = dbLeft < 0 ? ((dbLeft * dbLeft) * (-1)) * input.getDriveBaseInput().getSpeedMult() : ((dbLeft * dbLeft)) * input.getDriveBaseInput().getSpeedMult();
+        rightSpeed = dbRight < 0 ? ((dbRight * dbRight) * (-1)) * input.getDriveBaseInput().getSpeedMult() : ((dbRight * dbRight)) * input.getDriveBaseInput().getSpeedMult();
     }
 
     /**
