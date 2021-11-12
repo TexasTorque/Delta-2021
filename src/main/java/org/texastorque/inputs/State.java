@@ -1,13 +1,13 @@
 package org.texastorque.inputs;
 
 public class State {
-    public static volatile State instance;
+    private static volatile State instance;
 
     /**
      * States the robot can be in
      */
     public enum RobotState {
-        AUTO, TELEOP, VISION, SHOOTING, MAGLOAD;
+        AUTO, TELEOP, VISION, SHOOTING, MAGLOAD, DISABLED;
     }
 
     /**
@@ -113,15 +113,7 @@ public class State {
         this.robotState = state;
     }
 
-    /**
-     * Get the State instance
-     * 
-     * @return State
-     */
     public static synchronized State getInstance() {
-        if (instance == null) {
-            instance = new State();
-        }
-        return instance;
+        return instance == null ? instance = new State() : instance;
     }
 }

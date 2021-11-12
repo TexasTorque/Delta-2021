@@ -8,10 +8,12 @@ import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Feedback;
 import org.texastorque.inputs.Input;
 import org.texastorque.inputs.State.RobotState;
+import org.texastorque.torquelib.base.TorqueSubsystem;
 import org.texastorque.torquelib.component.TorqueSparkMax;
 import org.texastorque.util.KPID;
 
-public class Intake extends Subsystem {
+public class Intake extends TorqueSubsystem {
+
     private static volatile Intake instance;
 
     // Cached instances
@@ -47,7 +49,7 @@ public class Intake extends Subsystem {
      * Update the feedback values and set the motors
      */
     @Override
-    public void runTeleop(RobotState state) {
+    public void updateTeleop() {
         updateFeedback();
 
         rollerSpeed = input.getIntakeInput().getRollerSpeed();
@@ -61,35 +63,23 @@ public class Intake extends Subsystem {
      * Uses the same code as Teleop
      */
     @Override
-    public void runAuto(RobotState state) {
-        runTeleop(state);
+    public void updateAuto() {
     };
 
     /**
      * Output to motors
      */
     @Override
-    protected void output() {
+    public void output() {
         rollers.set(ControlMode.PercentOutput, rollerSpeed);
         rotaryLeft.set(rotaryPositionLeft, ControlType.kPosition);
         rotaryRight.set(rotaryPositionRight, ControlType.kPosition);
     }
 
     @Override
-    protected void updateFeedback() {
+    public void updateFeedback() {
         feedback.getIntakeFeedback().setRotaryPositionLeft(rotaryLeft.getPosition());
         feedback.getIntakeFeedback().setRotaryPositionRight(rotaryRight.getPosition());
     }
-
-    /**
-     * Get the Intake instance
-     * 
-     * @return Intake
-     */
-    public static synchronized Intake getInstance() {
-        if (instance == null) {
-            instance = new Intake();
-        }
-        return instance;
-    }
+    
 }

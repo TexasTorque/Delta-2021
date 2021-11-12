@@ -1,7 +1,10 @@
 package org.texastorque.subsystems;
 
+import org.texastorque.torquelib.base.TorqueSubsystem;
+
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.Input;
+import org.texastorque.inputs.State;
 import org.texastorque.inputs.State.ClimberState;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.torquelib.component.TorqueSparkMax;
@@ -9,7 +12,8 @@ import org.texastorque.torquelib.component.TorqueSparkMax;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Climber extends Subsystem {
+public class Climber extends TorqueSubsystem {
+    
     private static volatile Climber instance;
 
     // Cached instances
@@ -49,7 +53,7 @@ public class Climber extends Subsystem {
      * Decides climber motor and servo parameters
      */
     @Override
-    public void runTeleop(RobotState state) {
+    public void updateTeleop() {
         climbStatus = input.getClimberInput().getClimberStatus(); // climber neutral, extend, retract
         if (!input.getClimberInput().getManualClimb()) { // if climbing is not manual...
             switch (climbStatus) {
@@ -103,7 +107,6 @@ public class Climber extends Subsystem {
             }
         }
 
-        output();
     }
 
     public void resetClimb() {
@@ -114,7 +117,7 @@ public class Climber extends Subsystem {
     /**
      * set sparkmaxes with outputs from runTeleop
      */
-    protected void output() {
+    public void output() {
         climberLeft.set(climberLeftSpeed);
         climberRight.set(climberRightSpeed);
         leftRatchet.set(leftRatchetPos);
@@ -122,21 +125,12 @@ public class Climber extends Subsystem {
     };
 
     @Override
-    public void smartDashboard() {
+    public void updateSmartDashboard() {
         SmartDashboard.putNumber("[Climber]leftSpeed", climberLeftSpeed);
         SmartDashboard.putNumber("[Climber]rightSpeed", climberRightSpeed);
-
     }
 
-    /**
-     * Get the Climber instance
-     * 
-     * @return Climber
-     */
     public static synchronized Climber getInstance() {
-        if (instance == null) {
-            instance = new Climber();
-        }
-        return instance;
+        return instance == null ? instance = new Climber() : instance;
     }
 }

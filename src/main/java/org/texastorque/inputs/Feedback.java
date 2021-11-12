@@ -7,6 +7,7 @@ import com.kauailabs.navx.frc.AHRS;
 import org.texastorque.constants.Constants;
 import org.texastorque.constants.Ports;
 import org.texastorque.inputs.State.AutoMagState;
+import org.texastorque.torquelib.base.TorqueFeedback;
 
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
@@ -29,7 +30,7 @@ public class Feedback {
     private static GyroFeedback gyroFeedback;
     private static WheelOfFortuneFeedback wheelOfFortuneFeedback;
 
-    private static ArrayList<TorqueFeedbackModule> modules;
+    private static ArrayList<TorqueFeedback> modules;
 
     /**
      * Load in the modules
@@ -57,7 +58,7 @@ public class Feedback {
      * Update each Feedback module
      */
     public void update() {
-        modules.forEach(TorqueFeedbackModule::update);
+        modules.forEach(TorqueFeedback::update);
         smartDashboard();
     }
 
@@ -65,13 +66,13 @@ public class Feedback {
      * Update SmartDashboard values
      */
     public void smartDashboard() {
-        modules.forEach(TorqueFeedbackModule::smartDashboard);
+        modules.forEach(TorqueFeedback::smartDashboard);
     }
 
     // =====
     // Drive Train
     // =====
-    public class DriveTrainFeedback extends TorqueFeedbackModule {
+    public class DriveTrainFeedback extends TorqueFeedback {
         private double leftTare = 0;
         private double rightTare = 0;
         private double leftPosition;
@@ -158,14 +159,24 @@ public class Feedback {
             SmartDashboard.putNumber("[Feedback]leftDistance", getLeftDistance());
             SmartDashboard.putNumber("[Feedback]rightDistance", getRightDistance());
         }
+
+        @Override
+        public void update() {
+            
+        }
     }
 
     // =====
     // Intake
     // =====
-    public class IntakeFeedback extends TorqueFeedbackModule {
+    public class IntakeFeedback extends TorqueFeedback {
         private double rotaryPositionLeft;
         private double rotaryPositionRight;
+
+        @Override
+        public void update() {
+            
+        }
 
         /**
          * Update the rotary position left
@@ -203,9 +214,14 @@ public class Feedback {
     // =====
     // Shooter (Hood & Flywheel)
     // =====
-    public class ShooterFeedback extends TorqueFeedbackModule {
+    public class ShooterFeedback extends TorqueFeedback {
         private double shooterVelocity;
         private double hoodPosition;
+
+        @Override
+        public void update() {
+            
+        }
 
         /**
          * @return The shooter velocity
@@ -249,7 +265,7 @@ public class Feedback {
     // =====
     // Magazine
     // =====
-    public class MagazineFeedback extends TorqueFeedbackModule {
+    public class MagazineFeedback extends TorqueFeedback {
         private DigitalInput magHighCheck;
         private DigitalInput magLowCheck;
         private DigitalInput magMiddleCheck;
@@ -394,7 +410,7 @@ public class Feedback {
     // ====
     // Limelight
     // =====
-    public class LimelightFeedback extends TorqueFeedbackModule {
+    public class LimelightFeedback extends TorqueFeedback {
         private double targetArea;
         private double hOffset;
         private double vOffset;
@@ -464,7 +480,7 @@ public class Feedback {
     // =====
     // Gyro
     // =====
-    public class GyroFeedback extends TorqueFeedbackModule {
+    public class GyroFeedback extends TorqueFeedback {
         private final AHRS NX_gyro;
 
         private double NX_pitch;
@@ -531,7 +547,7 @@ public class Feedback {
     // ====
     // Wheel of Fortune
     // ====
-    public class WheelOfFortuneFeedback extends TorqueFeedbackModule {
+    public class WheelOfFortuneFeedback extends TorqueFeedback {
         private Color detectedColor = Color.kBlack;
 
         @Override
@@ -612,15 +628,7 @@ public class Feedback {
         return wheelOfFortuneFeedback;
     }
 
-    /**
-     * Get the Feedback instance
-     * 
-     * @return Feedback
-     */
     public static synchronized Feedback getInstance() {
-        if (instance == null) {
-            instance = new Feedback();
-        }
-        return instance;
+        return (instance == null) ? instance = new Feedback() : instance;
     }
 }

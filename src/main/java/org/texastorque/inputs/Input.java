@@ -1,69 +1,54 @@
 package org.texastorque.inputs;
 
-import org.texastorque.inputs.State.ClimberSide;
-import org.texastorque.inputs.State.ClimberState;
-import org.texastorque.inputs.State.FlywheelSpeed;
-import org.texastorque.inputs.State.HoodSetpoint;
-import org.texastorque.inputs.State.RobotState;
-import org.texastorque.inputs.State.RotaryState;
-import org.texastorque.subsystems.Climber;
-import org.texastorque.subsystems.WheelOfFortune;
+import org.texastorque.constants.Constants;
+import org.texastorque.torquelib.base.TorqueInput;
+import org.texastorque.torquelib.controlLoop.TorqueSlewLimiter;
 import org.texastorque.torquelib.util.GenericController;
 import org.texastorque.torquelib.util.TorqueClick;
+import org.texastorque.torquelib.util.TorqueLogiPro;
 import org.texastorque.torquelib.util.TorqueMathUtil;
+import org.texastorque.torquelib.util.TorqueToggle;
+import org.texastorque.torquelib.util.TorqueLogiPro.PovState;
+import org.texastorque.inputs.State.*;
+import org.texastorque.subsystems.Climber;
 
+import edu.wpi.first.wpilibj.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Input {
-    public static volatile Input instance;
+    private static volatile Input instance;
 
     // Cached state
     private State state = State.getInstance();
     private Feedback feedback = Feedback.getInstance();
 
     // Controllers
-    private GenericController driver; // driver controller parameters
+    private TorqueLogiPro driver; // driver controller parameters
     private GenericController operator; // operator - -
 
-    // Instances
-    private DriveBaseInput driveBaseInput;
+    // Instance
+    private DrivebaseInput drivebaseInput;
     private IntakeInput intakeInput;
     private MagazineInput magazineInput;
     private ClimberInput climberInput;
     private ShooterInput shooterInput;
-    private WheelOfFortuneInput wheelOfFortuneInput;
 
-    /**
-     * Load the state and create driver/operator controllers
-     */
     private Input() {
-        driver = new GenericController(0, 0.1);
-        operator = new GenericController(1, 0.1);
+        driver = new TorqueLogiPro(0);
+        operator = new GenericController(1, 0.1); 
 
-        // Load instances
-        driveBaseInput = new DriveBaseInput();
+        drivebaseInput = new DrivebaseInput();
         intakeInput = new IntakeInput();
         magazineInput = new MagazineInput();
         climberInput = new ClimberInput();
         shooterInput = new ShooterInput();
-        wheelOfFortuneInput = new WheelOfFortuneInput();
     }
 
     public void update() {
-        driveBaseInput.update();
-        intakeInput.update();
-        magazineInput.update();
-        climberInput.update();
-        shooterInput.update();
-        wheelOfFortuneInput.update();
-        smartDashboard();
+        drivebaseInput.update();
     }
 
-    // ======
-    // Drivebase
-    // ======
-
-    public class DriveBaseInput implements TorqueInputModule {
+    public class DrivebaseInput extends TorqueInput {
         private volatile double leftSpeed = 0;
         private volatile double rightSpeed = 0;
         public volatile double speedMult = 0.7;
@@ -71,45 +56,43 @@ public class Input {
         private TorqueClick speedUp = new TorqueClick();
         private TorqueClick speedDown = new TorqueClick();
 
-        /**
-         * Update the left and right speeds
-         */
+        private TorqueToggle rollOrYaw = new TorqueToggle();
+
+        public DrivebaseInput() {
+        }
+
+        @Override
         public void update() {
-            double leftRight = driver.getRightXAxis(); // get joystick position
-            if (driver.getLeftCenterButton()) {
+            rollOrYaw.calc(driver.getButtonByIndex(12));
+            double leftRight = rollOrYaw.get() ? driver.getRoll() : driver.getYaw(); // get joystick position
+
+
+            if (driver.getButtonByIndex(11)) {
                 getClimberInput().setClimbStartedDT(false);
             }
-            if (driver.getAButtonPressed()) { // Vision toggle
+            if (driver.getButtonByIndex(5)) { // Vision toggle
                 if (state.getRobotState() == RobotState.TELEOP)
                     state.setRobotState(RobotState.VISION);
                 else if (state.getRobotState() == RobotState.VISION)
                     state.setRobotState(RobotState.TELEOP);
             }
             if (getClimberInput().getClimbStartedDT()) {
-                leftSpeed = .4 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-                rightSpeed = .4 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-            } else if (WheelOfFortune.getInstance().getExecuting()) {
-                leftSpeed = .35 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-                rightSpeed = .35 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                leftSpeed = .4 * (driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                rightSpeed = .4 * (-driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL.getValue()) { // maximum speed when
                 // neutral
-                leftSpeed = driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
-                rightSpeed = -driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
+                leftSpeed = driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
+                rightSpeed = -driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
             } else {
-                defaultDriveSpeed(leftRight);
+                leftSpeed =  0.2 * (driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                rightSpeed = 0.2 * (-driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             }
 
-            boolean up = speedUp.calc(driver.getRightBumper());
-            boolean down = speedDown.calc(driver.getLeftBumper());
-
+            boolean up = speedUp.calc(driver.getButtonByIndex(4));
+            boolean down = speedDown.calc(driver.getButtonByIndex(3));
             if (up) speedUp();
             else if (down) speedDown();
             else if (up && down) speedReset();
-        }
-
-        private void defaultDriveSpeed(double leftRight) {
-            leftSpeed = .2 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-            rightSpeed = .2 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
         }
 
         public void speedUp() {
@@ -121,12 +104,13 @@ public class Input {
         }
     
         public void speedReset() {
-            speedMult = 0.7;
+            speedMult = 0.6;
         }
     
         public double getSpeedMult() {
             return speedMult;
         }
+    
 
         /**
          * Reset the left and right speeds
@@ -156,6 +140,7 @@ public class Input {
         public void smartDashboard() {
             SmartDashboard.putNumber("[Input]leftSpeed", leftSpeed);
             SmartDashboard.putNumber("[Input]rightSpeed", rightSpeed);
+            SmartDashboard.putNumber("[Input]speedMult", speedMult);
         }
 
         // ===
@@ -192,17 +177,14 @@ public class Input {
         }
     }
 
-    // =====
-    // Intake
-    // =====
 
-    public class IntakeInput implements TorqueInputModule {
+    public class IntakeInput extends TorqueInput {
         private volatile double rotaryPositionLeft;
         private volatile double rotaryPositionRight;
         private double rotarySpeed = 0;
         private double rollerSpeed = 0;
 
-        private double[] rotarySetpointsLeft = { 0, -21.5, -40 };
+        private double[] rotarySetpointsLeft = { 0, -21.5, -38 };
         private double[] rotarySetpointsRight = { 0, 21.5, 38 };
 
         // Position to start with
@@ -210,14 +192,14 @@ public class Input {
 
         @Override
         public void update() {
-            if (driver.getBButtonPressed()) {
+            if (driver.getButtonByIndex(2)) {
                 neutral = neutral == RotaryState.PRIME ? RotaryState.UP : RotaryState.PRIME;
             }
-            if (driver.getRightTrigger()) {
+            if (driver.getButtonByIndex(1)) {
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
                 rollerSpeed = .7;
-            } else if (driver.getLeftTrigger()) {
+            } else if (driver.getButtonByIndex(7)) {
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
                 rollerSpeed = -.7;
@@ -226,7 +208,7 @@ public class Input {
                 rotaryPositionRight = rotarySetpointsRight[neutral.getValue()];
                 rollerSpeed = 0;
             }
-            if (driver.getYButton()) {
+            if (driver.getButtonByIndex(11)) {
                 rollerSpeed = 0.5;
             }
         }
@@ -263,7 +245,7 @@ public class Input {
             return rotaryPositionLeft;
         }
 
-        /**
+        /*
          * @return The rotary's right position
          */
         public double getRotaryPositionRight() {
@@ -297,19 +279,14 @@ public class Input {
         }
     }
 
-    // =====
-    // Magazine
-    // =====
-
-    public class MagazineInput implements TorqueInputModule {
+    public class MagazineInput extends TorqueInput {
         private double velocityLow = 0;
         private double velocityHigh = 0;
+        private double velocityGate = 0;
 
-        private final double speedLow = .5;
-        private final double speedHigh = 1.;
-
-        private final double speedLowAuto = .5;
-        private final double speedHighAuto = 1.;
+        private double speedLow = .6;
+        private double speedHigh = .6;
+        private double speedGate = 1;
 
         // 0=nothing, 1=forward, -1=backward
         private int magLow;
@@ -322,10 +299,9 @@ public class Input {
         public void update() {
             reset();
 
-            if (operator.getLeftCenterButton()) {
-                feedback.getMagazineFeedback().resetAutomag(); // Reset automag
+            if (operator.getLeftCenterButton())
                 autoMag = true; // left d pad turn on automag
-            } else if (operator.getRightCenterButton())
+            else if (operator.getRightCenterButton())
                 autoMag = false; // right d pad turn off automag
 
             // = High Mag
@@ -340,10 +316,15 @@ public class Input {
             // = Low Mag
             if (operator.getRightTrigger()) { // == Balls In
                 magLow = 1;
-                velocityLow = speedLow;
+                velocityLow = -speedLow;
             } else if (operator.getRightBumper()) {
                 magLow = -1;
-                velocityLow = -speedLow;
+                velocityLow = speedLow;
+            }
+
+            // = Gate
+            if (operator.getDPADDown() || operator.getDPADLeft()) {
+                velocityGate = speedGate;
             }
 
             shootingNow = operator.getDPADUp();
@@ -353,6 +334,7 @@ public class Input {
         public void reset() {
             velocityLow = 0;
             velocityHigh = 0;
+            velocityGate = 0;
             magLow = 0;
             magHigh = 0;
         }
@@ -373,12 +355,8 @@ public class Input {
             return velocityHigh;
         }
 
-        public double getSetSpeedLowAuto() {
-            return speedLowAuto;
-        }
-
-        public double getSetSpeedHighAuto() {
-            return speedHighAuto;
+        public double getVelocityGate() {
+            return velocityGate;
         }
 
         public int getMagLow() {
@@ -389,11 +367,17 @@ public class Input {
             return magHigh;
         }
 
-        /**
-         * @return If auto mag is on
-         */
         public boolean getAutoMag() {
             return autoMag;
+        }
+
+        /**
+         * Turn off/on the gate
+         * 
+         * @param on True=on, false=off
+         */
+        public void setGate(boolean on) {
+            velocityGate = on ? -speedGate : 0;
         }
 
         /**
@@ -425,10 +409,7 @@ public class Input {
         }
     }
 
-    // =====
-    // Climber
-    // =====
-    public class ClimberInput implements TorqueInputModule {
+    public class ClimberInput extends TorqueInput {
         private double climberLeft = 0;
         private double climberRight = 0;
 
@@ -441,20 +422,20 @@ public class Input {
         @Override
         public void update() {
             reset();
-            if (driver.getDPADUp()) { // Extend climber
+            if (driver.atPovState(PovState.NORTH)) { // Extend climber
                 if (!climbStarted) { // if the climb has not been started
                     Climber.getInstance().resetClimb();
                     climbStarted = true;
                     climbStartedDT = true;
                 }
                 climberStatus = ClimberState.EXTEND;
-            } else if (driver.getDPADDown()) { // Retract climber
+            } else if (driver.atPovState(PovState.SOUTH)) { // Retract climber
                 climberStatus = ClimberState.RETRACT;
                 climbStartedDT = false;
-            } else if (driver.getDPADLeft()) {// extend left
+            } else if (driver.atPovState(PovState.WEST)) {// extend left
                 manualClimb = true;
                 sideToExtend = ClimberSide.LEFT;
-            } else if (driver.getDPADRight()) { // extend right
+            } else if (driver.atPovState(PovState.EAST)) { // extend right
                 manualClimb = true;
                 sideToExtend = ClimberSide.RIGHT;
             } else {
@@ -516,10 +497,7 @@ public class Input {
 
     }
 
-    // =====
-    // Shooter
-    // =====
-    public class ShooterInput implements TorqueInputModule {
+    public class ShooterInput extends TorqueInput {
         private double flywheelSpeed = 0;
         private double distanceAway = 0;
         // On-the-fly fine-tuning for hood & shooter by operator ≧◠‿◠≦✌
@@ -552,7 +530,7 @@ public class Input {
                 hoodSetpoint = HoodSetpoint.LONGSHOT.getValue();
                 flywheelSpeed = FlywheelSpeed.LONGSHOT.getValue() + shooterFine;
             } else if (operator.getXButton()) { // limelight
-                // hoodSetpoint = HoodSetpoint.LIMELIGHT.getValue();
+                // hoodSetpoint = HoodSetpoint.LIMELIGHT;
                 // flywheelSpeed = getLimelightFlywheelSpeed();
                 hoodSetpoint = SmartDashboard.getNumber("[Input]ManualHood", 0);
                 flywheelSpeed = SmartDashboard.getNumber("[Input]ManualFlywheel", 0);
@@ -563,7 +541,7 @@ public class Input {
         }
 
         /**
-         * TODO: Make this automatically create the perfect setpoint/speed -- not
+         * TODO: Make this automatically create teh perfect setpoint/speed -- not
          * highest priority.
          */
         public double getLimelightFlywheelSpeed() {
@@ -616,56 +594,12 @@ public class Input {
         }
     }
 
-    // =====
-    // Wheel of Fortune
-    // =====
-    public class WheelOfFortuneInput implements TorqueInputModule {
-        private boolean start = false;
-        private boolean down = false;
 
-        @Override
-        public void update() {
-            start = operator.getDPADLeft();
-            down = operator.getDPADRight();
-        }
-
-        @Override
-        public void reset() {
-        }
-
-        @Override
-        public void smartDashboard() {
-            SmartDashboard.putBoolean("[Input]WOFStart", start);
-            SmartDashboard.putBoolean("[Input]WOFDown", down);
-        }
-
-        /**
-         * @return Whether WOF should start running
-         */
-        public boolean getStart() {
-            return start;
-        }
-
-        /**
-         * @return Whether WOF should stop and go down
-         */
-        public boolean getDown() {
-            return down;
-        }
-
-    }
-    // ======
-    // Getters
-    // ======
-
-    /**
-     * @return The instance of the DriveBaseInput
-     */
-    public DriveBaseInput getDriveBaseInput() {
-        return driveBaseInput;
+    public DrivebaseInput getDrivebaseInput() {
+        return drivebaseInput;
     }
 
-    /**
+     /**
      * @return The instance of the IntakeInput
      */
     public IntakeInput getIntakeInput() {
@@ -693,13 +627,6 @@ public class Input {
         return shooterInput;
     }
 
-    /**
-     * @return The instance of WheelOfFortuneInput
-     */
-    public WheelOfFortuneInput getWheelOfFortuneInput() {
-        return wheelOfFortuneInput;
-    }
-
     // =====
     // Misc
     // =====
@@ -708,23 +635,14 @@ public class Input {
      * Update the values in SmartDashboard
      */
     public void smartDashboard() { // calls the smartDashboard method of each subclass within
-        driveBaseInput.smartDashboard();
+        drivebaseInput.smartDashboard();
         intakeInput.smartDashboard();
         magazineInput.smartDashboard();
         climberInput.smartDashboard();
         shooterInput.smartDashboard();
-        wheelOfFortuneInput.smartDashboard();
     }
 
-    /**
-     * Get the Input instance
-     * 
-     * @return Input
-     */
-    public static synchronized Input getInstance() {
-        if (instance == null) {
-            instance = new Input();
-        }
-        return instance;
-    }
+	public static synchronized Input getInstance() {
+		return (instance == null) ? instance = new Input() : instance;
+	}
 }

@@ -1,5 +1,7 @@
 package org.texastorque.subsystems;
 
+import org.texastorque.torquelib.base.TorqueSubsystem;
+
 import com.revrobotics.ControlType;
 
 import org.texastorque.constants.Constants;
@@ -19,8 +21,8 @@ import edu.wpi.first.wpilibj.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.kinematics.DifferentialDriveWheelSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class DriveBase extends Subsystem {
-    public static volatile DriveBase instance;
+public class Drivebase extends TorqueSubsystem {
+    private static volatile Drivebase instance;
 
     // Cached instances
     private Input input = Input.getInstance();
@@ -49,10 +51,7 @@ public class DriveBase extends Subsystem {
 
     private DifferentialDriveOdometry odometry;
 
-    /**
-     * Instantiate a new DriveBase
-     */
-    private DriveBase() {
+    private Drivebase() {
         DBLeft.configurePID(leftDefaultPID);
         DBRight.configurePID(rightDefaultPID);
         DBLeft.addFollower(Ports.DB_LEFT_2);
@@ -63,69 +62,34 @@ public class DriveBase extends Subsystem {
         odometry = new DifferentialDriveOdometry(feedback.getGyroFeedback().getRotation2d());
     }
 
-    /**
-     * Reset the encoders when auto is initialized
-     */
-    @Override
-    public void initAuto() {
-        resetOdometry(new Pose2d());
-    }
-
-    /**
-     * Reset the speeds when teleop is initialized
-     */
     @Override
     public void initTeleop() {
         leftSpeed = 0;
         rightSpeed = 0;
     }
 
-    /**
-     * Move during telepo
-     */
-    @Override
-    public void runTeleop(RobotState state) {
-        updateFeedback();
+    @Override 
+    public void initAuto() {
+    }
 
-        if (state == RobotState.AUTO) {
-            leftSpeed = input.getDriveBaseInput().getLeftSpeed();
-            rightSpeed = input.getDriveBaseInput().getRightSpeed();
-        } else if (state == RobotState.VISION) {
+    @Override
+    public void updateTeleop() {
+        updateFeedback();
+        if (state.getRobotState() == RobotState.AUTO) {
+            leftSpeed = input.getDrivebaseInput().getLeftSpeed();
+            rightSpeed = input.getDrivebaseInput().getRightSpeed();
+        } else if (state.getRobotState() == RobotState.VISION) {
             runVision();
-        } else if (state == RobotState.TELEOP || state == RobotState.SHOOTING || state == RobotState.MAGLOAD) {
+        } else if (state.getRobotState() == RobotState.TELEOP 
+                || state.getRobotState() == RobotState.SHOOTING 
+                || state.getRobotState() == RobotState.MAGLOAD) {
             runTeleopShootingMagload();
         }
-
-        output();
     }
 
     @Override
-    public void runAuto(RobotState state) {
-        updateFeedback();
+    public void updateAuto() {
 
-        leftSpeed = input.getDriveBaseInput().getLeftSpeed();
-        rightSpeed = input.getDriveBaseInput().getRightSpeed();
-        if (input.getDriveBaseInput().getDoingVelocity()) {
-            System.out.printf("SETTING: (%f, %f)%n", leftSpeed, rightSpeed);
-            leftSpeed /= 25;
-            rightSpeed /= 25;
-            leftSpeed = Math.max(-1, Math.min(1, leftSpeed));
-            rightSpeed = Math.max(-1, Math.min(1, rightSpeed));
-            System.out.printf("CONVERTED: (%f, %f)%n", leftSpeed, rightSpeed);
-
-            DBLeft.set(-leftSpeed);
-            DBRight.set(rightSpeed);
-        } else
-            output();
-    }
-
-    /**
-     * Output the values
-     */
-    @Override
-    protected void output() {
-        DBLeft.set(leftSpeed);
-        DBRight.set(rightSpeed);
     }
 
     /**
@@ -163,17 +127,20 @@ public class DriveBase extends Subsystem {
 
         feedback.getLimelightFeedback().setLimelightOn(true);
 
-        double dbLeft = input.getDriveBaseInput().getLeftSpeed();
-        double dbRight = input.getDriveBaseInput().getRightSpeed();
-        leftSpeed = dbLeft < 0 ? ((dbLeft * dbLeft) * (-1)) * input.getDriveBaseInput().getSpeedMult() : ((dbLeft * dbLeft)) * input.getDriveBaseInput().getSpeedMult();
-        rightSpeed = dbRight < 0 ? ((dbRight * dbRight) * (-1)) * input.getDriveBaseInput().getSpeedMult() : ((dbRight * dbRight)) * input.getDriveBaseInput().getSpeedMult();
+        double dbLeft = input.getDrivebaseInput().getLeftSpeed();
+        double dbRight = input.getDrivebaseInput().getRightSpeed();
+        leftSpeed = dbLeft < 0 ? ((dbLeft * dbLeft) * (-1)) * input.getDrivebaseInput().getSpeedMult() : ((dbLeft * dbLeft)) * input.getDrivebaseInput().getSpeedMult();
+        rightSpeed = dbRight < 0 ? ((dbRight * dbRight) * (-1)) * input.getDrivebaseInput().getSpeedMult() : ((dbRight * dbRight)) * input.getDrivebaseInput().getSpeedMult();
     }
 
-    /**
-     * Update the feedback positions
-     */
     @Override
-    protected void updateFeedback() {
+    public void output() {
+        DBLeft.set(leftSpeed);
+        DBRight.set(rightSpeed);
+    }
+
+    @Override
+    public void updateFeedbackTeleop() {
         feedback.getDriveTrainFeedback().setLeftPosition(DBLeft.getPosition());
         feedback.getDriveTrainFeedback().setRightPosition(DBRight.getPosition());
         feedback.getDriveTrainFeedback().setLeftVelocity(DBLeft.getVelocity());
@@ -181,6 +148,14 @@ public class DriveBase extends Subsystem {
         odometry.update(feedback.getGyroFeedback().getRotation2d(),
                 feedback.getDriveTrainFeedback().getLeftDistance() * Constants.FOOT_TO_METER,
                 feedback.getDriveTrainFeedback().getRightDistance() * Constants.FOOT_TO_METER);
+    }
+
+    @Override
+    public void updateFeedbackAuto() {
+    }
+
+    @Override
+    public void updateSmartDashboard() {
     }
 
     /**
@@ -251,33 +226,7 @@ public class DriveBase extends Subsystem {
         return DBRight.getPosition();
     }
 
-    /**
-     * Update values in SmartDashboard
-     */
-    @Override
-    public void smartDashboard() {
-        // Speeds
-        SmartDashboard.putNumber("[DB]leftSpeed", leftSpeed);
-        SmartDashboard.putNumber("[DB]rightSpeed", rightSpeed);
-        // Distance
-        SmartDashboard.putNumber("[DB]leftDistance", getLeftDistance());
-        SmartDashboard.putNumber("[DB]rightDistance", getRightDistance());
-        SmartDashboard.putNumber("[DB]odometryX", getPose().getX());
-        SmartDashboard.putNumber("[DB]odometryY", getPose().getY());
-        SmartDashboard.putNumber("[DB]odometryRadians", getPose().getRotation().getRadians());
-        SmartDashboard.putNumber("[DB]odometryDegrees", getPose().getRotation().getDegrees());
-
-    }
-
-    /**
-     * Get the DriveBase instance
-     * 
-     * @return DriveBase
-     */
-    public static synchronized DriveBase getInstance() {
-        if (instance == null) {
-            instance = new DriveBase();
-        }
-        return instance;
+    public static synchronized Drivebase getInstance() {
+        return (instance == null) ? instance = new Drivebase() : instance;
     }
 }
