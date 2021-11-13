@@ -82,4 +82,7 @@ public class Intake extends TorqueSubsystem {
         feedback.getIntakeFeedback().setRotaryPositionRight(rotaryRight.getPosition());
     }
     
+    public static synchronized Intake getInstance() {
+        return instance == null ? instance = new Intake() : instance;
+    }
 }

@@ -8,6 +8,10 @@ import org.texastorque.inputs.*;
 import org.texastorque.inputs.State.RobotState;
 import org.texastorque.subsystems.*;
 
+/**
+ * Delta++ is a really hastily made peice of shit.
+ * Will be replaced with a full rewrite over Thanksgiving break.
+ */
 public class Robot extends TorqueIterative {
 
     Input input = Input.getInstance();
@@ -19,6 +23,12 @@ public class Robot extends TorqueIterative {
     @Override
     public void robotInit() {
         subsystems.add(Drivebase.getInstance());
+
+        subsystems.add(Climber.getInstance());
+        subsystems.add(Drivebase.getInstance());
+        subsystems.add(Intake.getInstance());
+        subsystems.add(Magazine.getInstance());
+        subsystems.add(Shooter.getInstance());
     }
 
     @Override

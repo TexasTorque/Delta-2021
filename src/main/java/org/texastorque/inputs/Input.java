@@ -282,11 +282,12 @@ public class Input {
     public class MagazineInput extends TorqueInput {
         private double velocityLow = 0;
         private double velocityHigh = 0;
-        private double velocityGate = 0;
 
-        private double speedLow = .6;
-        private double speedHigh = .6;
-        private double speedGate = 1;
+        private final double speedLow = .5;
+        private final double speedHigh = 1.;
+
+        private final double speedLowAuto = .5;
+        private final double speedHighAuto = 1.;
 
         // 0=nothing, 1=forward, -1=backward
         private int magLow;
@@ -299,9 +300,10 @@ public class Input {
         public void update() {
             reset();
 
-            if (operator.getLeftCenterButton())
+            if (operator.getLeftCenterButton()) {
+                feedback.getMagazineFeedback().resetAutomag(); // Reset automag
                 autoMag = true; // left d pad turn on automag
-            else if (operator.getRightCenterButton())
+            } else if (operator.getRightCenterButton())
                 autoMag = false; // right d pad turn off automag
 
             // = High Mag
@@ -316,15 +318,10 @@ public class Input {
             // = Low Mag
             if (operator.getRightTrigger()) { // == Balls In
                 magLow = 1;
-                velocityLow = -speedLow;
+                velocityLow = speedLow;
             } else if (operator.getRightBumper()) {
                 magLow = -1;
-                velocityLow = speedLow;
-            }
-
-            // = Gate
-            if (operator.getDPADDown() || operator.getDPADLeft()) {
-                velocityGate = speedGate;
+                velocityLow = -speedLow;
             }
 
             shootingNow = operator.getDPADUp();
@@ -334,7 +331,6 @@ public class Input {
         public void reset() {
             velocityLow = 0;
             velocityHigh = 0;
-            velocityGate = 0;
             magLow = 0;
             magHigh = 0;
         }
@@ -355,8 +351,12 @@ public class Input {
             return velocityHigh;
         }
 
-        public double getVelocityGate() {
-            return velocityGate;
+        public double getSetSpeedLowAuto() {
+            return speedLowAuto;
+        }
+
+        public double getSetSpeedHighAuto() {
+            return speedHighAuto;
         }
 
         public int getMagLow() {
@@ -369,15 +369,6 @@ public class Input {
 
         public boolean getAutoMag() {
             return autoMag;
-        }
-
-        /**
-         * Turn off/on the gate
-         * 
-         * @param on True=on, false=off
-         */
-        public void setGate(boolean on) {
-            velocityGate = on ? -speedGate : 0;
         }
 
         /**
