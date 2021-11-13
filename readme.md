@@ -11,3 +11,12 @@ An quick solution so drivers can practice full Delta controls with big joystick.
 - 11: Stop climber (I think)
 - 12: Toggle roll / yaw turned
 - POV: Used as DPAD for climber
+
+Trigger: Intake balls
+2: Up and Prime toggle
+3: Climber up
+4: Climber down
+11: Purge balls(rotary down and roll out)
+12: Toggle vision
+POV: Speed shifter, (up = speed up, down = speed down, left = speedmin, right = speedmax)
+Alternatively: lift thing at bottom for speed

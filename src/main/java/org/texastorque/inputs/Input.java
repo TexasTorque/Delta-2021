@@ -55,6 +55,8 @@ public class Input {
 
         private TorqueClick speedUp = new TorqueClick();
         private TorqueClick speedDown = new TorqueClick();
+        private TorqueClick speedMin = new TorqueClick();
+        private TorqueClick speedMax = new TorqueClick();
 
         private TorqueToggle rollOrYaw = new TorqueToggle();
 
@@ -70,45 +72,58 @@ public class Input {
             if (driver.getButtonByIndex(11)) {
                 getClimberInput().setClimbStartedDT(false);
             }
-            if (driver.getButtonByIndex(5)) { // Vision toggle
+            if (driver.getButtonByIndex(12)) { // Vision toggle
                 if (state.getRobotState() == RobotState.TELEOP)
                     state.setRobotState(RobotState.VISION);
                 else if (state.getRobotState() == RobotState.VISION)
                     state.setRobotState(RobotState.TELEOP);
             }
             if (getClimberInput().getClimbStartedDT()) {
-                leftSpeed = .4 * (driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-                rightSpeed = .4 * (-driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                leftSpeed = .4 * (-driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                rightSpeed = .4 * (driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             } else if (getShooterInput().getHoodSetpoint() == HoodSetpoint.NEUTRAL.getValue()) { // maximum speed when
                 // neutral
-                leftSpeed = driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
-                rightSpeed = -driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
+                leftSpeed = -driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
+                rightSpeed = driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight);
             } else {
-                leftSpeed =  0.2 * (driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
-                rightSpeed = 0.2 * (-driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                leftSpeed =  0.2 * (-driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+                rightSpeed = 0.2 * (driver.getPitch() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             }
 
-            boolean up = speedUp.calc(driver.getButtonByIndex(4));
-            boolean down = speedDown.calc(driver.getButtonByIndex(3));
+            boolean up = speedUp.calc(driver.atPovState(0));
+            boolean down = speedDown.calc(driver.atPovState(180));
+            boolean min = speedMin.calc(driver.atPovState(270));
+            boolean max = speedMax.calc(driver.atPovState(90));
+
             if (up) speedUp();
             else if (down) speedDown();
+            else if (min) speedMin();
+            else if (max) speedMax();
             else if (up && down) speedReset();
         }
 
-        public void speedUp() {
-            speedMult = (double)TorqueMathUtil.constrain(speedMult+.1, 0.2, 0.8);
+        public void speedUp() { 
+            speedMult = (double)TorqueMathUtil.constrain(speedMult+.1, 0.2, 0.85); 
         }
     
-        public void speedDown() {
-            speedMult = (double)TorqueMathUtil.constrain(speedMult-.1, 0.2, 0.8);
+        public void speedDown() { 
+            speedMult = (double)TorqueMathUtil.constrain(speedMult-.1, 0.2, 0.85); 
+        }
+
+        public void speedMin() { 
+            speedMult = 0.2;
+        }
+
+        public void speedMax() { 
+            speedMult = 0.85; 
         }
     
-        public void speedReset() {
-            speedMult = 0.6;
+        public void speedReset() { 
+            speedMult = 0.6; 
         }
     
-        public double getSpeedMult() {
-            return speedMult;
+        public double getSpeedMult() { 
+            return speedMult; 
         }
     
 
@@ -195,11 +210,11 @@ public class Input {
             if (driver.getButtonByIndex(2)) {
                 neutral = neutral == RotaryState.PRIME ? RotaryState.UP : RotaryState.PRIME;
             }
-            if (driver.getButtonByIndex(1)) {
+            if (driver.getTrigger()) {
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
                 rollerSpeed = .7;
-            } else if (driver.getButtonByIndex(7)) {
+            } else if (driver.getButtonByIndex(11)) { //Neg roller speed = roll in?
                 rotaryPositionLeft = rotarySetpointsLeft[RotaryState.DOWN.getValue()];
                 rotaryPositionRight = rotarySetpointsRight[RotaryState.DOWN.getValue()];
                 rollerSpeed = -.7;
@@ -208,7 +223,7 @@ public class Input {
                 rotaryPositionRight = rotarySetpointsRight[neutral.getValue()];
                 rollerSpeed = 0;
             }
-            if (driver.getButtonByIndex(11)) {
+            if (driver.getButtonByIndex(10)) {
                 rollerSpeed = 0.5;
             }
         }
