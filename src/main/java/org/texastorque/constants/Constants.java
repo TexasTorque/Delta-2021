@@ -1,6 +1,6 @@
 package org.texastorque.constants;
 
-import edu.wpi.first.wpilibj.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 
 public class Constants {
     public static final double SECONDS_PER_MINUTE = 60;

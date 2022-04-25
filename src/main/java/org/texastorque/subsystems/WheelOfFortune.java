@@ -30,10 +30,10 @@ public class WheelOfFortune extends Subsystem {
     private final ColorMatch colorMatcher = new ColorMatch();
 
     // Uncalibrated color matches
-    private final Color BlueTarget = ColorMatch.makeColor(0.1238, 0.418, 0.458);
-    private final Color GreenTarget = ColorMatch.makeColor(0.169, 0.581, 0.249);
-    private final Color RedTarget = ColorMatch.makeColor(0.536, 0.336, 0.127);
-    private final Color YellowTarget = ColorMatch.makeColor(0.3295, 0.557, 0.113);
+    private final Color BlueTarget = new Color(0.1238, 0.418, 0.458);
+    private final Color GreenTarget = new Color(0.169, 0.581, 0.249);
+    private final Color RedTarget = new Color(0.536, 0.336, 0.127);
+    private final Color YellowTarget = new Color(0.3295, 0.557, 0.113);
 
     // Default to black color
     private Color detectedColor = Color.kBlack;
@@ -101,7 +101,7 @@ public class WheelOfFortune extends Subsystem {
 
             // TODO: Tune
             if (Timer.getFPGATimestamp() - timeStarting > .5) {
-                String gameData = DriverStation.getInstance().getGameSpecificMessage();
+                String gameData = DriverStation.getGameSpecificMessage();
                 if (gameData.length() > 0) {
                     Color requestedColor = Color.kBlack;
                     switch (gameData.charAt(0)) {

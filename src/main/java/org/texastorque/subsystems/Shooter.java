@@ -1,5 +1,6 @@
 package org.texastorque.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.revrobotics.ControlType;
 
 import org.texastorque.constants.Ports;
@@ -36,14 +37,11 @@ public class Shooter extends Subsystem {
     private Shooter() {
         flywheel.configurePID(neoKPID); // add PID to flywheel
         flywheel.addFollower(Ports.FLYWHEEL_FOLLOW);
+        flywheel.configurePID(new KPID(.0001, 0, 0, .0015, -1, 1));
         flywheel.invertFollower();
 
         hood.configurePID(hoodKPID); // add PID to hood
         hood.tareEncoder();
-
-        shooterPID = new ScheduledPID.Builder(0, -1, 1, 1).setPGains(0.0003) // 0.002
-                .setIGains(0).setDGains(0).setFGains(0.000150) // 0.000115
-                .build();
     }
 
     public void runTeleop(RobotState state) {
@@ -51,37 +49,26 @@ public class Shooter extends Subsystem {
 
         flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
         hoodSetpoint = input.getShooterInput().getHoodSetpoint();
-        shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
-        pidOutput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
 
-        System.out.printf("%f, %f, %f%n", flywheelSpeed, flywheel.getRPM(),
-        pidOutput);
         output();
     };
 
     public void runAuto(RobotState state) {
         updateFeedback();
-
         // Equivalent to runTeleop
         flywheelSpeed = input.getShooterInput().getFlywheelSpeed();
         hoodSetpoint = input.getShooterInput().getHoodSetpoint();
-        shooterPID.changeSetpoint(flywheelSpeed); // change target speed of flywheel to requested speed
-        // System.out.printf("%f, %f%n", flywheelSpeed, flywheel.getRPM());
-        pidOutput = shooterPID.calculate(feedback.getShooterFeedback().getShooterVelocity());
-
         output();
     };
 
     protected void output() {
-        hood.set(hoodSetpoint, ControlType.kPosition);
-        pidOutput = Math.max(0, pidOutput);
-        flywheel.set(pidOutput);
+        // hood.set(hoodSetpoint, com.revrobotics.CANSparkMax.ControlType.kPosition);
+        flywheel.set(flywheelSpeed / 7000.);
     };
 
     protected void updateFeedback() {
         feedback.getShooterFeedback().setHoodPosition(hood.getPosition());
         feedback.getShooterFeedback().setShooterVelocity(flywheel.getRPM());
-        // System.out.printf("Shooter: %f%n",flywheel.getRPM());
     };
 
     /**
