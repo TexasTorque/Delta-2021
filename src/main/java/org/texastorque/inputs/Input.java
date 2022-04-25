@@ -9,6 +9,8 @@ import org.texastorque.inputs.State.RotaryState;
 import org.texastorque.subsystems.Climber;
 import org.texastorque.subsystems.WheelOfFortune;
 import org.texastorque.torquelib.util.GenericController;
+import org.texastorque.torquelib.util.TorqueClick;
+import org.texastorque.torquelib.util.TorqueMathUtil;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -64,6 +66,10 @@ public class Input {
     public class DriveBaseInput implements TorqueInputModule {
         private volatile double leftSpeed = 0;
         private volatile double rightSpeed = 0;
+        public volatile double speedMult = 0.7;
+
+        private TorqueClick speedUp = new TorqueClick();
+        private TorqueClick speedDown = new TorqueClick();
 
         /**
          * Update the left and right speeds
@@ -92,11 +98,34 @@ public class Input {
             } else {
                 defaultDriveSpeed(leftRight);
             }
+
+            boolean up = speedUp.calc(driver.getRightBumper());
+            boolean down = speedDown.calc(driver.getLeftBumper());
+
+            if (up) speedUp();
+            else if (down) speedDown();
+            else if (up && down) speedReset();
         }
 
         private void defaultDriveSpeed(double leftRight) {
             leftSpeed = .2 * (driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
             rightSpeed = .2 * (-driver.getLeftYAxis() - 0.4 * Math.pow(leftRight, 4) * Math.signum(leftRight));
+        }
+
+        public void speedUp() {
+            speedMult = (double)TorqueMathUtil.constrain(speedMult+.1, 0.2, 0.8);
+        }
+    
+        public void speedDown() {
+            speedMult = (double)TorqueMathUtil.constrain(speedMult-.1, 0.2, 0.8);
+        }
+    
+        public void speedReset() {
+            speedMult = 0.7;
+        }
+    
+        public double getSpeedMult() {
+            return speedMult;
         }
 
         /**
